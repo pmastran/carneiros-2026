@@ -1,0 +1,1 @@
+Backup marker: a versão estável antes da reconstrução fotográfica corresponde ao commit a59e321d618b61cd36e67fe9dadf884804ad4817.
