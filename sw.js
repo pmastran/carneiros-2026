@@ -1,4 +1,4 @@
-const CACHE='placar-eleicoes-v4-static';
+const CACHE='placar-eleicoes-v5-static';
 const STATIC=['./manifest.webmanifest','./assets/elections-icon.svg'];
 
 self.addEventListener('install',event=>{
@@ -19,7 +19,12 @@ self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET')return;
   const url=new URL(event.request.url);
 
-  if(event.request.mode==='navigate'||event.request.destination==='document'||url.hostname.includes('supabase.co')){
+  if(url.hostname.includes('supabase.co')){
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  if(event.request.mode==='navigate'||event.request.destination==='document'){
     event.respondWith(fetch(event.request,{cache:'no-store'}));
     return;
   }
