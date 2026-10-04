@@ -1,14 +1,38 @@
-const CACHE='placar-eleicoes-sp-v2';
-const CORE=['./','./index.html','./manifest.webmanifest','./assets/elections-icon.svg'];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)));self.skipWaiting()});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
-self.addEventListener('fetch',e=>{
-  if(e.request.method!=='GET')return;
-  const url=new URL(e.request.url);
-  if(url.hostname.includes('supabase.co')){e.respondWith(fetch(e.request,{cache:'no-store'}));return}
-  if(e.request.mode==='navigate'||e.request.destination==='document'){
-    e.respondWith(fetch(e.request,{cache:'no-store'}).then(r=>{const x=r.clone();caches.open(CACHE).then(c=>c.put('./index.html',x)).catch(()=>{});return r}).catch(()=>caches.match('./index.html')));
+const CACHE='placar-eleicoes-v4-static';
+const STATIC=['./manifest.webmanifest','./assets/elections-icon.svg'];
+
+self.addEventListener('install',event=>{
+  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(STATIC)).catch(()=>{}));
+  self.skipWaiting();
+});
+
+self.addEventListener('activate',event=>{
+  event.waitUntil(
+    caches.keys().then(keys=>Promise.all(
+      keys.filter(key=>key.startsWith('placar-eleicoes')&&key!==CACHE).map(key=>caches.delete(key))
+    ))
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch',event=>{
+  if(event.request.method!=='GET')return;
+  const url=new URL(event.request.url);
+
+  if(event.request.mode==='navigate'||event.request.destination==='document'||url.hostname.includes('supabase.co')){
+    event.respondWith(fetch(event.request,{cache:'no-store'}));
     return;
   }
-  e.respondWith(caches.match(e.request).then(hit=>hit||fetch(e.request).then(r=>{if(r&&r.ok){const x=r.clone();caches.open(CACHE).then(c=>c.put(e.request,x)).catch(()=>{})}return r})));
+
+  if(url.origin===self.location.origin){
+    event.respondWith(
+      fetch(event.request).then(response=>{
+        if(response&&response.ok){
+          const copy=response.clone();
+          caches.open(CACHE).then(cache=>cache.put(event.request,copy)).catch(()=>{});
+        }
+        return response;
+      }).catch(()=>caches.match(event.request))
+    );
+  }
 });
