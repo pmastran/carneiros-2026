@@ -7,7 +7,7 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./assets/elections-icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./assets/icon-192.png">
-<title>Placar Eleições SP</title>
+<title>Placar Eleições 2026</title>
 <style>
 :root{
   --navy:#071b3d;--navy2:#0b2a5f;--blue:#1167ff;--blue2:#55a8ff;--cyan:#4ed5e5;
@@ -30,6 +30,19 @@ linear-gradient(155deg,var(--navy),var(--navy2) 68%,#123d7d);color:#fff}
 .live{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);padding:8px 11px;border-radius:999px;font-size:12px;font-weight:800;backdrop-filter:blur(10px)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(247,186,66,.12)}
 .dot.on{background:#49e4ad;box-shadow:0 0 0 4px rgba(73,228,173,.13)}
+.statePicker{margin-top:18px;width:min(370px,100%);display:grid;grid-template-columns:34px 1fr 24px;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.09);color:#fff;border-radius:18px;padding:11px 13px;text-align:left;backdrop-filter:blur(12px);cursor:pointer}
+.statePicker>span{font-size:21px}.statePicker small{display:block;color:#a9c2e2;font-size:9px;letter-spacing:.08em;font-weight:900}.statePicker b{display:block;font-size:16px;margin-top:2px}.statePicker strong{font-size:27px;font-weight:400;color:#bcd0e8}
+.scopeToggle{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#e7edf5;padding:5px;border-radius:16px;margin:10px 0 12px}
+.scopeToggle button{border:0;border-radius:12px;background:transparent;color:#657991;padding:10px;font-weight:900;cursor:pointer}.scopeToggle button.active{background:#fff;color:#0b57cc;box-shadow:0 4px 14px rgba(20,54,99,.10)}
+.compareWrap{margin-top:14px}.compareTitle{display:flex;justify-content:space-between;align-items:center;margin:18px 4px 9px}.compareTitle h3{margin:0;font-size:18px}.compareTitle small{color:var(--mut);font-weight:800}
+.compareGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.compareCard{background:#fff;border:1px solid #e1e9f2;border-radius:22px;padding:15px;box-shadow:0 10px 28px rgba(27,55,97,.08)}.compareCard.accent{border-color:#bfd8ff;background:linear-gradient(155deg,#fff,#f3f8ff)}
+.compareCardHead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:11px}.compareCardHead b{font-size:17px}.compareCardHead span{font-size:11px;color:var(--mut);font-weight:800}
+.compareRow{display:grid;grid-template-columns:24px 1fr auto;gap:7px;align-items:center;padding:8px 0;border-top:1px solid #edf1f5}.compareRow:first-of-type{border-top:0}.compareRow .nm{font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.compareRow .pc{font-weight:950;color:var(--blue)}
+.sheet{position:fixed;inset:0;z-index:120;display:none}.sheet.open{display:block}.sheetBackdrop{position:absolute;inset:0;background:rgba(2,12,31,.52);backdrop-filter:blur(2px)}.sheetCard{position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:min(820px,100%);max-height:82vh;background:#f7f9fc;border-radius:28px 28px 0 0;padding:10px 14px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -20px 60px rgba(0,0,0,.24);overflow:auto}
+.sheetHandle{width:44px;height:5px;border-radius:999px;background:#ccd6e3;margin:2px auto 13px}.sheetHead{display:flex;justify-content:space-between;align-items:center;gap:12px}.sheetHead small{color:var(--mut);font-size:9px;font-weight:900;letter-spacing:.08em}.sheetHead h3{margin:3px 0 0;font-size:25px;letter-spacing:-.03em}.sheetHead button{border:0;background:#e9eef5;width:38px;height:38px;border-radius:50%;font-size:25px;color:#53677f}
+.stateSearch{position:relative;margin:14px 0 10px}.stateSearch span{position:absolute;left:14px;top:12px;font-size:20px}.stateSearch input{width:100%;border:1px solid #dbe4ee;background:#fff;padding:13px 14px 13px 43px;border-radius:15px;outline:none}.stateGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.stateOption{border:1px solid #e0e7ef;background:#fff;border-radius:15px;padding:12px;text-align:left;color:var(--ink);font-weight:850;cursor:pointer}.stateOption.active{background:#eaf3ff;border-color:#a8cbff;color:#0c58cc}.stateOption small{display:block;color:#8a98aa;font-size:10px;margin-top:2px;text-transform:uppercase}
+@media(max-width:620px){.compareGrid{grid-template-columns:1fr}.stateGrid{grid-template-columns:1fr 1fr}}
+
 .herobody{position:relative;z-index:2;padding:40px 22px 74px}
 .kicker{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);padding:8px 12px;border-radius:999px;font-size:12px;font-weight:850}
 .hero h1{margin:17px 0 8px;font-size:clamp(44px,11vw,72px);line-height:.86;letter-spacing:-.055em}
@@ -83,13 +96,14 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
 <div class="app">
   <header class="hero" id="hero">
     <div class="topbar">
-      <div class="brand"><div class="brandmark">✓</div><div>Placar Eleições SP</div></div>
+      <div class="brand"><div class="brandmark">✓</div><div>Placar Eleições 2026</div></div>
       <div class="live"><span id="liveDot" class="dot"></span><span id="liveText">Aguardando</span></div>
     </div>
     <div class="herobody">
       <div class="kicker">🗳️ ELEIÇÕES GERAIS • 04 OUT 2026</div>
-      <h1>Eleições 2026<span>São Paulo</span></h1>
+      <h1>Eleições 2026<span id="heroStateName">São Paulo</span></h1>
       <p>Resultados oficiais do TSE, organizados num placar simples para acompanhar pelo celular.</p>
+      <button id="statePickerBtn" class="statePicker" onclick="openStatePicker()"><span>📍</span><div><small>ESTADO SELECIONADO</small><b id="statePickerLabel">São Paulo</b></div><strong>›</strong></button>
       <div class="heroStatus">
         <div id="heroGauge" class="gauge"><div><strong id="heroPct">0%</strong><small>apurado</small></div></div>
         <div class="heroMeta"><b id="heroCargo">Presidente</b><span id="heroStatus">A divulgação oficial começa a partir das 17h.</span></div>
@@ -124,6 +138,7 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
       </div>
       <div class="head"><h2>Na frente agora</h2><em>TOP 3</em></div>
       <div id="top3" class="top3"></div>
+      <div id="presCompareHome"></div>
       <div id="homeNotice"></div>
       <button id="installBtn" class="install">＋ Instalar no celular</button>
     </section>
@@ -131,6 +146,8 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
     <section id="resultsView" class="view">
       <div class="head"><h2>Resultados</h2><em id="resultScope">BRASIL</em></div>
       <div id="cargoChips" class="chips"></div>
+      <div id="presScopeSwitch" class="scopeToggle" style="display:none"></div>
+      <div id="presCompareResults"></div>
       <div class="searchBox"><input id="searchInput" type="search" placeholder="Buscar candidato, número ou partido…"><span>⌕</span></div>
       <div class="panel summary">
         <div class="summaryTop"><div><h3 id="resultTitle">Presidente</h3><p id="resultUpdated">Dados oficiais do TSE</p></div><button class="refreshBtn" onclick="refreshCurrent()">↻</button></div>
@@ -146,7 +163,17 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
     </section>
   </main>
 
-  <footer>Fonte dos dados: Tribunal Superior Eleitoral (TSE).<br>Este é um visualizador independente para consulta familiar.</footer>
+  <footer>Fonte dos dados: Tribunal Superior Eleitoral (TSE).<br>Visualizador independente para consulta familiar em todo o Brasil.</footer>
+</div>
+
+<div id="stateSheet" class="sheet" aria-hidden="true">
+  <div class="sheetBackdrop" onclick="closeStatePicker()"></div>
+  <div class="sheetCard">
+    <div class="sheetHandle"></div>
+    <div class="sheetHead"><div><small>LOCALIZAÇÃO DA APURAÇÃO</small><h3>Escolha o estado</h3></div><button onclick="closeStatePicker()">×</button></div>
+    <div class="stateSearch"><span>⌕</span><input id="stateSearchInput" type="search" placeholder="Buscar estado..." oninput="renderStateOptions()"></div>
+    <div id="stateOptions" class="stateGrid"></div>
+  </div>
 </div>
 
 <nav class="bottom">
@@ -159,139 +186,186 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
 
 <script>
 const API='https://myqjadacddyitxgowzkv.supabase.co/functions/v1/placar-eleicoes-sp';
-const CARGOS={
-  presidente:{label:'Presidente',scope:'BRASIL'},
-  governador:{label:'Governador',scope:'SÃO PAULO'},
-  senador:{label:'Senador',scope:'SÃO PAULO'},
-  deputado_federal:{label:'Deputado Federal',scope:'SÃO PAULO'},
-  deputado_estadual:{label:'Deputado Estadual',scope:'SÃO PAULO'}
+const STATES={
+ac:'Acre',al:'Alagoas',ap:'Amapá',am:'Amazonas',ba:'Bahia',ce:'Ceará',df:'Distrito Federal',es:'Espírito Santo',go:'Goiás',ma:'Maranhão',mt:'Mato Grosso',ms:'Mato Grosso do Sul',mg:'Minas Gerais',pa:'Pará',pb:'Paraíba',pr:'Paraná',pe:'Pernambuco',pi:'Piauí',rj:'Rio de Janeiro',rn:'Rio Grande do Norte',rs:'Rio Grande do Sul',ro:'Rondônia',rr:'Roraima',sc:'Santa Catarina',sp:'São Paulo',se:'Sergipe',to:'Tocantins'
 };
-const state={cargo:'presidente',data:null,loading:false,view:'home',cache:{}};
+const CARGOS={
+presidente:{label:'Presidente'},
+governador:{label:'Governador'},
+senador:{label:'Senador'},
+deputado_federal:{label:'Deputado Federal'},
+deputado_estadual:{label:'Deputado Estadual'}
+};
+const savedUf=localStorage.getItem('placar26_uf')||'sp';
+const state={cargo:'presidente',uf:STATES[savedUf]?savedUf:'sp',nationalData:null,stateData:null,data:null,resultScope:'br',loading:false,view:'home',cache:{}};
 const fmt=new Intl.NumberFormat('pt-BR');
 const $=id=>document.getElementById(id);
 
 function percent(v){const n=Number(v||0);return n.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:2})+'%'}
 function safe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function cargoLabel(cargo){return cargo==='deputado_estadual'&&state.uf==='df'?'Deputado Distrital':CARGOS[cargo].label}
+function activeData(){if(state.cargo==='presidente')return state.resultScope==='br'?(state.nationalData||state.data):(state.stateData||state.data);return state.data}
 function favKey(cargo,id){return cargo+'|'+id}
 function getFavs(){try{return JSON.parse(localStorage.getItem('placar26_favoritos')||'{}')}catch{return {}}}
 function saveFavs(v){localStorage.setItem('placar26_favoritos',JSON.stringify(v))}
 function isFav(cargo,id){return !!getFavs()[favKey(cargo,id)]}
 function toggleFavorite(cargo,c){
-  const f=getFavs(),k=favKey(cargo,c.id);
-  if(f[k]) delete f[k]; else f[k]={...c,cargo,cargoLabel:CARGOS[cargo].label,savedAt:Date.now()};
-  saveFavs(f); renderCandidates(); renderFavorites(); renderTop3();
+ const f=getFavs(),k=favKey(cargo,c.id);
+ if(f[k])delete f[k];else f[k]={...c,cargo,cargoLabel:cargoLabel(cargo),savedAt:Date.now()};
+ saveFavs(f);renderCandidates();renderFavorites();renderTop3();
 }
 function setGauge(p){const val=Math.max(0,Math.min(100,Number(p||0)));$('heroGauge').style.setProperty('--p',val);$('heroPct').textContent=percent(val)}
 function statusText(d){
-  if(!d)return 'Aguardando dados oficiais.';
-  if(d.pending)return d.message||'Aguardando início da divulgação.';
-  if(d.andamento==='f')return 'Totalização finalizada.';
-  if(d.percentSections>0)return 'Totalização em andamento.';
-  return 'Aguardando totalização.';
+ if(!d)return'Aguardando dados oficiais.';
+ if(d.pending)return d.message||'Aguardando início da divulgação.';
+ if(d.andamento==='f')return'Totalização finalizada.';
+ if(d.percentSections>0)return'Totalização em andamento.';
+ return'Aguardando totalização.';
 }
+function currentScopeName(){return state.cargo==='presidente'?(state.resultScope==='br'?'BRASIL':STATES[state.uf].toUpperCase()):STATES[state.uf].toUpperCase()}
 function renderGlobal(){
-  const d=state.data,cfg=CARGOS[state.cargo];
-  $('heroCargo').textContent=cfg.label;
-  $('scopeBadge').textContent=cfg.scope;
-  $('resultScope').textContent=cfg.scope;
-  document.querySelectorAll('#quickNav button').forEach(b=>b.classList.toggle('active',b.dataset.cargo===state.cargo));
-  document.querySelectorAll('#cargoChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.cargo===state.cargo));
-  setGauge(d?.percentSections||0);
-  $('heroStatus').textContent=statusText(d);
-  const live=!!d&&!d.pending&&(d.percentSections>0||d.andamento==='p'||d.andamento==='f');
-  $('liveDot').classList.toggle('on',live);
-  $('liveText').textContent=live?'AO VIVO':'AGUARDANDO';
+ const heroData=state.cargo==='presidente'?(state.nationalData||state.data):state.data;
+ $('heroStateName').textContent=STATES[state.uf];
+ $('statePickerLabel').textContent=STATES[state.uf];
+ $('heroCargo').textContent=cargoLabel(state.cargo)+(state.cargo==='presidente'?' • Brasil':'');
+ $('scopeBadge').textContent=state.cargo==='presidente'?'BRASIL + '+state.uf.toUpperCase():STATES[state.uf].toUpperCase();
+ $('resultScope').textContent=currentScopeName();
+ document.querySelectorAll('#quickNav button').forEach(b=>b.classList.toggle('active',b.dataset.cargo===state.cargo));
+ document.querySelectorAll('#cargoChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.cargo===state.cargo));
+ setGauge(heroData?.percentSections||0);
+ $('heroStatus').textContent=statusText(heroData);
+ const live=!!heroData&&!heroData.pending&&(heroData.percentSections>0||heroData.andamento==='p'||heroData.andamento==='f');
+ $('liveDot').classList.toggle('on',live);$('liveText').textContent=live?'AO VIVO':'AGUARDANDO';
+ renderPresidentScopeSwitch();
 }
 function renderSummary(){
-  const d=state.data||{},cfg=CARGOS[state.cargo],p=d.percentSections||0;
-  $('homeTitle').textContent=cfg.label;$('resultTitle').textContent=cfg.label;
-  const stamp=d.generatedDate||d.generatedTime?[d.generatedDate,d.generatedTime].filter(Boolean).join(' • '):(d.fetchedAt?'Consulta '+new Date(d.fetchedAt).toLocaleTimeString('pt-BR'):'Dados oficiais do TSE');
-  $('homeUpdated').textContent=stamp;$('resultUpdated').textContent=stamp;
-  $('homeProgress').style.width=p+'%';$('resultProgress').style.width=p+'%';
-  $('homeProgressText').textContent=percent(p)+' das seções';$('resultProgressText').textContent=percent(p)+' das seções';
-  const st=statusText(d);$('homeStatusText').textContent=st;$('resultStatusText').textContent=st;
-  $('statSections').textContent=d.sectionsTotal?fmt.format(d.sectionsTotalized||0)+' / '+fmt.format(d.sectionsTotal):'—';
-  $('statValid').textContent=d.validVotes!=null&&d.validVotes!==0?fmt.format(d.validVotes):'—';
-  $('statBlank').textContent=d.blankVotes!=null&&d.blankVotes!==0?fmt.format(d.blankVotes):'—';
-  $('statNull').textContent=d.nullVotes!=null&&d.nullVotes!==0?fmt.format(d.nullVotes):'—';
+ const d=activeData()||{},p=d.percentSections||0;
+ $('homeTitle').textContent=cargoLabel(state.cargo);
+ $('resultTitle').textContent=cargoLabel(state.cargo)+(state.cargo==='presidente'?' • '+(state.resultScope==='br'?'Brasil':STATES[state.uf]):'');
+ const stamp=(d.generatedDate||d.generatedTime)?[d.generatedDate,d.generatedTime].filter(Boolean).join(' • '):(d.fetchedAt?'Consulta '+new Date(d.fetchedAt).toLocaleTimeString('pt-BR'):'Dados oficiais do TSE');
+ $('homeUpdated').textContent=state.cargo==='presidente'?'Brasil e '+STATES[state.uf]+' lado a lado':stamp;
+ $('resultUpdated').textContent=stamp;
+ $('homeProgress').style.width=(state.cargo==='presidente'?(state.nationalData?.percentSections||0):p)+'%';
+ $('resultProgress').style.width=p+'%';
+ $('homeProgressText').textContent=percent(state.cargo==='presidente'?(state.nationalData?.percentSections||0):p)+' das seções';
+ $('resultProgressText').textContent=percent(p)+' das seções';
+ const homeD=state.cargo==='presidente'?(state.nationalData||d):d;
+ $('homeStatusText').textContent=statusText(homeD);$('resultStatusText').textContent=statusText(d);
+ $('statSections').textContent=homeD.sectionsTotal?fmt.format(homeD.sectionsTotalized||0)+' / '+fmt.format(homeD.sectionsTotal):'—';
+ $('statValid').textContent=homeD.validVotes?fmt.format(homeD.validVotes):'—';
+ $('statBlank').textContent=homeD.blankVotes?fmt.format(homeD.blankVotes):'—';
+ $('statNull').textContent=homeD.nullVotes?fmt.format(homeD.nullVotes):'—';
 }
 function renderTop3(){
-  const items=(state.data?.candidates||[]).slice(0,3),medals=['🥇','🥈','🥉'];
-  if(!items.length){
-    $('top3').innerHTML='<div class="empty" style="grid-column:1/-1"><div class="big">🕔</div><b>Aguardando os primeiros votos</b><br>Assim que o TSE liberar os dados, o ranking aparece aqui.</div>';
-    return;
-  }
-  $('top3').innerHTML=items.map((c,i)=>'<article class="podium"><div class="medal">'+medals[i]+'</div><div><b>'+safe(c.name)+'</b><small>'+safe(c.party||('Nº '+c.number))+'</small></div><strong>'+percent(c.percentage)+'</strong></article>').join('');
+ const d=state.cargo==='presidente'?(state.nationalData||state.data):state.data;
+ const items=(d?.candidates||[]).slice(0,3),medals=['🥇','🥈','🥉'];
+ if(!items.length){$('top3').innerHTML='<div class="empty" style="grid-column:1/-1"><div class="big">🕔</div><b>Aguardando os primeiros votos</b><br>Assim que o TSE liberar os dados, o ranking aparece aqui.</div>';return}
+ $('top3').innerHTML=items.map((c,i)=>'<article class="podium"><div class="medal">'+medals[i]+'</div><div><b>'+safe(c.name)+'</b><small>'+safe(c.party||('Nº '+c.number))+'</small></div><strong>'+percent(c.percentage)+'</strong></article>').join('');
 }
+function compareCard(title,d,accent=false){
+ const items=(d?.candidates||[]).slice(0,3);
+ const body=items.length?items.map((x,i)=>'<div class="compareRow"><span>'+['🥇','🥈','🥉'][i]+'</span><div class="nm">'+safe(x.name)+'</div><div class="pc">'+percent(x.percentage)+'</div></div>').join(''):'<div style="color:#7a899c;font-size:12px;padding:9px 0">Aguardando dados oficiais.</div>';
+ return '<article class="compareCard '+(accent?'accent':'')+'"><div class="compareCardHead"><div><b>'+safe(title)+'</b><span>'+percent(d?.percentSections||0)+' apurado</span></div><span>'+statusText(d)+'</span></div>'+body+'</article>';
+}
+function renderPresidentCompare(){
+ if(state.cargo!=='presidente'){$('presCompareHome').innerHTML='';$('presCompareResults').innerHTML='';return}
+ const html='<div class="compareWrap"><div class="compareTitle"><h3>Brasil x '+safe(STATES[state.uf])+'</h3><small>Presidência</small></div><div class="compareGrid">'+compareCard('🇧🇷 Brasil',state.nationalData,true)+compareCard('📍 '+STATES[state.uf],state.stateData,false)+'</div></div>';
+ $('presCompareHome').innerHTML=html;
+ $('presCompareResults').innerHTML=html;
+}
+function renderPresidentScopeSwitch(){
+ const box=$('presScopeSwitch');
+ if(state.cargo!=='presidente'){box.style.display='none';box.innerHTML='';return}
+ box.style.display='grid';
+ box.innerHTML='<button class="'+(state.resultScope==='br'?'active':'')+'" onclick="setPresidentScope(\'br\')">🇧🇷 Brasil</button><button class="'+(state.resultScope==='uf'?'active':'')+'" onclick="setPresidentScope(\'uf\')">📍 '+safe(STATES[state.uf])+'</button>';
+}
+window.setPresidentScope=function(scope){state.resultScope=scope;state.data=activeData();renderAll()}
 function candidateCard(c,i,cargo=state.cargo){
-  const fav=isFav(cargo,c.id);
-  return '<article class="candidate"><div class="rank">'+(i+1)+'º</div><div><div class="candidateName">'+safe(c.name)+(c.elected?' ✓':'')+'</div><div class="candidateMeta">'+[c.number?'Nº '+c.number:'',c.party,c.status].filter(Boolean).map(safe).join(' • ')+'</div></div><div class="candidateRight"><div class="votes"><b>'+fmt.format(c.votes||0)+' votos</b><span>'+percent(c.percentage)+'</span></div><button class="star '+(fav?'on':'')+'" onclick="toggleFavEncoded(\''+cargo+'\',\''+encodeURIComponent(JSON.stringify(c))+'\')">★</button></div></article>';
+ const fav=isFav(cargo,c.id);
+ return '<article class="candidate"><div class="rank">'+(i+1)+'º</div><div><div class="candidateName">'+safe(c.name)+(c.elected?' ✓':'')+'</div><div class="candidateMeta">'+[c.number?'Nº '+c.number:'',c.party,c.status].filter(Boolean).map(safe).join(' • ')+'</div></div><div class="candidateRight"><div class="votes"><b>'+fmt.format(c.votes||0)+' votos</b><span>'+percent(c.percentage)+'</span></div><button class="star '+(fav?'on':'')+'" onclick="toggleFavEncoded(\''+cargo+'\',\''+encodeURIComponent(JSON.stringify(c))+'\')">★</button></div></article>';
 }
-window.toggleFavEncoded=function(cargo,encoded){
-  const c=JSON.parse(decodeURIComponent(encoded));
-  toggleFavorite(cargo,c);
-}
+window.toggleFavEncoded=function(cargo,encoded){toggleFavorite(cargo,JSON.parse(decodeURIComponent(encoded)))}
 function renderCandidates(){
-  const q=$('searchInput').value.trim().toLowerCase();
-  const all=state.data?.candidates||[];
-  const filtered=all.filter(c=>!q||[c.name,c.fullName,c.number,c.party,c.status].join(' ').toLowerCase().includes(q));
-  if(state.loading&&!state.data){$('candidateList').innerHTML=Array.from({length:7},()=>'<div class="skeleton"></div>').join('');return}
-  if(!filtered.length){
-    $('candidateList').innerHTML='<div class="empty"><div class="big">'+(q?'⌕':'🗳️')+'</div><b>'+(q?'Nenhum candidato encontrado':'Ainda não há votos para mostrar')+'</b><br>'+(q?'Tente outro nome, número ou partido.':'O app atualizará automaticamente quando os dados chegarem.')+'</div>';
-    return;
-  }
-  $('candidateList').innerHTML=filtered.slice(0,q?150:60).map((c,i)=>candidateCard(c,all.indexOf(c))).join('');
+ const d=activeData();
+ const q=$('searchInput').value.trim().toLowerCase(),all=d?.candidates||[];
+ const filtered=all.filter(c=>!q||[c.name,c.fullName,c.number,c.party,c.status].join(' ').toLowerCase().includes(q));
+ if(state.loading&&!d){$('candidateList').innerHTML=Array.from({length:7},()=>'<div class="skeleton"></div>').join('');return}
+ if(!filtered.length){$('candidateList').innerHTML='<div class="empty"><div class="big">'+(q?'⌕':'🗳️')+'</div><b>'+(q?'Nenhum candidato encontrado':'Ainda não há votos para mostrar')+'</b><br>'+(q?'Tente outro nome, número ou partido.':'O app atualizará automaticamente quando os dados chegarem.')+'</div>';return}
+ $('candidateList').innerHTML=filtered.slice(0,q?150:60).map(c=>candidateCard(c,all.indexOf(c))).join('');
 }
 function renderFavorites(){
-  const favs=Object.values(getFavs()).sort((a,b)=>(b.votes||0)-(a.votes||0));
-  if(!favs.length){$('favoritesList').innerHTML='<div class="empty"><div class="big">★</div><b>Nenhum favorito ainda</b><br>Toque na estrela de qualquer candidato para acompanhar aqui.</div>';return}
-  $('favoritesList').innerHTML=favs.map((c,i)=>{
-    const cargo=c.cargo||'presidente';
-    return '<div><div style="font-size:11px;font-weight:900;color:#6f8098;margin:12px 5px 5px">'+safe(c.cargoLabel||CARGOS[cargo]?.label||'Cargo')+'</div>'+candidateCard(c,i,cargo)+'</div>'
-  }).join('');
+ const favs=Object.values(getFavs()).sort((a,b)=>(b.votes||0)-(a.votes||0));
+ if(!favs.length){$('favoritesList').innerHTML='<div class="empty"><div class="big">★</div><b>Nenhum favorito ainda</b><br>Toque na estrela de qualquer candidato para acompanhar aqui.</div>';return}
+ $('favoritesList').innerHTML=favs.map((c,i)=>'<div><div style="font-size:11px;font-weight:900;color:#6f8098;margin:12px 5px 5px">'+safe(c.cargoLabel||CARGOS[c.cargo]?.label||'Cargo')+'</div>'+candidateCard(c,i,c.cargo||'presidente')+'</div>').join('');
 }
 function renderNotice(){
-  const d=state.data;
-  if(d?.pending){
-    $('homeNotice').innerHTML='<div class="notice"><b>⏱️ Aguardando o TSE</b><br>'+safe(d.message||'A divulgação oficial começa a partir das 17h, horário de Brasília.')+'</div>';
-  }else if(d&&!d.ok){
-    $('homeNotice').innerHTML='<div class="notice"><b>Conexão temporariamente indisponível</b><br>Tente atualizar em alguns instantes.</div>';
-  }else $('homeNotice').innerHTML='';
+ const d=state.cargo==='presidente'?(state.nationalData||state.data):state.data;
+ if(d?.pending)$('homeNotice').innerHTML='<div class="notice"><b>⏱️ Aguardando o TSE</b><br>'+safe(d.message||'A divulgação oficial começa a partir das 17h, horário de Brasília.')+'</div>';
+ else if(d&&!d.ok)$('homeNotice').innerHTML='<div class="notice"><b>Conexão temporariamente indisponível</b><br>Tente atualizar em alguns instantes.</div>';
+ else $('homeNotice').innerHTML='';
 }
-function renderAll(){renderGlobal();renderSummary();renderTop3();renderCandidates();renderFavorites();renderNotice()}
+function renderAll(){state.data=activeData();renderGlobal();renderSummary();renderTop3();renderPresidentCompare();renderCandidates();renderFavorites();renderNotice()}
+async function fetchScope(cargo,uf){
+ const key=cargo+':'+uf;
+ try{
+  const r=await fetch(API+'?cargo='+encodeURIComponent(cargo)+'&uf='+encodeURIComponent(uf)+'&_='+Date.now(),{cache:'no-store'});
+  const body=await r.json();
+  if(!r.ok&&!body.pending)throw new Error(body.message||body.error||'Falha ao consultar');
+  state.cache[key]=body;return body;
+ }catch(e){return {ok:false,pending:false,cargo,uf,ufLabel:uf==='br'?'Brasil':STATES[uf],candidates:[],percentSections:0,message:e.message}}
+}
 async function loadCargo(cargo=state.cargo,{silent=false}={}){
-  state.cargo=cargo;
-  if(state.cache[cargo]&&!silent){state.data=state.cache[cargo];renderAll()}
-  if(state.loading)return;
-  state.loading=true;
-  if(!silent)renderCandidates();
-  try{
-    const r=await fetch(API+'?cargo='+encodeURIComponent(cargo)+'&_='+Date.now(),{cache:'no-store'});
-    const body=await r.json();
-    if(!r.ok&&!body.pending)throw new Error(body.message||body.error||'Falha ao consultar');
-    state.data=body;state.cache[cargo]=body;
-  }catch(e){
-    state.data={ok:false,pending:false,candidates:[],percentSections:0,message:e.message};
-  }finally{state.loading=false;renderAll()}
+ state.cargo=cargo;state.loading=true;
+ if(!silent)renderCandidates();
+ if(cargo==='presidente'){
+   const nk='presidente:br',sk='presidente:'+state.uf;
+   if(state.cache[nk])state.nationalData=state.cache[nk];
+   if(state.cache[sk])state.stateData=state.cache[sk];
+   renderAll();
+   const [br,uf]=await Promise.all([fetchScope('presidente','br'),fetchScope('presidente',state.uf)]);
+   state.nationalData=br;state.stateData=uf;state.data=activeData();
+ }else{
+   const key=cargo+':'+state.uf;
+   if(state.cache[key])state.data=state.cache[key];
+   renderAll();
+   state.data=await fetchScope(cargo,state.uf);
+ }
+ state.loading=false;renderAll();
 }
 function selectCargo(cargo,openResults=true){
-  state.cargo=cargo;state.data=state.cache[cargo]||null;
-  if(openResults)showView('results');
-  renderAll();loadCargo(cargo,{silent:!!state.data});
+ state.cargo=cargo;
+ if(cargo==='presidente'){state.resultScope='br';state.data=state.nationalData}else state.data=state.cache[cargo+':'+state.uf]||null;
+ if(openResults)showView('results');
+ renderAll();loadCargo(cargo,{silent:!!state.data});
 }
 window.selectCargo=selectCargo;
 function showView(v){
-  state.view=v;
-  ['home','results','favorites'].forEach(x=>$(x+'View').classList.toggle('active',x===v));
-  $('navHome').classList.toggle('active',v==='home');$('navResults').classList.toggle('active',v==='results');$('navFav').classList.toggle('active',v==='favorites');
-  if(v==='favorites')renderFavorites();
-  window.scrollTo({top:v==='home'?0:document.querySelector('.quick').offsetTop-8,behavior:'smooth'});
+ state.view=v;['home','results','favorites'].forEach(x=>$(x+'View').classList.toggle('active',x===v));
+ $('navHome').classList.toggle('active',v==='home');$('navResults').classList.toggle('active',v==='results');$('navFav').classList.toggle('active',v==='favorites');
+ if(v==='favorites')renderFavorites();
+ window.scrollTo({top:v==='home'?0:document.querySelector('.quick').offsetTop-8,behavior:'smooth'});
 }
 window.showView=showView;
-function openSearch(){showView('results');setTimeout(()=>$('searchInput').focus(),350)}
-window.openSearch=openSearch;
-function refreshCurrent(){loadCargo(state.cargo,{silent:false})}
-window.refreshCurrent=refreshCurrent;
+function openSearch(){showView('results');setTimeout(()=>$('searchInput').focus(),300)}window.openSearch=openSearch;
+function refreshCurrent(){loadCargo(state.cargo,{silent:false})}window.refreshCurrent=refreshCurrent;
+
+function renderStateOptions(){
+ const q=($('stateSearchInput')?.value||'').trim().toLowerCase();
+ const opts=Object.entries(STATES).filter(([uf,nm])=>!q||nm.toLowerCase().includes(q)||uf.includes(q));
+ $('stateOptions').innerHTML=opts.map(([uf,nm])=>'<button class="stateOption '+(uf===state.uf?'active':'')+'" onclick="selectState(\''+uf+'\')">'+safe(nm)+'<small>'+uf.toUpperCase()+'</small></button>').join('');
+}
+window.renderStateOptions=renderStateOptions;
+function openStatePicker(){$('stateSheet').classList.add('open');$('stateSheet').setAttribute('aria-hidden','false');$('stateSearchInput').value='';renderStateOptions();setTimeout(()=>$('stateSearchInput').focus(),180)}window.openStatePicker=openStatePicker;
+function closeStatePicker(){$('stateSheet').classList.remove('open');$('stateSheet').setAttribute('aria-hidden','true')}window.closeStatePicker=closeStatePicker;
+function selectState(uf){
+ if(!STATES[uf])return;
+ state.uf=uf;localStorage.setItem('placar26_uf',uf);closeStatePicker();
+ $('heroStateName').textContent=STATES[uf];$('statePickerLabel').textContent=STATES[uf];
+ if(state.cargo==='presidente'){state.stateData=state.cache['presidente:'+uf]||null;state.resultScope='br';state.data=state.nationalData}
+ else state.data=state.cache[state.cargo+':'+uf]||null;
+ renderAll();loadCargo(state.cargo,{silent:!!state.data});
+}
+window.selectState=selectState;
 
 document.querySelectorAll('#quickNav button').forEach(b=>b.addEventListener('click',()=>selectCargo(b.dataset.cargo,true)));
 $('cargoChips').innerHTML=Object.entries(CARGOS).map(([k,v])=>'<button class="chip '+(k===state.cargo?'active':'')+'" data-cargo="'+k+'">'+v.label+'</button>').join('');
@@ -302,9 +376,9 @@ let installPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('installBtn').classList.add('show')});
 $('installBtn').addEventListener('click',async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installBtn').classList.remove('show')});
 
-loadCargo('presidente');
+renderAll();loadCargo('presidente');
 setInterval(()=>loadCargo(state.cargo,{silent:true}),30000);
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=2').catch(()=>{});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=3').catch(()=>{});
 </script>
 </body>
 </html>
