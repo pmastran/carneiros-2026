@@ -31,17 +31,17 @@ linear-gradient(155deg,var(--navy),var(--navy2) 68%,#123d7d);color:#fff}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(247,186,66,.12)}
 .dot.on{background:#49e4ad;box-shadow:0 0 0 4px rgba(73,228,173,.13)}
 .statePicker{margin-top:18px;width:min(370px,100%);display:grid;grid-template-columns:34px 1fr 24px;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.09);color:#fff;border-radius:18px;padding:11px 13px;text-align:left;backdrop-filter:blur(12px);cursor:pointer}
-.statePicker>span{font-size:21px}.statePicker small{display:block;color:#a9c2e2;font-size:9px;letter-spacing:.08em;font-weight:900}.statePicker b{display:block;font-size:16px;margin-top:2px}.statePicker strong{font-size:27px;font-weight:400;color:#bcd0e8}
+.statePicker>span{font-size:21px}.cityPicker{margin-top:8px}.cityPicker b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.statePicker small{display:block;color:#a9c2e2;font-size:9px;letter-spacing:.08em;font-weight:900}.statePicker b{display:block;font-size:16px;margin-top:2px}.statePicker strong{font-size:27px;font-weight:400;color:#bcd0e8}
 .scopeToggle{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#e7edf5;padding:5px;border-radius:16px;margin:10px 0 12px}
 .scopeToggle button{border:0;border-radius:12px;background:transparent;color:#657991;padding:10px;font-weight:900;cursor:pointer}.scopeToggle button.active{background:#fff;color:#0b57cc;box-shadow:0 4px 14px rgba(20,54,99,.10)}
 .compareWrap{margin-top:14px}.compareTitle{display:flex;justify-content:space-between;align-items:center;margin:18px 4px 9px}.compareTitle h3{margin:0;font-size:18px}.compareTitle small{color:var(--mut);font-weight:800}
-.compareGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.compareCard{background:#fff;border:1px solid #e1e9f2;border-radius:22px;padding:15px;box-shadow:0 10px 28px rgba(27,55,97,.08)}.compareCard.accent{border-color:#bfd8ff;background:linear-gradient(155deg,#fff,#f3f8ff)}
+.compareGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.compareGrid.three{grid-template-columns:repeat(3,1fr)}.compareCard{background:#fff;border:1px solid #e1e9f2;border-radius:22px;padding:15px;box-shadow:0 10px 28px rgba(27,55,97,.08)}.compareCard.accent{border-color:#bfd8ff;background:linear-gradient(155deg,#fff,#f3f8ff)}
 .compareCardHead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:11px}.compareCardHead b{font-size:17px}.compareCardHead span{font-size:11px;color:var(--mut);font-weight:800}
 .compareRow{display:grid;grid-template-columns:24px 1fr auto;gap:7px;align-items:center;padding:8px 0;border-top:1px solid #edf1f5}.compareRow:first-of-type{border-top:0}.compareRow .nm{font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.compareRow .pc{font-weight:950;color:var(--blue)}
 .sheet{position:fixed;inset:0;z-index:120;display:none}.sheet.open{display:block}.sheetBackdrop{position:absolute;inset:0;background:rgba(2,12,31,.52);backdrop-filter:blur(2px)}.sheetCard{position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:min(820px,100%);max-height:82vh;background:#f7f9fc;border-radius:28px 28px 0 0;padding:10px 14px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -20px 60px rgba(0,0,0,.24);overflow:auto}
 .sheetHandle{width:44px;height:5px;border-radius:999px;background:#ccd6e3;margin:2px auto 13px}.sheetHead{display:flex;justify-content:space-between;align-items:center;gap:12px}.sheetHead small{color:var(--mut);font-size:9px;font-weight:900;letter-spacing:.08em}.sheetHead h3{margin:3px 0 0;font-size:25px;letter-spacing:-.03em}.sheetHead button{border:0;background:#e9eef5;width:38px;height:38px;border-radius:50%;font-size:25px;color:#53677f}
 .stateSearch{position:relative;margin:14px 0 10px}.stateSearch span{position:absolute;left:14px;top:12px;font-size:20px}.stateSearch input{width:100%;border:1px solid #dbe4ee;background:#fff;padding:13px 14px 13px 43px;border-radius:15px;outline:none}.stateGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.stateOption{border:1px solid #e0e7ef;background:#fff;border-radius:15px;padding:12px;text-align:left;color:var(--ink);font-weight:850;cursor:pointer}.stateOption.active{background:#eaf3ff;border-color:#a8cbff;color:#0c58cc}.stateOption small{display:block;color:#8a98aa;font-size:10px;margin-top:2px;text-transform:uppercase}
-@media(max-width:620px){.compareGrid{grid-template-columns:1fr}.stateGrid{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.compareGrid,.compareGrid.three{grid-template-columns:1fr}.stateGrid{grid-template-columns:1fr 1fr}}
 
 .herobody{position:relative;z-index:2;padding:40px 22px 74px}
 .kicker{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);padding:8px 12px;border-radius:999px;font-size:12px;font-weight:850}
@@ -104,6 +104,7 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
       <h1>Eleições 2026<span id="heroStateName">São Paulo</span></h1>
       <p>Resultados oficiais do TSE, organizados num placar simples para acompanhar pelo celular.</p>
       <button id="statePickerBtn" class="statePicker" onclick="openStatePicker()"><span>📍</span><div><small>ESTADO SELECIONADO</small><b id="statePickerLabel">São Paulo</b></div><strong>›</strong></button>
+      <button id="cityPickerBtn" class="statePicker cityPicker" onclick="openMunicipalityPicker()"><span>🏙️</span><div><small>MUNICÍPIO</small><b id="cityPickerLabel">Todo o estado</b></div><strong>›</strong></button>
       <div class="heroStatus">
         <div id="heroGauge" class="gauge"><div><strong id="heroPct">0%</strong><small>apurado</small></div></div>
         <div class="heroMeta"><b id="heroCargo">Presidente</b><span id="heroStatus">A divulgação oficial começa a partir das 17h.</span></div>
@@ -176,6 +177,16 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
   </div>
 </div>
 
+<div id="municipalitySheet" class="sheet" aria-hidden="true">
+  <div class="sheetBackdrop" onclick="closeMunicipalityPicker()"></div>
+  <div class="sheetCard">
+    <div class="sheetHandle"></div>
+    <div class="sheetHead"><div><small id="municipalitySheetState">MUNICÍPIOS</small><h3>Escolha o município</h3></div><button onclick="closeMunicipalityPicker()">×</button></div>
+    <div class="stateSearch"><span>⌕</span><input id="municipalitySearchInput" type="search" placeholder="Buscar município..." oninput="renderMunicipalityOptions()"></div>
+    <div id="municipalityOptions" class="stateGrid"></div>
+  </div>
+</div>
+
 <nav class="bottom">
   <button id="navHome" class="active" onclick="showView('home')"><span>⌂</span>Início</button>
   <button id="navResults" onclick="showView('results')"><span>▤</span>Cargos</button>
@@ -185,7 +196,7 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
 </nav>
 
 <script>
-const API='https://myqjadacddyitxgowzkv.supabase.co/functions/v1/placar-eleicoes-sp';
+const API='https://myqjadacddyitxgowzkv.supabase.co/functions/v1/placar-eleicoes-staging';
 const STATES={
 ac:'Acre',al:'Alagoas',ap:'Amapá',am:'Amazonas',ba:'Bahia',ce:'Ceará',df:'Distrito Federal',es:'Espírito Santo',go:'Goiás',ma:'Maranhão',mt:'Mato Grosso',ms:'Mato Grosso do Sul',mg:'Minas Gerais',pa:'Pará',pb:'Paraíba',pr:'Paraná',pe:'Pernambuco',pi:'Piauí',rj:'Rio de Janeiro',rn:'Rio Grande do Norte',rs:'Rio Grande do Sul',ro:'Rondônia',rr:'Roraima',sc:'Santa Catarina',sp:'São Paulo',se:'Sergipe',to:'Tocantins'
 };
@@ -197,14 +208,26 @@ deputado_federal:{label:'Deputado Federal'},
 deputado_estadual:{label:'Deputado Estadual'}
 };
 const savedUf=localStorage.getItem('placar26_uf')||'sp';
-const state={cargo:'presidente',uf:STATES[savedUf]?savedUf:'sp',nationalData:null,stateData:null,data:null,resultScope:'br',loading:false,view:'home',cache:{}};
+function getSavedMunicipality(uf){
+ try{
+  const all=JSON.parse(localStorage.getItem('placar26_municipios')||'{}');
+  return all[uf]&&all[uf].code?all[uf]:null;
+ }catch{return null}
+}
+function saveMunicipality(uf,mun){
+ let all={};try{all=JSON.parse(localStorage.getItem('placar26_municipios')||'{}')}catch{}
+ if(mun)all[uf]=mun;else delete all[uf];
+ localStorage.setItem('placar26_municipios',JSON.stringify(all));
+}
+const initialUf=STATES[savedUf]?savedUf:'sp';
+const state={cargo:'presidente',uf:initialUf,municipio:getSavedMunicipality(initialUf),municipalities:[],municipalityData:null,nationalData:null,stateData:null,data:null,resultScope:'br',loading:false,view:'home',cache:{}};
 const fmt=new Intl.NumberFormat('pt-BR');
 const $=id=>document.getElementById(id);
 
 function percent(v){const n=Number(v||0);return n.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:2})+'%'}
 function safe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function cargoLabel(cargo){return cargo==='deputado_estadual'&&state.uf==='df'?'Deputado Distrital':CARGOS[cargo].label}
-function activeData(){if(state.cargo==='presidente')return state.resultScope==='br'?(state.nationalData||state.data):(state.stateData||state.data);return state.data}
+function activeData(){if(state.cargo==='presidente'){if(state.resultScope==='mun'&&state.municipio)return state.municipalityData||state.stateData||state.data;return state.resultScope==='br'?(state.nationalData||state.data):(state.stateData||state.data)}return state.data}
 function favKey(cargo,id){return cargo+'|'+id}
 function getFavs(){try{return JSON.parse(localStorage.getItem('placar26_favoritos')||'{}')}catch{return {}}}
 function saveFavs(v){localStorage.setItem('placar26_favoritos',JSON.stringify(v))}
@@ -222,15 +245,64 @@ function statusText(d){
  if(d.percentSections>0)return'Totalização em andamento.';
  return'Aguardando totalização.';
 }
-function currentScopeName(){return state.cargo==='presidente'?(state.resultScope==='br'?'BRASIL':STATES[state.uf].toUpperCase()):STATES[state.uf].toUpperCase()}
+function currentScopeName(){if(state.cargo==='presidente'){if(state.resultScope==='br')return'BRASIL';if(state.resultScope==='mun'&&state.municipio)return state.municipio.name;return STATES[state.uf].toUpperCase()}return state.municipio?state.municipio.name:STATES[state.uf].toUpperCase()}
 function renderGlobal(){
  const heroData=state.cargo==='presidente'?(state.nationalData||state.data):state.data;
  $('heroStateName').textContent=STATES[state.uf];
- $('statePickerLabel').textContent=STATES[state.uf];
+ $('statePickerLabel').textContent=STATES[state.uf];$('cityPickerLabel').textContent=state.municipio?state.municipio.name:'Todo o estado';
  $('heroCargo').textContent=cargoLabel(state.cargo)+(state.cargo==='presidente'?' • Brasil':'');
- $('scopeBadge').textContent=state.cargo==='presidente'?'BRASIL + '+state.uf.toUpperCase():STATES[state.uf].toUpperCase();
+ $('scopeBadge').textContent=state.cargo==='presidente'?('BRASIL + '+state.uf.toUpperCase()+(state.municipio?' + '+state.municipio.name:'')):(state.municipio?state.municipio.name:STATES[state.uf].toUpperCase());
  $('resultScope').textContent=currentScopeName();
- document.querySelectorAll('#quickNav button').forEach(b=>b.classList.toggle('active',b.dataset.cargo===state.cargo));
+ 
+async function ensureMunicipalities(){
+ if(state.municipalities.length)return state.municipalities;
+ $('municipalityOptions').innerHTML='<div class="empty" style="grid-column:1/-1"><div class="spinner"></div><b>Carregando municípios...</b></div>';
+ try{
+  const r=await fetch(API+'?api=municipios&uf='+encodeURIComponent(state.uf)+'&_='+Date.now());
+  const body=await r.json();
+  if(!r.ok||!body.ok)throw new Error(body.error||'Falha ao carregar municípios');
+  state.municipalities=body.municipalities||[];
+ }catch(e){
+  $('municipalityOptions').innerHTML='<div class="empty" style="grid-column:1/-1"><b>Não foi possível carregar os municípios.</b><br>Tente novamente.</div>';
+ }
+ return state.municipalities;
+}
+function renderMunicipalityOptions(){
+ const q=($('municipalitySearchInput')?.value||'').trim().toLocaleLowerCase('pt-BR');
+ const all=state.municipalities||[];
+ const filtered=all.filter(m=>!q||String(m.name||'').toLocaleLowerCase('pt-BR').includes(q)||String(m.code||'').includes(q));
+ const list=q?filtered:filtered.slice(0,120);
+ let html='<button class="stateOption '+(!state.municipio?'active':'')+'" onclick="selectMunicipality(\'\',\'\')">Todo o estado<small>'+state.uf.toUpperCase()+'</small></button>';
+ html+=list.map(m=>'<button class="stateOption '+(state.municipio?.code===m.code?'active':'')+'" onclick="selectMunicipality(\''+m.code+'\',\''+encodeURIComponent(m.name)+'\')">'+safe(m.name)+'<small>'+m.code+(m.capital?' • CAPITAL':'')+'</small></button>').join('');
+ if(!q&&filtered.length>120)html+='<div class="empty" style="grid-column:1/-1;padding:14px"><b>Digite o nome para buscar.</b><br>'+fmt.format(filtered.length)+' municípios disponíveis.</div>';
+ $('municipalityOptions').innerHTML=html;
+}
+window.renderMunicipalityOptions=renderMunicipalityOptions;
+async function openMunicipalityPicker(){
+ $('municipalitySheetState').textContent='MUNICÍPIOS DE '+STATES[state.uf].toUpperCase();
+ $('municipalitySheet').classList.add('open');$('municipalitySheet').setAttribute('aria-hidden','false');
+ $('municipalitySearchInput').value='';
+ await ensureMunicipalities();renderMunicipalityOptions();
+ setTimeout(()=>$('municipalitySearchInput').focus(),180);
+}
+window.openMunicipalityPicker=openMunicipalityPicker;
+function closeMunicipalityPicker(){$('municipalitySheet').classList.remove('open');$('municipalitySheet').setAttribute('aria-hidden','true')}window.closeMunicipalityPicker=closeMunicipalityPicker;
+function selectMunicipality(code,encodedName){
+ state.municipio=code?{code,name:decodeURIComponent(encodedName)}:null;
+ saveMunicipality(state.uf,state.municipio);closeMunicipalityPicker();
+ state.municipalityData=null;
+ $('cityPickerLabel').textContent=state.municipio?state.municipio.name:'Todo o estado';
+ if(state.cargo==='presidente'){
+  state.resultScope=state.municipio?'mun':'br';
+  state.data=activeData();
+ }else{
+  state.data=state.cache[state.cargo+':'+state.uf+':'+(state.municipio?.code||'')]||null;
+ }
+ renderAll();loadCargo(state.cargo,{silent:!!state.data});
+}
+window.selectMunicipality=selectMunicipality;
+
+document.querySelectorAll('#quickNav button').forEach(b=>b.classList.toggle('active',b.dataset.cargo===state.cargo));
  document.querySelectorAll('#cargoChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.cargo===state.cargo));
  setGauge(heroData?.percentSections||0);
  $('heroStatus').textContent=statusText(heroData);
@@ -243,7 +315,7 @@ function renderSummary(){
  $('homeTitle').textContent=cargoLabel(state.cargo);
  $('resultTitle').textContent=cargoLabel(state.cargo)+(state.cargo==='presidente'?' • '+(state.resultScope==='br'?'Brasil':STATES[state.uf]):'');
  const stamp=(d.generatedDate||d.generatedTime)?[d.generatedDate,d.generatedTime].filter(Boolean).join(' • '):(d.fetchedAt?'Consulta '+new Date(d.fetchedAt).toLocaleTimeString('pt-BR'):'Dados oficiais do TSE');
- $('homeUpdated').textContent=state.cargo==='presidente'?'Brasil e '+STATES[state.uf]+' lado a lado':stamp;
+ $('homeUpdated').textContent=state.cargo==='presidente'?('Brasil, '+STATES[state.uf]+(state.municipio?' e '+state.municipio.name:'')+' lado a lado'):stamp;
  $('resultUpdated').textContent=stamp;
  $('homeProgress').style.width=(state.cargo==='presidente'?(state.nationalData?.percentSections||0):p)+'%';
  $('resultProgress').style.width=p+'%';
@@ -269,7 +341,8 @@ function compareCard(title,d,accent=false){
 }
 function renderPresidentCompare(){
  if(state.cargo!=='presidente'){$('presCompareHome').innerHTML='';$('presCompareResults').innerHTML='';return}
- const html='<div class="compareWrap"><div class="compareTitle"><h3>Brasil x '+safe(STATES[state.uf])+'</h3><small>Presidência</small></div><div class="compareGrid">'+compareCard('🇧🇷 Brasil',state.nationalData,true)+compareCard('📍 '+STATES[state.uf],state.stateData,false)+'</div></div>';
+ const city=state.municipio?compareCard('🏙️ '+state.municipio.name,state.municipalityData,false):'';
+ const html='<div class="compareWrap"><div class="compareTitle"><h3>Brasil x '+safe(STATES[state.uf])+(state.municipio?' x '+safe(state.municipio.name):'')+'</h3><small>Presidência</small></div><div class="compareGrid '+(state.municipio?'three':'')+'">'+compareCard('🇧🇷 Brasil',state.nationalData,true)+compareCard('📍 '+STATES[state.uf],state.stateData,false)+city+'</div></div>';
  $('presCompareHome').innerHTML=html;
  $('presCompareResults').innerHTML=html;
 }
@@ -277,7 +350,8 @@ function renderPresidentScopeSwitch(){
  const box=$('presScopeSwitch');
  if(state.cargo!=='presidente'){box.style.display='none';box.innerHTML='';return}
  box.style.display='grid';
- box.innerHTML='<button class="'+(state.resultScope==='br'?'active':'')+'" onclick="setPresidentScope(\'br\')">🇧🇷 Brasil</button><button class="'+(state.resultScope==='uf'?'active':'')+'" onclick="setPresidentScope(\'uf\')">📍 '+safe(STATES[state.uf])+'</button>';
+ box.style.gridTemplateColumns=state.municipio?'repeat(3,1fr)':'repeat(2,1fr)';
+ box.innerHTML='<button class="'+(state.resultScope==='br'?'active':'')+'" onclick="setPresidentScope(\'br\')">🇧🇷 Brasil</button><button class="'+(state.resultScope==='uf'?'active':'')+'" onclick="setPresidentScope(\'uf\')">📍 '+safe(STATES[state.uf])+'</button>'+(state.municipio?'<button class="'+(state.resultScope==='mun'?'active':'')+'" onclick="setPresidentScope(\'mun\')">🏙️ '+safe(state.municipio.name)+'</button>':'');
 }
 window.setPresidentScope=function(scope){state.resultScope=scope;state.data=activeData();renderAll()}
 function candidateCard(c,i,cargo=state.cargo){
@@ -305,10 +379,10 @@ function renderNotice(){
  else $('homeNotice').innerHTML='';
 }
 function renderAll(){state.data=activeData();renderGlobal();renderSummary();renderTop3();renderPresidentCompare();renderCandidates();renderFavorites();renderNotice()}
-async function fetchScope(cargo,uf){
- const key=cargo+':'+uf;
+async function fetchScope(cargo,uf,municipio=''){
+ const key=cargo+':'+uf+':'+municipio;
  try{
-  const r=await fetch(API+'?cargo='+encodeURIComponent(cargo)+'&uf='+encodeURIComponent(uf)+'&_='+Date.now());
+  const r=await fetch(API+'?cargo='+encodeURIComponent(cargo)+'&uf='+encodeURIComponent(uf)+(municipio?'&municipio='+encodeURIComponent(municipio):'')+'&_='+Date.now());
   const body=await r.json();
   if(!r.ok&&!body.pending)throw new Error(body.message||body.error||'Falha ao consultar');
   state.cache[key]=body;return body;
@@ -318,23 +392,27 @@ async function loadCargo(cargo=state.cargo,{silent=false}={}){
  state.cargo=cargo;state.loading=true;
  if(!silent)renderCandidates();
  if(cargo==='presidente'){
-   const nk='presidente:br',sk='presidente:'+state.uf;
+   const nk='presidente:br:',sk='presidente:'+state.uf+':',mk=state.municipio?'presidente:'+state.uf+':'+state.municipio.code:null;
    if(state.cache[nk])state.nationalData=state.cache[nk];
    if(state.cache[sk])state.stateData=state.cache[sk];
+   if(mk&&state.cache[mk])state.municipalityData=state.cache[mk];
    renderAll();
-   const [br,uf]=await Promise.all([fetchScope('presidente','br'),fetchScope('presidente',state.uf)]);
-   state.nationalData=br;state.stateData=uf;state.data=activeData();
+   const jobs=[fetchScope('presidente','br'),fetchScope('presidente',state.uf)];
+   if(state.municipio)jobs.push(fetchScope('presidente',state.uf,state.municipio.code));
+   const results=await Promise.all(jobs);
+   state.nationalData=results[0];state.stateData=results[1];state.municipalityData=state.municipio?(results[2]||null):null;state.data=activeData();
  }else{
-   const key=cargo+':'+state.uf;
+   const mun=state.municipio?.code||'';
+   const key=cargo+':'+state.uf+':'+mun;
    if(state.cache[key])state.data=state.cache[key];
    renderAll();
-   state.data=await fetchScope(cargo,state.uf);
+   state.data=await fetchScope(cargo,state.uf,mun);
  }
  state.loading=false;renderAll();
 }
 function selectCargo(cargo,openResults=true){
  state.cargo=cargo;
- if(cargo==='presidente'){state.resultScope='br';state.data=state.nationalData}else state.data=state.cache[cargo+':'+state.uf]||null;
+ if(cargo==='presidente'){state.resultScope='br';state.data=state.nationalData}else state.data=state.cache[cargo+':'+state.uf+':'+(state.municipio?.code||'')]||null;
  if(openResults)showView('results');
  renderAll();loadCargo(cargo,{silent:!!state.data});
 }
@@ -360,9 +438,10 @@ function closeStatePicker(){$('stateSheet').classList.remove('open');$('stateShe
 function selectState(uf){
  if(!STATES[uf])return;
  state.uf=uf;localStorage.setItem('placar26_uf',uf);closeStatePicker();
- $('heroStateName').textContent=STATES[uf];$('statePickerLabel').textContent=STATES[uf];
- if(state.cargo==='presidente'){state.stateData=state.cache['presidente:'+uf]||null;state.resultScope='br';state.data=state.nationalData}
- else state.data=state.cache[state.cargo+':'+uf]||null;
+ state.municipio=getSavedMunicipality(uf);state.municipalities=[];state.municipalityData=null;
+ $('heroStateName').textContent=STATES[uf];$('statePickerLabel').textContent=STATES[uf];$('cityPickerLabel').textContent=state.municipio?state.municipio.name:'Todo o estado';
+ if(state.cargo==='presidente'){state.stateData=state.cache['presidente:'+uf+':']||null;state.resultScope='br';state.data=state.nationalData}
+ else state.data=state.cache[state.cargo+':'+uf+':'+(state.municipio?.code||'')]||null;
  renderAll();loadCargo(state.cargo,{silent:!!state.data});
 }
 window.selectState=selectState;
@@ -392,7 +471,7 @@ window.addEventListener('pageshow',()=>{
  if(Date.now()-lastAutoRefresh>10000)autoRefresh();
 });
 if('serviceWorker'in navigator){
- navigator.serviceWorker.register('./sw.js?v=5',{updateViaCache:'none'})
+ navigator.serviceWorker.register('./sw.js?v=municipios-1',{updateViaCache:'none'})
    .then(reg=>reg.update())
    .catch(()=>{});
 }
