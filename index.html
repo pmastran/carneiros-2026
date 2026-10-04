@@ -176,7 +176,7 @@ function favKey(cargo,id){return cargo+'|'+id}
 function getFavs(){try{return JSON.parse(localStorage.getItem('placar26_favoritos')||'{}')}catch{return {}}}
 function saveFavs(v){localStorage.setItem('placar26_favoritos',JSON.stringify(v))}
 function isFav(cargo,id){return !!getFavs()[favKey(cargo,id)]}
-function toggleFav(cargo,c){
+function toggleFavorite(cargo,c){
   const f=getFavs(),k=favKey(cargo,c.id);
   if(f[k]) delete f[k]; else f[k]={...c,cargo,cargoLabel:CARGOS[cargo].label,savedAt:Date.now()};
   saveFavs(f); renderCandidates(); renderFavorites(); renderTop3();
@@ -225,11 +225,11 @@ function renderTop3(){
 }
 function candidateCard(c,i,cargo=state.cargo){
   const fav=isFav(cargo,c.id);
-  return '<article class="candidate"><div class="rank">'+(i+1)+'º</div><div><div class="candidateName">'+safe(c.name)+(c.elected?' ✓':'')+'</div><div class="candidateMeta">'+[c.number?'Nº '+c.number:'',c.party,c.status].filter(Boolean).map(safe).join(' • ')+'</div></div><div class="candidateRight"><div class="votes"><b>'+fmt.format(c.votes||0)+' votos</b><span>'+percent(c.percentage)+'</span></div><button class="star '+(fav?'on':'')+'" onclick="toggleFav(\''+cargo+'\','+encodeURIComponent(JSON.stringify(c))+')">★</button></div></article>';
+  return '<article class="candidate"><div class="rank">'+(i+1)+'º</div><div><div class="candidateName">'+safe(c.name)+(c.elected?' ✓':'')+'</div><div class="candidateMeta">'+[c.number?'Nº '+c.number:'',c.party,c.status].filter(Boolean).map(safe).join(' • ')+'</div></div><div class="candidateRight"><div class="votes"><b>'+fmt.format(c.votes||0)+' votos</b><span>'+percent(c.percentage)+'</span></div><button class="star '+(fav?'on':'')+'" onclick="toggleFavEncoded(\''+cargo+'\',\''+encodeURIComponent(JSON.stringify(c))+'\')">★</button></div></article>';
 }
-window.toggleFav=function(cargo,encoded){
+window.toggleFavEncoded=function(cargo,encoded){
   const c=JSON.parse(decodeURIComponent(encoded));
-  toggleFav(cargo,c);
+  toggleFavorite(cargo,c);
 }
 function renderCandidates(){
   const q=$('searchInput').value.trim().toLowerCase();
