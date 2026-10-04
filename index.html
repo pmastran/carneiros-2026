@@ -308,7 +308,7 @@ function renderAll(){state.data=activeData();renderGlobal();renderSummary();rend
 async function fetchScope(cargo,uf){
  const key=cargo+':'+uf;
  try{
-  const r=await fetch(API+'?cargo='+encodeURIComponent(cargo)+'&uf='+encodeURIComponent(uf)+'&_='+Date.now(),{cache:'no-store'});
+  const r=await fetch(API+'?cargo='+encodeURIComponent(cargo)+'&uf='+encodeURIComponent(uf)+'&_='+Date.now());
   const body=await r.json();
   if(!r.ok&&!body.pending)throw new Error(body.message||body.error||'Falha ao consultar');
   state.cache[key]=body;return body;
@@ -392,7 +392,7 @@ window.addEventListener('pageshow',()=>{
  if(Date.now()-lastAutoRefresh>10000)autoRefresh();
 });
 if('serviceWorker'in navigator){
- navigator.serviceWorker.register('./sw.js?v=4',{updateViaCache:'none'})
+ navigator.serviceWorker.register('./sw.js?v=5',{updateViaCache:'none'})
    .then(reg=>reg.update())
    .catch(()=>{});
 }
