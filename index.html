@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#071b3d">
+<meta name="theme-color" content="#071b3d">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n<meta name="apple-mobile-web-app-title" content="Eleições 2026">\n<meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./assets/elections-icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./assets/icon-192.png">
@@ -376,9 +376,26 @@ let installPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('installBtn').classList.add('show')});
 $('installBtn').addEventListener('click',async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installBtn').classList.remove('show')});
 
-renderAll();loadCargo('presidente');
-setInterval(()=>loadCargo(state.cargo,{silent:true}),30000);
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=3').catch(()=>{});
+let lastAutoRefresh=0;
+async function autoRefresh(){
+ if(document.visibilityState==='hidden')return;
+ lastAutoRefresh=Date.now();
+ await loadCargo(state.cargo,{silent:true});
+}
+renderAll();
+autoRefresh();
+setInterval(autoRefresh,30000);
+document.addEventListener('visibilitychange',()=>{
+ if(document.visibilityState==='visible'&&Date.now()-lastAutoRefresh>10000)autoRefresh();
+});
+window.addEventListener('pageshow',()=>{
+ if(Date.now()-lastAutoRefresh>10000)autoRefresh();
+});
+if('serviceWorker'in navigator){
+ navigator.serviceWorker.register('./sw.js?v=4',{updateViaCache:'none'})
+   .then(reg=>reg.update())
+   .catch(()=>{});
+}
 </script>
 </body>
 </html>
