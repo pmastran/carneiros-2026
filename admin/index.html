@@ -29,17 +29,18 @@
     </div>
   </div>
   <div id="ideologyStatus" class="foot" style="margin-top:0">Aguardando carregamento…</div>
+  <div class="foot" style="margin-top:7px">Critério padrão: <b>Esquerda</b> inclui esquerda + centro-esquerda; <b>Direita</b> inclui direita + centro-direita. Centro, posição mista ou ambígua fica fora do binário. Fontes-base: TSE (partidos registrados) + síntese pública de posicionamento partidário com referências acadêmicas/jornalísticas. Você pode sobrescrever qualquer partido abaixo.</div>
   <div class="ideologySummary">
     <div class="ideologyStat"><small>ESQUERDA</small><strong id="leftPct">—</strong><span id="leftVotes" style="color:var(--mut)">—</span></div>
     <div class="ideologyStat"><small>DIREITA</small><strong id="rightPct">—</strong><span id="rightVotes" style="color:var(--mut)">—</span></div>
-    <div class="ideologyStat"><small>NÃO CLASSIFICADO</small><strong id="unknownPct">—</strong><span id="unknownVotes" style="color:var(--mut)">—</span></div>
+    <div class="ideologyStat"><small>CENTRO / MISTO</small><strong id="unknownPct">—</strong><span id="unknownVotes" style="color:var(--mut)">—</span></div>
   </div>
   <div class="ideologyBar"><div id="leftBar" class="left" style="width:0"></div><div id="rightBar" class="right" style="width:0"></div></div>
-  <div class="ideologyLegend"><span><i class="legendDot" style="background:#d56d9a"></i>Esquerda</span><span><i class="legendDot" style="background:#5f9df6"></i>Direita</span><span>Percentuais Esquerda × Direita consideram apenas votos classificados; “não classificado” é mostrado separadamente.</span></div>
+  <div class="ideologyLegend"><span><i class="legendDot" style="background:#d56d9a"></i>Esquerda</span><span><i class="legendDot" style="background:#5f9df6"></i>Direita</span><span>Percentuais Esquerda × Direita consideram apenas os partidos alocados nos dois blocos; Centro/misto é mostrado separadamente.</span></div>
   <div class="tileMapWrap"><div id="tileMap" class="tileMap"></div></div>
   <div id="mapDetail" class="mapDetail">Toque em uma UF para ver os percentuais.</div>
   <div id="partyConfig" class="partyConfig hide">
-    <div class="partyToolbar"><div><b>Classificação dos partidos encontrados</b><div class="foot" style="margin-top:3px">Nenhum partido é pré-classificado pelo painel.</div></div><button class="btn" onclick="clearPartyConfig()">Limpar</button></div>
+    <div class="partyToolbar"><div><b>Classificação dos partidos encontrados</b><div class="foot" style="margin-top:3px">Pré-classificação pesquisada; alterações manuais ficam só neste navegador.</div></div><button class="btn" onclick="clearPartyConfig()">Restaurar pesquisa</button></div>
     <div id="partyList" class="partyList"></div>
   </div>
 </div>
@@ -50,6 +51,16 @@ const API='https://myqjadacddyitxgowzkv.supabase.co/functions/v1/placar-eleicoes
 const ELECTION_API='https://myqjadacddyitxgowzkv.supabase.co/functions/v1/placar-eleicoes-staging';
 const fmt=new Intl.NumberFormat('pt-BR'),$=id=>document.getElementById(id);let adminKey=sessionStorage.getItem('placar_admin_key')||'';
 const UFS=['ac','al','ap','am','ba','ce','df','es','go','ma','mt','ms','mg','pa','pb','pr','pe','pi','rj','rn','rs','ro','rr','sc','sp','se','to'];
+// Metodologia padrão pesquisada: L = esquerda + centro-esquerda; R = direita + centro-direita;
+// N = centro, posição mista/ambígua ou sem classificação suficientemente consistente.
+const DEFAULT_BLOC_MAP={
+  'PT':'L','PDT':'L','PCDOB':'L','PC DO B':'L','PCdoB':'L','PSB':'L','PSOL':'L','PV':'L',
+  'PSTU':'L','PCB':'L','PCO':'L','UP':'L',
+  'PL':'R','UNIÃO':'R','UNIAO':'R','PP':'R','REPUBLICANOS':'R','PODE':'R','PODEMOS':'R',
+  'NOVO':'R','PRD':'R','PRTB':'R','DC':'R','MOBILIZA':'R','MISSÃO':'R','MISSAO':'R',
+  'MDB':'N','PSD':'N','PSDB':'N','AVANTE':'N','SOLIDARIEDADE':'N','CIDADANIA':'N',
+  'REDE':'N','AGIR':'N','DEMOCRATA':'N'
+};
 const UF_POS={
  rr:[12,4],ap:[55,4],am:[5,20],pa:[42,20],ac:[2,34],ro:[18,34],mt:[29,47],to:[48,42],ma:[60,27],pi:[68,38],ce:[80,31],rn:[88,34],pb:[86,43],pe:[78,48],al:[81,57],se:[77,64],ba:[61,57],go:[43,59],df:[49,55],ms:[28,63],mg:[55,68],es:[68,70],rj:[58,79],sp:[43,77],pr:[38,87],sc:[43,96],rs:[29,100]
 };
@@ -61,18 +72,26 @@ function bars(id,items,field='requests'){const max=Math.max(1,...items.map(x=>Nu
 function chart(s){const svg=$('chart');if(!s?.length){svg.innerHTML='';return}const vals=s.map(x=>Number(x.requests||0)),max=Math.max(1,...vals),w=900,h=150,p=10,arr=vals.map((v,i)=>[p+i*(w-2*p)/Math.max(1,vals.length-1),p+(h-p)-v/max*(h-2*p)]);const pts=arr.map(a=>a.join(',')).join(' ');svg.innerHTML='<line x1="10" y1="150" x2="890" y2="150" stroke="#20344c"/><polyline points="'+pts+'" fill="none" stroke="#54d6dc" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>'+arr.map((a,i)=>'<circle cx="'+a[0]+'" cy="'+a[1]+'" r="4" fill="#4c91ff"><title>'+fmt.format(vals[i])+' requisições</title></circle>').join('')}
 function render(d){const x=d.latest;if(!x)return;$('ips').textContent=fmt.format(x.unique_ips);$('clients').textContent=fmt.format(x.approx_clients);$('requests').textContent=fmt.format(x.get_requests);$('period').textContent=dt(x.period_start);$('periodEnd').textContent='até '+dt(x.period_end);$('updated').textContent='Última captura: '+dt(x.captured_at);bars('devices',x.devices||[],'approx_clients');bars('browsers',x.browsers||[]);bars('cargos',x.cargos||[]);bars('ufs',(x.ufs||[]).slice(0,10),'unique_ips');$('cities').innerHTML=(x.cities||[]).map(c=>'<tr><td><b>'+esc(c.label)+'</b></td><td>'+esc(c.region)+'</td><td>'+fmt.format(c.unique_ips||0)+'</td><td>'+fmt.format(c.requests||0)+'</td></tr>').join('');chart(x.series||[])}
 
-function loadBlocMap(){try{return JSON.parse(localStorage.getItem('placar_admin_blocos')||'{}')}catch{return {}}}
-function saveBlocMap(){localStorage.setItem('placar_admin_blocos',JSON.stringify(blocMap))}
-function partyKey(v){return String(v||'SEM PARTIDO').trim().toUpperCase()}
+function loadBlocMap(){
+ let saved={};try{saved=JSON.parse(localStorage.getItem('placar_admin_blocos')||'{}')}catch{}
+ return {...DEFAULT_BLOC_MAP,...saved};
+}
+function saveBlocMap(){
+ const overrides={};
+ for(const [k,v] of Object.entries(blocMap)){if(DEFAULT_BLOC_MAP[k]!==v)overrides[k]=v}
+ localStorage.setItem('placar_admin_blocos',JSON.stringify(overrides));
+}
+function partyKey(v){return String(v||'SEM PARTIDO').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
 function sideFor(party){return blocMap[partyKey(party)]||'N'}
 function setPartySide(party,side){blocMap[partyKey(party)]=side;saveBlocMap();renderPartyConfig();renderIdeologyMap()}
-function clearPartyConfig(){blocMap={};saveBlocMap();renderPartyConfig();renderIdeologyMap()}
+function clearPartyConfig(){blocMap={...DEFAULT_BLOC_MAP};localStorage.removeItem('placar_admin_blocos');renderPartyConfig();renderIdeologyMap()}
 function togglePartyConfig(){$('partyConfig').classList.toggle('hide');renderPartyConfig()}
 function renderPartyConfig(){
  const parties=[...ideologyParties].sort((a,b)=>a.localeCompare(b,'pt-BR'));
  $('partyList').innerHTML=parties.length?parties.map(p=>{
   const k=partyKey(p),s=blocMap[k]||'N';
-  return '<div class="partyRow"><b>'+esc(p||'Sem partido')+'</b><div class="partyBtns"><button class="'+(s==='L'?'onL':'')+'" onclick="window.setPartySide(\''+encodeURIComponent(p)+'\',\'L\')">Esquerda</button><button class="'+(s==='R'?'onR':'')+'" onclick="window.setPartySide(\''+encodeURIComponent(p)+'\',\'R\')">Direita</button><button class="'+(s==='N'?'onN':'')+'" onclick="window.setPartySide(\''+encodeURIComponent(p)+'\',\'N\')">Ignorar</button></div></div>'
+  const edited=localStorage.getItem('placar_admin_blocos')&&JSON.parse(localStorage.getItem('placar_admin_blocos')||'{}')[k]!==undefined;
+  return '<div class="partyRow"><b>'+esc(p||'Sem partido')+(edited?' <span style="color:var(--cyan);font-size:9px">EDITADO</span>':'')+'</b><div class="partyBtns"><button class="'+(s==='L'?'onL':'')+'" onclick="window.setPartySide(\''+encodeURIComponent(p)+'\',\'L\')">Esquerda</button><button class="'+(s==='R'?'onR':'')+'" onclick="window.setPartySide(\''+encodeURIComponent(p)+'\',\'R\')">Direita</button><button class="'+(s==='N'?'onN':'')+'" onclick="window.setPartySide(\''+encodeURIComponent(p)+'\',\'N\')">Centro/misto</button></div></div>'
  }).join(''):'<div class="foot">Os partidos aparecerão aqui após os dados do cargo serem carregados.</div>';
 }
 window.setPartySide=(p,s)=>setPartySide(decodeURIComponent(p),s);
@@ -120,11 +139,11 @@ function renderIdeologyMap(){
   return '<button class="ufTile'+cls+'" style="left:'+pos[0]+'%;top:'+pos[1]+'%;transform:translate(-50%,-50%);background:'+grad+'" onclick="showUfDetail(\''+uf+'\')"><b>'+uf.toUpperCase()+'</b><small>E '+pct1(s.leftPct)+'<br>D '+pct1(s.rightPct)+'</small></button>';
  }).join('');
  const classifiedParties=[...ideologyParties].filter(p=>sideFor(p)!=='N').length;
- $('ideologyStatus').textContent=(classifiedParties?('Mapa calculado com '+classifiedParties+' partidos classificados.'):'Classifique os partidos para calcular Esquerda × Direita.')+' Dados: TSE • '+(cargo==='presidente'?'percentual nacional e por UF':'resumo nacional = soma dos votos das UFs');
+ $('ideologyStatus').textContent=(classifiedParties?('Mapa calculado com '+classifiedParties+' partidos alocados em Esquerda/Direita.'):'Nenhum partido do resultado foi alocado nos dois blocos.')+' Dados: TSE • '+(cargo==='presidente'?'percentual nacional e por UF':'resumo nacional = soma dos votos das UFs');
 }
 function showUfDetail(uf){
  const cargo=$('ideologyCargo').value,data=ideologyCache[cargo]?.states?.[uf];if(!data||data.__error){$('mapDetail').textContent=uf.toUpperCase()+': dados indisponíveis.';return}
- const s=ideologyStats(data);$('mapDetail').textContent=uf.toUpperCase()+' — Esquerda '+pct1(s.leftPct)+' × Direita '+pct1(s.rightPct)+' • Não classificado '+pct1(s.unknownPct)+' • '+fmt.format(s.total)+' votos encontrados.';
+ const s=ideologyStats(data);$('mapDetail').textContent=uf.toUpperCase()+' — Esquerda '+pct1(s.leftPct)+' × Direita '+pct1(s.rightPct)+' • Centro/misto '+pct1(s.unknownPct)+' • '+fmt.format(s.total)+' votos encontrados.';
 }
 window.showUfDetail=showUfDetail;
 async function loadIdeologyMap(force=false){
