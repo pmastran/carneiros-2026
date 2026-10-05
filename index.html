@@ -240,6 +240,7 @@ function toggleFavorite(cargo,c){
 function setGauge(p){const val=Math.max(0,Math.min(100,Number(p||0)));$('heroGauge').style.setProperty('--p',val);$('heroPct').textContent=percent(val)}
 function statusText(d){
  if(!d)return'Aguardando dados oficiais.';
+ if(d.noSecondRound)return d.message||'Disputa encerrada no 1º turno.';
  if(d.pending)return d.message||'Aguardando início da divulgação.';
  if(d.andamento==='f')return'Totalização finalizada.';
  if(d.percentSections>0)return'Totalização em andamento.';
@@ -362,7 +363,10 @@ function renderCandidates(){
  const q=$('searchInput').value.trim().toLowerCase(),all=d?.candidates||[];
  const filtered=all.filter(c=>!q||[c.name,c.fullName,c.number,c.party,c.status].join(' ').toLowerCase().includes(q));
  if(state.loading&&!d){$('candidateList').innerHTML=Array.from({length:7},()=>'<div class="skeleton"></div>').join('');return}
- if(!filtered.length){$('candidateList').innerHTML='<div class="empty"><div class="big">'+(q?'⌕':'🗳️')+'</div><b>'+(q?'Nenhum candidato encontrado':'Ainda não há votos para mostrar')+'</b><br>'+(q?'Tente outro nome, número ou partido.':'O app atualizará automaticamente quando os dados chegarem.')+'</div>';return}
+ if(!filtered.length){
+   if(d?.noSecondRound){$('candidateList').innerHTML='<div class="empty"><div class="big">✓</div><b>Não haverá 2º turno neste estado</b><br>'+safe(d.message||'A disputa foi definida no 1º turno segundo os dados oficiais do TSE.')+'</div>';return}
+   $('candidateList').innerHTML='<div class="empty"><div class="big">'+(q?'⌕':'🗳️')+'</div><b>'+(q?'Nenhum candidato encontrado':'Ainda não há votos para mostrar')+'</b><br>'+(q?'Tente outro nome, número ou partido.':'O app atualizará automaticamente quando os dados chegarem.')+'</div>';return
+ }
  $('candidateList').innerHTML=filtered.slice(0,q?150:60).map(c=>candidateCard(c,all.indexOf(c))).join('');
 }
 function renderFavorites(){
@@ -372,7 +376,8 @@ function renderFavorites(){
 }
 function renderNotice(){
  const d=state.cargo==='presidente'?(state.nationalData||state.data):state.data;
- if(d?.pending)$('homeNotice').innerHTML='<div class="notice"><b>⏱️ Aguardando o TSE</b><br>'+safe(d.message||'A divulgação oficial começa a partir das 17h, horário de Brasília.')+'</div>';
+ if(d?.noSecondRound)$('homeNotice').innerHTML='<div class="notice"><b>✓ Encerrado no 1º turno</b><br>'+safe(d.message||'Não haverá 2º turno neste estado.')+'</div>';
+ else if(d?.pending)$('homeNotice').innerHTML='<div class="notice"><b>⏱️ Aguardando o TSE</b><br>'+safe(d.message||'A divulgação oficial começa a partir das 17h, horário de Brasília.')+'</div>';
  else if(d&&!d.ok)$('homeNotice').innerHTML='<div class="notice"><b>Conexão temporariamente indisponível</b><br>Tente atualizar em alguns instantes.</div>';
  else $('homeNotice').innerHTML='';
 }
