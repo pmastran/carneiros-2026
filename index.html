@@ -84,11 +84,13 @@ main{padding:8px 14px 26px}
 .spinner{width:22px;height:22px;border:3px solid #d7e4f5;border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:2px auto}@keyframes spin{to{transform:rotate(360deg)}}
 .skeleton{height:72px;border-radius:20px;background:linear-gradient(90deg,#f2f5f8,#e8eef5,#f2f5f8);background-size:200% 100%;animation:shimmer 1.2s infinite}@keyframes shimmer{to{background-position:-200% 0}}
 footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-height:1.5}
+.roundPublic{max-width:1180px;margin:10px auto 0;padding:0 16px}.roundPublicInner{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow)}.roundPublicLabel small{display:block;color:var(--muted);font-size:9px;font-weight:900;letter-spacing:.08em}.roundPublicLabel b{font-size:12px}.roundPublicBtns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.roundPublicBtns button{border:1px solid var(--line);background:#f4f7fb;color:#637287;border-radius:10px;padding:9px 8px;font-weight:900;font-size:11px;cursor:pointer}.roundPublicBtns button.active{background:#071b38;color:#fff;border-color:#071b38}.turnCompareWrap{margin:14px 0}.turnCompareTitle{display:flex;justify-content:space-between;align-items:end;gap:10px;margin:0 2px 8px}.turnCompareTitle h3{margin:0;font-size:14px}.turnCompareTitle small{color:var(--muted);font-size:10px;font-weight:800}.turnCompareGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.turnCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px;box-shadow:var(--shadow)}.turnCard.current{border-color:#97b9e9;box-shadow:0 10px 28px rgba(22,78,145,.09)}.turnCardHead{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;border-bottom:1px solid #e7edf4;padding-bottom:9px;margin-bottom:8px}.turnCardHead b{font-size:13px}.turnCardHead span{color:var(--muted);font-size:9px;text-align:right}.turnRow{display:grid;grid-template-columns:1fr auto;gap:8px;padding:7px 0;border-bottom:1px solid #eef2f6}.turnRow:last-child{border-bottom:0}.turnRow .nm{font-size:11px;font-weight:900;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.turnRow .meta{font-size:9px;color:var(--muted);margin-top:2px}.turnRow .pc{text-align:right;font-weight:900;font-size:12px}.turnRow .delta{display:block;font-size:8px;margin-top:2px}.turnRow .delta.up{color:#16835f}.turnRow .delta.down{color:#b54b4b}.turnPending{border:1px dashed #cfd8e5;border-radius:12px;padding:18px 10px;text-align:center;color:var(--muted);font-size:11px;line-height:1.45}.turnCompareNote{margin-top:8px;color:var(--muted);font-size:9px;line-height:1.45}
 @media(max-width:620px){
   .hero{min-height:410px}.herobody{padding-bottom:78px}.heroStatus{grid-template-columns:112px 1fr}.gauge{width:108px;height:108px}.gauge:before{width:80px;height:80px}.gauge strong{font-size:24px}
   .quick{grid-template-columns:repeat(5,1fr);gap:4px}.quick button{min-height:72px;font-size:9px}.quick span{font-size:22px}
   .stats{grid-template-columns:repeat(2,1fr)}.top3{grid-template-columns:1fr}.podium{text-align:left;display:grid;grid-template-columns:35px 1fr auto;align-items:center;gap:8px}.podium .medal{grid-row:1/3}.podium b{margin:0}.podium small{margin:0}.podium strong{grid-column:3;grid-row:1/3;margin:0}
   .candidate{grid-template-columns:42px minmax(0,1fr)}.candidateRight{grid-column:2;justify-content:space-between;text-align:left}.votes{display:flex;gap:10px;align-items:baseline}.votes span{margin:0}
+  .roundPublic{padding:0 10px}.roundPublicInner{grid-template-columns:1fr;gap:8px}.roundPublicLabel{display:flex;justify-content:space-between;align-items:center}.roundPublicBtns button{font-size:10px;padding:9px 4px}.turnCompareGrid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -119,6 +121,17 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
     <button data-cargo="deputado_estadual"><span>📍</span>Estadual</button>
   </nav>
 
+  <div id="roundPublic" class="roundPublic" style="display:none">
+    <div class="roundPublicInner">
+      <div class="roundPublicLabel"><small>TURNO</small><b id="roundPublicText">1º turno</b></div>
+      <div class="roundPublicBtns">
+        <button id="publicRound1" class="active" onclick="setPublicRound('1')">1º turno</button>
+        <button id="publicRound2" onclick="setPublicRound('2')">2º turno</button>
+        <button id="publicRoundCompare" onclick="setPublicRound('comparar')">Comparar</button>
+      </div>
+    </div>
+  </div>
+
   <main>
     <section id="homeView" class="view active">
       <div class="head"><h2>Visão geral</h2><em id="scopeBadge">BRASIL</em></div>
@@ -138,6 +151,7 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
       </div>
       <div class="head"><h2>Na frente agora</h2><em>TOP 3</em></div>
       <div id="top3" class="top3"></div>
+      <div id="turnCompareHome"></div>
       <div id="presCompareHome"></div>
       <div id="homeNotice"></div>
       <button id="installBtn" class="install">＋ Instalar no celular</button>
@@ -147,6 +161,7 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
       <div class="head"><h2>Resultados</h2><em id="resultScope">BRASIL</em></div>
       <div id="cargoChips" class="chips"></div>
       <div id="presScopeSwitch" class="scopeToggle" style="display:none"></div>
+      <div id="turnCompareResults"></div>
       <div id="presCompareResults"></div>
       <div class="searchBox"><input id="searchInput" type="search" placeholder="Buscar candidato, número ou partido…"><span>⌕</span></div>
       <div class="panel summary">
@@ -197,13 +212,21 @@ deputado_federal:{label:'Deputado Federal'},
 deputado_estadual:{label:'Deputado Estadual'}
 };
 const savedUf=localStorage.getItem('placar26_uf')||'sp';
-const state={cargo:'presidente',uf:STATES[savedUf]?savedUf:'sp',nationalData:null,stateData:null,data:null,resultScope:'br',loading:false,view:'home',cache:{}};
+const savedRound=localStorage.getItem('placar26_turno')||'1';
+const initialRound=['1','2','comparar'].includes(savedRound)?savedRound:'1';
+const state={cargo:'presidente',uf:STATES[savedUf]?savedUf:'sp',roundMode:initialRound,nationalData:null,stateData:null,data:null,resultScope:'br',loading:false,view:'home',cache:{},roundCompareNational:null,roundCompareState:null,roundCompareData:null};
 const fmt=new Intl.NumberFormat('pt-BR');
 const $=id=>document.getElementById(id);
 
 function percent(v){const n=Number(v||0);return n.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:2})+'%'}
 function safe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function cargoLabel(cargo){return cargo==='deputado_estadual'&&state.uf==='df'?'Deputado Distrital':CARGOS[cargo].label}
+function supportsRounds(cargo=state.cargo){return cargo==='presidente'||cargo==='governador'}
+function effectiveRound(cargo=state.cargo){return supportsRounds(cargo)?(state.roundMode==='comparar'?'1':state.roundMode):'1'}
+function roundCacheKey(cargo,uf,round=effectiveRound(cargo)){return round+':'+cargo+':'+uf}
+function roundSuffix(){if(!supportsRounds())return'';return state.roundMode==='2'?' • 2º turno':state.roundMode==='comparar'?' • Comparar':' • 1º turno'}
+function activeCompare(){if(state.cargo==='presidente')return state.resultScope==='br'?state.roundCompareNational:state.roundCompareState;return state.roundCompareData}
+function compareDisplayData(x){return x?.secondRound||x?.firstRound||null}
 function activeData(){if(state.cargo==='presidente')return state.resultScope==='br'?(state.nationalData||state.data):(state.stateData||state.data);return state.data}
 function favKey(cargo,id){return cargo+'|'+id}
 function getFavs(){try{return JSON.parse(localStorage.getItem('placar26_favoritos')||'{}')}catch{return {}}}
@@ -227,7 +250,7 @@ function renderGlobal(){
  const heroData=state.cargo==='presidente'?(state.nationalData||state.data):state.data;
  $('heroStateName').textContent=STATES[state.uf];
  $('statePickerLabel').textContent=STATES[state.uf];
- $('heroCargo').textContent=cargoLabel(state.cargo)+(state.cargo==='presidente'?' • Brasil':'');
+ $('heroCargo').textContent=cargoLabel(state.cargo)+(state.cargo==='presidente'?' • Brasil':'')+roundSuffix();
  $('scopeBadge').textContent=state.cargo==='presidente'?'BRASIL + '+state.uf.toUpperCase():STATES[state.uf].toUpperCase();
  $('resultScope').textContent=currentScopeName();
  document.querySelectorAll('#quickNav button').forEach(b=>b.classList.toggle('active',b.dataset.cargo===state.cargo));
@@ -240,8 +263,8 @@ function renderGlobal(){
 }
 function renderSummary(){
  const d=activeData()||{},p=d.percentSections||0;
- $('homeTitle').textContent=cargoLabel(state.cargo);
- $('resultTitle').textContent=cargoLabel(state.cargo)+(state.cargo==='presidente'?' • '+(state.resultScope==='br'?'Brasil':STATES[state.uf]):'');
+ $('homeTitle').textContent=cargoLabel(state.cargo)+roundSuffix();
+ $('resultTitle').textContent=cargoLabel(state.cargo)+(state.cargo==='presidente'?' • '+(state.resultScope==='br'?'Brasil':STATES[state.uf]):'')+roundSuffix();
  const stamp=(d.generatedDate||d.generatedTime)?[d.generatedDate,d.generatedTime].filter(Boolean).join(' • '):(d.fetchedAt?'Consulta '+new Date(d.fetchedAt).toLocaleTimeString('pt-BR'):'Dados oficiais do TSE');
  $('homeUpdated').textContent=state.cargo==='presidente'?'Brasil e '+STATES[state.uf]+' lado a lado':stamp;
  $('resultUpdated').textContent=stamp;
@@ -268,7 +291,7 @@ function compareCard(title,d,accent=false){
  return '<article class="compareCard '+(accent?'accent':'')+'"><div class="compareCardHead"><div><b>'+safe(title)+'</b><span>'+percent(d?.percentSections||0)+' apurado</span></div><span>'+statusText(d)+'</span></div>'+body+'</article>';
 }
 function renderPresidentCompare(){
- if(state.cargo!=='presidente'){$('presCompareHome').innerHTML='';$('presCompareResults').innerHTML='';return}
+ if(state.cargo!=='presidente'||state.roundMode==='comparar'){$('presCompareHome').innerHTML='';$('presCompareResults').innerHTML='';return}
  const html='<div class="compareWrap"><div class="compareTitle"><h3>Brasil x '+safe(STATES[state.uf])+'</h3><small>Presidência</small></div><div class="compareGrid">'+compareCard('🇧🇷 Brasil',state.nationalData,true)+compareCard('📍 '+STATES[state.uf],state.stateData,false)+'</div></div>';
  $('presCompareHome').innerHTML=html;
  $('presCompareResults').innerHTML=html;
@@ -280,6 +303,55 @@ function renderPresidentScopeSwitch(){
  box.innerHTML='<button class="'+(state.resultScope==='br'?'active':'')+'" onclick="setPresidentScope(\'br\')">🇧🇷 Brasil</button><button class="'+(state.resultScope==='uf'?'active':'')+'" onclick="setPresidentScope(\'uf\')">📍 '+safe(STATES[state.uf])+'</button>';
 }
 window.setPresidentScope=function(scope){state.resultScope=scope;state.data=activeData();renderAll()}
+
+function renderRoundSelector(){
+ const box=$('roundPublic'),supported=supportsRounds();
+ box.style.display=supported?'block':'none';
+ if(!supported)return;
+ $('publicRound1').classList.toggle('active',state.roundMode==='1');
+ $('publicRound2').classList.toggle('active',state.roundMode==='2');
+ $('publicRoundCompare').classList.toggle('active',state.roundMode==='comparar');
+ $('roundPublicText').textContent=state.roundMode==='1'?'1º turno':state.roundMode==='2'?'2º turno':'Comparar turnos';
+}
+function setPublicRound(mode){
+ if(!['1','2','comparar'].includes(mode)||!supportsRounds()||state.roundMode===mode)return;
+ state.roundMode=mode;localStorage.setItem('placar26_turno',mode);
+ state.nationalData=null;state.stateData=null;state.data=null;
+ state.roundCompareNational=null;state.roundCompareState=null;state.roundCompareData=null;
+ renderAll();loadCargo(state.cargo,{silent:false});
+}
+window.setPublicRound=setPublicRound;
+function turnCandidateKey(c){return String(c?.id||c?.number||c?.name||'').trim()}
+function turnCard(title,d,comparison,isSecond=false){
+ if(!d)return '<article class="turnCard"><div class="turnCardHead"><b>'+safe(title)+'</b><span>Aguardando TSE</span></div><div class="turnPending">Este snapshot ainda não foi publicado para este recorte.</div></article>';
+ const items=(d.candidates||[]).slice(0,isSecond?3:4);
+ const rows=items.map(c=>{
+   let delta='';
+   if(isSecond&&comparison){
+     const x=(comparison.candidates||[]).find(z=>z.key===turnCandidateKey(c));
+     if(x){const dp=Number(x.deltaPercentagePoints||0);delta='<span class="delta '+(dp>=0?'up':'down')+'">'+(dp>=0?'+':'')+dp.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' p.p. vs 1º</span>'}
+   }
+   return '<div class="turnRow"><div><div class="nm">'+safe(c.name)+'</div><div class="meta">'+safe([c.party,c.number?('Nº '+c.number):''].filter(Boolean).join(' • '))+'</div></div><div class="pc">'+percent(c.percentage)+delta+'</div></div>';
+ }).join('');
+ return '<article class="turnCard '+(isSecond?'current':'')+'"><div class="turnCardHead"><div><b>'+safe(title)+'</b><div class="meta">'+fmt.format(d.validVotes||0)+' válidos</div></div><span>'+percent(d.percentSections||0)+' apurado</span></div>'+rows+'</article>';
+}
+function renderTurnCompare(){
+ const home=$('turnCompareHome'),results=$('turnCompareResults');
+ if(!supportsRounds()||state.roundMode!=='comparar'){home.innerHTML='';results.innerHTML='';return}
+ const cmp=activeCompare();
+ let html='';
+ if(!cmp){
+   html='<div class="turnCompareWrap"><div class="turnPending">Carregando comparação oficial dos turnos…</div></div>';
+ }else{
+   const place=state.cargo==='presidente'?(state.resultScope==='br'?'Brasil':STATES[state.uf]):STATES[state.uf];
+   const secondTitle=cmp.noSecondRound?'2º turno — não realizado':'2º turno';
+   html='<div class="turnCompareWrap"><div class="turnCompareTitle"><h3>1º turno × 2º turno</h3><small>'+safe(place)+'</small></div><div class="turnCompareGrid">'+
+     turnCard('1º turno',cmp.firstRound,cmp.comparison,false)+
+     (cmp.noSecondRound?'<article class="turnCard"><div class="turnCardHead"><b>'+secondTitle+'</b><span>Encerrado</span></div><div class="turnPending">A disputa foi definida no 1º turno segundo o status oficial do TSE.</div></article>':turnCard(secondTitle,cmp.secondRound,cmp.comparison,true))+
+     '</div><div class="turnCompareNote">'+safe(cmp.message||'Os dois snapshots usam dados oficiais do TSE.')+'</div></div>';
+ }
+ home.innerHTML=html;results.innerHTML=html;
+}
 function candidateCard(c,i,cargo=state.cargo){
  const fav=isFav(cargo,c.id);
  return '<article class="candidate"><div class="rank">'+(i+1)+'º</div><div><div class="candidateName">'+safe(c.name)+(c.elected?' ✓':'')+'</div><div class="candidateMeta">'+[c.number?'Nº '+c.number:'',c.party,c.status].filter(Boolean).map(safe).join(' • ')+'</div></div><div class="candidateRight"><div class="votes"><b>'+fmt.format(c.votes||0)+' votos</b><span>'+percent(c.percentage)+'</span></div><button class="star '+(fav?'on':'')+'" onclick="toggleFavEncoded(\''+cargo+'\',\''+encodeURIComponent(JSON.stringify(c))+'\')">★</button></div></article>';
@@ -304,37 +376,66 @@ function renderNotice(){
  else if(d&&!d.ok)$('homeNotice').innerHTML='<div class="notice"><b>Conexão temporariamente indisponível</b><br>Tente atualizar em alguns instantes.</div>';
  else $('homeNotice').innerHTML='';
 }
-function renderAll(){state.data=activeData();renderGlobal();renderSummary();renderTop3();renderPresidentCompare();renderCandidates();renderFavorites();renderNotice()}
-async function fetchScope(cargo,uf){
- const key=cargo+':'+uf;
+function renderAll(){state.data=activeData();renderRoundSelector();renderGlobal();renderSummary();renderTop3();renderTurnCompare();renderPresidentCompare();renderCandidates();renderFavorites();renderNotice()}
+async function fetchScope(cargo,uf,round=effectiveRound(cargo)){
+ const key=roundCacheKey(cargo,uf,round);
  try{
-  const r=await fetch(API+'?cargo='+encodeURIComponent(cargo)+'&uf='+encodeURIComponent(uf)+'&_='+Date.now());
+  const r=await fetch(API+'?cargo='+encodeURIComponent(cargo)+'&uf='+encodeURIComponent(uf)+'&turno='+encodeURIComponent(round)+'&_='+Date.now());
   const body=await r.json();
   if(!r.ok&&!body.pending)throw new Error(body.message||body.error||'Falha ao consultar');
   state.cache[key]=body;return body;
- }catch(e){return {ok:false,pending:false,cargo,uf,ufLabel:uf==='br'?'Brasil':STATES[uf],candidates:[],percentSections:0,message:e.message}}
+ }catch(e){return {ok:false,pending:false,cargo,uf,ufLabel:uf==='br'?'Brasil':STATES[uf],requestedRound:Number(round),candidates:[],percentSections:0,message:e.message}}
+}
+async function fetchRoundCompare(cargo,uf){
+ const key='compare:'+cargo+':'+uf;
+ try{
+  const r=await fetch(API+'?cargo='+encodeURIComponent(cargo)+'&uf='+encodeURIComponent(uf)+'&turno=comparar&_='+Date.now());
+  const body=await r.json();
+  if(!r.ok||!body.ok)throw new Error(body.message||body.error||'Falha ao comparar');
+  state.cache[key]=body;return body;
+ }catch(e){return {ok:false,mode:'compare',cargo,uf,ufLabel:uf==='br'?'Brasil':STATES[uf],firstRound:null,secondRound:null,comparison:null,message:e.message}}
 }
 async function loadCargo(cargo=state.cargo,{silent=false}={}){
  state.cargo=cargo;state.loading=true;
  if(!silent)renderCandidates();
- if(cargo==='presidente'){
-   const nk='presidente:br',sk='presidente:'+state.uf;
+ const compare=supportsRounds(cargo)&&state.roundMode==='comparar';
+ if(compare){
+   if(cargo==='presidente'){
+     const nk='compare:presidente:br',sk='compare:presidente:'+state.uf;
+     if(state.cache[nk])state.roundCompareNational=state.cache[nk];
+     if(state.cache[sk])state.roundCompareState=state.cache[sk];
+     state.nationalData=compareDisplayData(state.roundCompareNational);
+     state.stateData=compareDisplayData(state.roundCompareState);
+     renderAll();
+     const [br,uf]=await Promise.all([fetchRoundCompare('presidente','br'),fetchRoundCompare('presidente',state.uf)]);
+     state.roundCompareNational=br;state.roundCompareState=uf;
+     state.nationalData=compareDisplayData(br);state.stateData=compareDisplayData(uf);state.data=activeData();
+   }else{
+     const key='compare:'+cargo+':'+state.uf;
+     if(state.cache[key])state.roundCompareData=state.cache[key];
+     state.data=compareDisplayData(state.roundCompareData);renderAll();
+     const cmp=await fetchRoundCompare(cargo,state.uf);state.roundCompareData=cmp;state.data=compareDisplayData(cmp);
+   }
+ }else if(cargo==='presidente'){
+   const round=effectiveRound(cargo),nk=roundCacheKey('presidente','br',round),sk=roundCacheKey('presidente',state.uf,round);
    if(state.cache[nk])state.nationalData=state.cache[nk];
    if(state.cache[sk])state.stateData=state.cache[sk];
    renderAll();
-   const [br,uf]=await Promise.all([fetchScope('presidente','br'),fetchScope('presidente',state.uf)]);
+   const [br,uf]=await Promise.all([fetchScope('presidente','br',round),fetchScope('presidente',state.uf,round)]);
    state.nationalData=br;state.stateData=uf;state.data=activeData();
  }else{
-   const key=cargo+':'+state.uf;
+   const round=effectiveRound(cargo),key=roundCacheKey(cargo,state.uf,round);
    if(state.cache[key])state.data=state.cache[key];
    renderAll();
-   state.data=await fetchScope(cargo,state.uf);
+   state.data=await fetchScope(cargo,state.uf,round);
  }
  state.loading=false;renderAll();
 }
 function selectCargo(cargo,openResults=true){
  state.cargo=cargo;
- if(cargo==='presidente'){state.resultScope='br';state.data=state.nationalData}else state.data=state.cache[cargo+':'+state.uf]||null;
+ if(cargo==='presidente'){state.resultScope='br';state.data=state.nationalData}
+ else if(supportsRounds(cargo)&&state.roundMode==='comparar')state.data=compareDisplayData(state.roundCompareData);
+ else state.data=state.cache[roundCacheKey(cargo,state.uf)]||null;
  if(openResults)showView('results');
  renderAll();loadCargo(cargo,{silent:!!state.data});
 }
@@ -361,8 +462,15 @@ function selectState(uf){
  if(!STATES[uf])return;
  state.uf=uf;localStorage.setItem('placar26_uf',uf);closeStatePicker();
  $('heroStateName').textContent=STATES[uf];$('statePickerLabel').textContent=STATES[uf];
- if(state.cargo==='presidente'){state.stateData=state.cache['presidente:'+uf]||null;state.resultScope='br';state.data=state.nationalData}
- else state.data=state.cache[state.cargo+':'+uf]||null;
+ const compare=supportsRounds()&&state.roundMode==='comparar';
+ if(state.cargo==='presidente'){
+   state.resultScope='br';
+   if(compare){state.roundCompareState=state.cache['compare:presidente:'+uf]||null;state.stateData=compareDisplayData(state.roundCompareState)}
+   else state.stateData=state.cache[roundCacheKey('presidente',uf)]||null;
+   state.data=state.nationalData;
+ }else if(compare){
+   state.roundCompareData=state.cache['compare:'+state.cargo+':'+uf]||null;state.data=compareDisplayData(state.roundCompareData);
+ }else state.data=state.cache[roundCacheKey(state.cargo,uf)]||null;
  renderAll();loadCargo(state.cargo,{silent:!!state.data});
 }
 window.selectState=selectState;
@@ -392,7 +500,7 @@ window.addEventListener('pageshow',()=>{
  if(Date.now()-lastAutoRefresh>10000)autoRefresh();
 });
 if('serviceWorker'in navigator){
- navigator.serviceWorker.register('./sw.js?v=5',{updateViaCache:'none'})
+ navigator.serviceWorker.register('./sw.js?v=6',{updateViaCache:'none'})
    .then(reg=>reg.update())
    .catch(()=>{});
 }
