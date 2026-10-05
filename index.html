@@ -3,7 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#071b3d">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n<meta name="apple-mobile-web-app-title" content="Eleições 2026">\n<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#071b3d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Eleições 2026">
+<meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./assets/elections-icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./assets/icon-192.png">
@@ -31,7 +35,7 @@ linear-gradient(155deg,var(--navy),var(--navy2) 68%,#123d7d);color:#fff}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(247,186,66,.12)}
 .dot.on{background:#49e4ad;box-shadow:0 0 0 4px rgba(73,228,173,.13)}
 .statePicker{margin-top:18px;width:min(370px,100%);display:grid;grid-template-columns:34px 1fr 24px;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.09);color:#fff;border-radius:18px;padding:11px 13px;text-align:left;backdrop-filter:blur(12px);cursor:pointer}
-.statePicker>span{font-size:21px}.statePicker small{display:block;color:#a9c2e2;font-size:9px;letter-spacing:.08em;font-weight:900}.statePicker b{display:block;font-size:16px;margin-top:2px}.statePicker strong{font-size:27px;font-weight:400;color:#bcd0e8}
+.statePicker>span{font-size:21px}.statePicker small{display:block;color:#a9c2e2;font-size:9px;letter-spacing:.08em;font-weight:900}.statePicker b{display:block;font-size:16px;margin-top:2px}.statePicker strong{font-size:27px;font-weight:400;color:#bcd0e8}.heroScope{display:none;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px;padding:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);border-radius:15px}.heroScope.show{display:grid}.heroScope button{border:0;border-radius:11px;background:rgba(255,255,255,.07);color:#c9d9ef;padding:9px 5px;font-size:10px;font-weight:900;cursor:pointer}.heroScope button.active{background:#fff;color:#0b57cc;box-shadow:0 4px 16px rgba(0,0,0,.12)}
 .scopeToggle{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#e7edf5;padding:5px;border-radius:16px;margin:10px 0 12px}
 .scopeToggle button{border:0;border-radius:12px;background:transparent;color:#657991;padding:10px;font-weight:900;cursor:pointer}.scopeToggle button.active{background:#fff;color:#0b57cc;box-shadow:0 4px 14px rgba(20,54,99,.10)}
 .compareWrap{margin-top:14px}.compareTitle{display:flex;justify-content:space-between;align-items:center;margin:18px 4px 9px}.compareTitle h3{margin:0;font-size:18px}.compareTitle small{color:var(--mut);font-weight:800}
@@ -106,6 +110,11 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
       <h1>Eleições 2026<span id="heroStateName">São Paulo</span></h1>
       <p>Resultados oficiais do TSE, organizados num placar simples para acompanhar pelo celular.</p>
       <button id="statePickerBtn" class="statePicker" onclick="openStatePicker()"><span>📍</span><div><small>ESTADO SELECIONADO</small><b id="statePickerLabel">São Paulo</b></div><strong>›</strong></button>
+      <div id="heroPresScope" class="heroScope">
+        <button id="heroScopeBr" onclick="openPresidentScope('br')">🇧🇷 Brasil</button>
+        <button id="heroScopeUf" onclick="openPresidentScope('uf')">📍 Estado</button>
+        <button id="heroScopeZz" onclick="openPresidentScope('zz')">🌎 Exterior</button>
+      </div>
       <div class="heroStatus">
         <div id="heroGauge" class="gauge"><div><strong id="heroPct">0%</strong><small>apurado</small></div></div>
         <div class="heroMeta"><b id="heroCargo">Presidente</b><span id="heroStatus">A divulgação oficial começa a partir das 17h.</span></div>
@@ -259,11 +268,12 @@ function statusText(d){
 }
 function currentScopeName(){return state.cargo==='presidente'?(state.resultScope==='br'?'BRASIL':state.resultScope==='zz'?(state.exteriorLocationName?state.exteriorLocationName.toUpperCase():'EXTERIOR'):STATES[state.uf].toUpperCase()):STATES[state.uf].toUpperCase()}
 function renderGlobal(){
- const heroData=state.cargo==='presidente'?(state.nationalData||state.data):state.data;
- $('heroStateName').textContent=STATES[state.uf];
+ const heroData=state.cargo==='presidente'?activeData():state.data;
+ const heroPlace=state.cargo==='presidente'?(state.resultScope==='br'?'Brasil':state.resultScope==='zz'?(state.exteriorLocationName||'Exterior'):STATES[state.uf]):STATES[state.uf];
+ $('heroStateName').textContent=heroPlace;
  $('statePickerLabel').textContent=STATES[state.uf];
- $('heroCargo').textContent=cargoLabel(state.cargo)+(state.cargo==='presidente'?' • Brasil':'')+roundSuffix();
- $('scopeBadge').textContent=state.cargo==='presidente'?'BRASIL + '+state.uf.toUpperCase():STATES[state.uf].toUpperCase();
+ $('heroCargo').textContent=cargoLabel(state.cargo)+(state.cargo==='presidente'?' • '+heroPlace:'')+roundSuffix();
+ $('scopeBadge').textContent=state.cargo==='presidente'?currentScopeName():STATES[state.uf].toUpperCase();
  $('resultScope').textContent=currentScopeName();
  document.querySelectorAll('#quickNav button').forEach(b=>b.classList.toggle('active',b.dataset.cargo===state.cargo));
  document.querySelectorAll('#cargoChips .chip').forEach(b=>b.classList.toggle('active',b.dataset.cargo===state.cargo));
@@ -278,13 +288,13 @@ function renderSummary(){
  $('homeTitle').textContent=cargoLabel(state.cargo)+roundSuffix();
  $('resultTitle').textContent=cargoLabel(state.cargo)+(state.cargo==='presidente'?' • '+(state.resultScope==='br'?'Brasil':state.resultScope==='zz'?(state.exteriorLocationName||'Exterior'):STATES[state.uf]):'')+roundSuffix();
  const stamp=(d.generatedDate||d.generatedTime)?[d.generatedDate,d.generatedTime].filter(Boolean).join(' • '):(d.fetchedAt?'Consulta '+new Date(d.fetchedAt).toLocaleTimeString('pt-BR'):'Dados oficiais do TSE');
- $('homeUpdated').textContent=state.cargo==='presidente'?'Brasil e '+STATES[state.uf]+' lado a lado':stamp;
+ $('homeUpdated').textContent=state.cargo==='presidente'?(state.resultScope==='br'?'Brasil • resultado nacional':state.resultScope==='zz'?(state.exteriorLocationName||'Todo o Exterior'):'Estado de '+STATES[state.uf]):stamp;
  $('resultUpdated').textContent=stamp;
- $('homeProgress').style.width=(state.cargo==='presidente'?(state.nationalData?.percentSections||0):p)+'%';
+ $('homeProgress').style.width=(state.cargo==='presidente'?(homeD?.percentSections||0):p)+'%';
  $('resultProgress').style.width=p+'%';
- $('homeProgressText').textContent=percent(state.cargo==='presidente'?(state.nationalData?.percentSections||0):p)+' das seções';
+ $('homeProgressText').textContent=percent(state.cargo==='presidente'?(homeD?.percentSections||0):p)+' das seções';
  $('resultProgressText').textContent=percent(p)+' das seções';
- const homeD=state.cargo==='presidente'?(state.nationalData||d):d;
+ const homeD=state.cargo==='presidente'?(activeData()||d):d;
  $('homeStatusText').textContent=statusText(homeD);$('resultStatusText').textContent=statusText(d);
  $('statSections').textContent=homeD.sectionsTotal?fmt.format(homeD.sectionsTotalized||0)+' / '+fmt.format(homeD.sectionsTotal):'—';
  $('statValid').textContent=homeD.validVotes?fmt.format(homeD.validVotes):'—';
@@ -292,7 +302,7 @@ function renderSummary(){
  $('statNull').textContent=homeD.nullVotes?fmt.format(homeD.nullVotes):'—';
 }
 function renderTop3(){
- const d=state.cargo==='presidente'?(state.nationalData||state.data):state.data;
+ const d=state.cargo==='presidente'?activeData():state.data;
  const items=(d?.candidates||[]).slice(0,3),medals=['🥇','🥈','🥉'];
  if(!items.length){$('top3').innerHTML='<div class="empty" style="grid-column:1/-1"><div class="big">🕔</div><b>Aguardando os primeiros votos</b><br>Assim que o TSE liberar os dados, o ranking aparece aqui.</div>';return}
  $('top3').innerHTML=items.map((c,i)=>'<article class="podium"><div class="medal">'+medals[i]+'</div><div><b>'+safe(c.name)+'</b><small>'+safe(c.party||('Nº '+c.number))+'</small></div><strong>'+percent(c.percentage)+'</strong></article>').join('');
@@ -309,6 +319,21 @@ function renderPresidentCompare(){
  $('presCompareHome').innerHTML=html;
  $('presCompareResults').innerHTML=html;
 }
+function renderHeroPresidentScope(){
+ const box=$('heroPresScope');
+ if(state.cargo!=='presidente'){box.classList.remove('show');return}
+ box.classList.add('show');
+ $('heroScopeBr').classList.toggle('active',state.resultScope==='br');
+ $('heroScopeUf').classList.toggle('active',state.resultScope==='uf');
+ $('heroScopeZz').classList.toggle('active',state.resultScope==='zz');
+ $('heroScopeUf').textContent='📍 '+STATES[state.uf];
+}
+async function openPresidentScope(scope){
+ await setPresidentScope(scope);
+ showView('results');
+}
+window.openPresidentScope=openPresidentScope;
+
 function renderPresidentScopeSwitch(){
  const box=$('presScopeSwitch');
  if(state.cargo!=='presidente'){box.style.display='none';box.innerHTML='';$('exteriorRegional').classList.remove('show');return}
@@ -448,7 +473,7 @@ function renderNotice(){
  else if(d&&!d.ok)$('homeNotice').innerHTML='<div class="notice"><b>Conexão temporariamente indisponível</b><br>Tente atualizar em alguns instantes.</div>';
  else $('homeNotice').innerHTML='';
 }
-function renderAll(){state.data=activeData();renderRoundSelector();renderGlobal();renderSummary();renderTop3();renderTurnCompare();renderPresidentCompare();renderCandidates();renderFavorites();renderNotice()}
+function renderAll(){state.data=activeData();renderRoundSelector();renderHeroPresidentScope();renderGlobal();renderSummary();renderTop3();renderTurnCompare();renderPresidentCompare();renderCandidates();renderFavorites();renderNotice()}
 async function fetchScope(cargo,uf,round=effectiveRound(cargo),municipio=''){
  const key=roundCacheKey(cargo,uf,round,municipio);
  try{
@@ -538,7 +563,7 @@ window.renderStateOptions=renderStateOptions;
 function openStatePicker(){$('stateSheet').classList.add('open');$('stateSheet').setAttribute('aria-hidden','false');$('stateSearchInput').value='';renderStateOptions();setTimeout(()=>$('stateSearchInput').focus(),180)}window.openStatePicker=openStatePicker;
 function closeStatePicker(){$('stateSheet').classList.remove('open');$('stateSheet').setAttribute('aria-hidden','true')}window.closeStatePicker=closeStatePicker;
 function selectState(uf){
- if(!STATES[uf])return;
+ if(!STATES[uf]||uf==='zz')return;
  state.uf=uf;localStorage.setItem('placar26_uf',uf);closeStatePicker();
  $('heroStateName').textContent=STATES[uf];$('statePickerLabel').textContent=STATES[uf];
  const compare=supportsRounds()&&state.roundMode==='comparar';
@@ -579,7 +604,7 @@ window.addEventListener('pageshow',()=>{
  if(Date.now()-lastAutoRefresh>10000)autoRefresh();
 });
 if('serviceWorker'in navigator){
- navigator.serviceWorker.register('./sw.js?v=8',{updateViaCache:'none'})
+ navigator.serviceWorker.register('./sw.js?v=9',{updateViaCache:'none'})
    .then(reg=>reg.update())
    .catch(()=>{});
 }
