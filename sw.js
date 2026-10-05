@@ -1,4 +1,4 @@
-const CACHE='placar-eleicoes-v7-static';
+const CACHE='placar-eleicoes-v8-static';
 const STATIC=['./manifest.webmanifest','./assets/elections-icon.svg'];
 
 self.addEventListener('install',event=>{
