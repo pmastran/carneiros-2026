@@ -65,7 +65,7 @@
   <div class="mathHead">
     <div>
       <h2>Matemática da disputa</h2>
-      <p>Nosso painel calcula líder, margem, distância dos 50% e apuração restante. A chamada de <b>1º turno definido</b> ou <b>2º turno definido</b> só aparece quando o campo oficial <b>md</b> do TSE indicar a definição matemática.</p>
+      <p>Nosso motor agora calcula uma <b>prova matemática conservadora</b> nas 27 UFs: compara o saldo do líder sobre 50% com todo o eleitorado ainda não totalizado. O status oficial <b>md</b> do TSE continua exibido separadamente.</p>
     </div>
     <div class="finalControls">
       <select id="mathCargo" class="select" onchange="changeMathCargo()">
@@ -77,17 +77,17 @@
   </div>
   <div id="mathStatus" class="foot" style="margin-top:8px">Aguardando dados…</div>
   <div class="mathKpis">
-    <div class="mathKpi"><small>1º TURNO DEFINIDO</small><strong id="mathECount">—</strong></div>
-    <div class="mathKpi"><small>2º TURNO DEFINIDO</small><strong id="mathSCount">—</strong></div>
+    <div class="mathKpi"><small>1º TURNO IRREVERSÍVEL</small><strong id="mathECount">—</strong></div>
+    <div class="mathKpi"><small>2º TURNO IRREVERSÍVEL</small><strong id="mathSCount">—</strong></div>
     <div class="mathKpi"><small>EM ABERTO</small><strong id="mathOCount">—</strong></div>
-    <div class="mathKpi"><small>ABRANGÊNCIAS</small><strong id="mathTotalCount">—</strong></div>
+    <div class="mathKpi"><small>UFs ANALISADAS</small><strong id="mathTotalCount">—</strong></div>
   </div>
   <div class="mathGroups">
-    <div class="mathGroup"><h3>2º turno matematicamente definido pelo TSE</h3><div id="mathSecondRound" class="mathPills"><span class="foot" style="margin:0">Nenhum ainda.</span></div></div>
-    <div class="mathGroup"><h3>Definição matemática no 1º turno</h3><div id="mathFirstRound" class="mathPills"><span class="foot" style="margin:0">Nenhuma ainda.</span></div></div>
+    <div class="mathGroup"><h3>2º turno irreversível — nossa prova</h3><div id="mathSecondRound" class="mathPills"><span class="foot" style="margin:0">Nenhum ainda.</span></div></div>
+    <div class="mathGroup"><h3>1º turno irreversível — nossa prova</h3><div id="mathFirstRound" class="mathPills"><span class="foot" style="margin:0">Nenhum ainda.</span></div></div>
   </div>
   <div id="mathList" class="mathList"><div class="finalEmpty">Os cenários matemáticos aparecerão aqui.</div></div>
-  <div class="finalLegal">Leitura numérica: o percentual do líder e a distância de 50% são a fotografia do arquivo naquele momento e podem variar enquanto chegam votos. A conclusão eleitoral exibida pelo painel não é uma projeção própria: vem do campo <b>md</b> (“Matematicamente definido”) do arquivo EA20 do TSE.</div>
+  <div class="finalLegal"><b>Regra conservadora:</b> seja V o total de votos válidos já apurados, L os votos do líder e R o eleitorado ainda não totalizado. Se <b>2L − V &gt; R</b>, o 1º turno é irreversível mesmo dando todos os R votos aos adversários. Se <b>V − 2L ≥ R</b>, o líder não consegue superar 50% nem recebendo todos os R votos, então o 2º turno é irreversível. “Oficial TSE” permanece um status separado.</div>
 </div>
 
 <div class="panel seatPanel" id="seatMathPanel">
@@ -479,38 +479,55 @@ async function sharePresTerritory(){
 }
 window.loadPresTerritory=loadPresTerritory;window.verifyPresTerritorySnapshot=verifyPresTerritorySnapshot;window.copyPresTerritoryCaption=copyPresTerritoryCaption;window.downloadPresTerritoryPng=downloadPresTerritoryPng;window.sharePresTerritory=sharePresTerritory;
 
-function mathStatusCode(d){const md=String(d?.mathematicallyDefined||'').toLowerCase();return md==='e'?'e':md==='s'?'s':'o'}
-function mathStatusLabel(code){return code==='e'?'1º TURNO DEFINIDO':code==='s'?'2º TURNO DEFINIDO':'EM ABERTO'}
+function officialMathStatus(d){const md=String(d?.mathematicallyDefined||'').toLowerCase();return md==='e'?'e':md==='s'?'s':'o'}
+function ownMathStatusLabel(code){return code==='e'?'1º TURNO IRREVERSÍVEL':code==='s'?'2º TURNO IRREVERSÍVEL':'EM ABERTO'}
+function officialMathLabel(code){return code==='e'?'TSE: 1º TURNO':code==='s'?'TSE: 2º TURNO':'TSE: SEM DEFINIÇÃO'}
 function mathRow(d,cargo){
  const cand=[...(d.candidates||[])].sort((a,b)=>(b.votes||0)-(a.votes||0)),lead=cand[0]||{},second=cand[1]||{};
- const leadPct=Number(lead.percentage||0),secondPct=Number(second.percentage||0),margin=Math.max(0,leadPct-secondPct),to50=50-leadPct,remaining=Math.max(0,100-Number(d.percentSections||0)),status=mathStatusCode(d);
- return {d,cargo,lead,second,leadPct,secondPct,margin,to50,remaining,status};
+ const leadVotes=Number(lead.votes||0),validVotes=Number(d.validVotes||0),electorsRemaining=Math.max(0,Number(d.electorsNotTotalized||0));
+ const hasElectorEnvelope=Number(d.totalElectors||0)>0||Number(d.electorsTotalized||0)>0||Number(d.electorsNotTotalized||0)>0;
+ const balance=(2*leadVotes)-validVotes;
+ let status='o',proofMargin=0;
+ if(hasElectorEnvelope&&validVotes>0&&leadVotes>0){
+   if(balance>electorsRemaining){status='e';proofMargin=balance-electorsRemaining}
+   else if((-balance)>=electorsRemaining){status='s';proofMargin=(-balance)-electorsRemaining}
+ }
+ const leadPct=Number(lead.percentage||0),secondPct=Number(second.percentage||0),margin=Math.max(0,leadPct-secondPct),to50=50-leadPct,remaining=Math.max(0,100-Number(d.percentSections||0)),officialStatus=officialMathStatus(d);
+ return {d,cargo,lead,second,leadPct,secondPct,leadVotes,validVotes,electorsRemaining,hasElectorEnvelope,balance,proofMargin,margin,to50,remaining,status,officialStatus};
 }
 function mathCard(row){
- const {d,lead,second,leadPct,margin,to50,remaining,status}=row,place=d.uf==='br'?'BR':String(d.uf||'').toUpperCase();
+ const {d,lead,second,leadPct,margin,to50,remaining,status,officialStatus,electorsRemaining,balance,proofMargin,hasElectorEnvelope}=row,place=d.uf==='br'?'BR':String(d.uf||'').toUpperCase();
  const leader=lead?.name||'Aguardando votos';
  const leadLine=lead?.name?([lead.number?('Nº '+lead.number):'',lead.party].filter(Boolean).join(' • ')):'';
- return '<article class="mathCard"><div class="mathTop"><div class="mathState"><div class="mathStateTag">'+esc(place)+'</div><div><b>'+esc(d.ufLabel||place)+'</b><div class="finalMeta">'+pct1(d.percentSections||0)+' das seções</div></div></div><span class="mathStatus '+status+'">'+mathStatusLabel(status)+'</span></div>'+
+ const saldoLabel=balance>=0?'superávit atual':'déficit atual',saldo=Math.abs(balance);
+ const officialClass=officialStatus==='e'?'e':officialStatus==='s'?'s':'o';
+ const proofText=!hasElectorEnvelope?'Envelope de eleitores ainda não disponível no arquivo.'
+   :status==='e'?'Prova: o líder tem '+fmt.format(Math.max(0,balance))+' votos de superávit sobre todos os demais somados; restam no máximo '+fmt.format(electorsRemaining)+' eleitores não totalizados. Folga conservadora: '+fmt.format(proofMargin)+' votos.'
+   :status==='s'?'Prova: faltam '+fmt.format(Math.max(0,-balance))+' votos líquidos para o líder atingir a fronteira de 50%; restam no máximo '+fmt.format(electorsRemaining)+' eleitores não totalizados. Mesmo no cenário extremo favorável, não ultrapassa 50%. Folga conservadora: '+fmt.format(proofMargin)+' votos.'
+   :'Ainda existe pelo menos um cenário matemático extremo em que o resultado entre 1º turno e 2º turno pode mudar.';
+ return '<article class="mathCard"><div class="mathTop"><div class="mathState"><div class="mathStateTag">'+esc(place)+'</div><div><b>'+esc(d.ufLabel||place)+'</b><div class="finalMeta">'+pct1(d.percentSections||0)+' das seções</div></div></div><span class="mathStatus '+status+'">'+ownMathStatusLabel(status)+'</span></div>'+
  '<div class="mathLeader">'+esc(leader)+' <span style="color:#8fa5bc;font-weight:700">'+pct1(leadPct)+'</span></div><div class="mathLeaderMeta">'+esc(leadLine)+(second?.name?' • 2º: '+esc(second.name)+' '+pct1(second.percentage||0):'')+'</div>'+
- '<div class="mathMetrics"><div class="mathMetric"><small>MARGEM</small><b>'+margin.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+' p.p.</b></div><div class="mathMetric"><small>DISTÂNCIA DE 50%</small><b>'+(to50>0?'+':'')+to50.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+' p.p.</b></div><div class="mathMetric"><small>SEÇÕES RESTANTES</small><b>'+pct1(remaining)+'</b></div></div>'+
+ '<div class="mathMetrics"><div class="mathMetric"><small>'+saldoLabel.toUpperCase()+'</small><b>'+fmt.format(saldo)+' votos</b></div><div class="mathMetric"><small>ELEITORES NÃO TOTALIZADOS</small><b>'+fmt.format(electorsRemaining)+'</b></div><div class="mathMetric"><small>SEÇÕES RESTANTES</small><b>'+pct1(remaining)+'</b></div></div>'+
  '<div class="mathBar"><i style="width:'+Math.min(100,Math.max(0,d.percentSections||0))+'%"></i></div>'+
- '<div class="mathNote">'+(status==='e'?'O TSE marcou esta disputa como matematicamente definida no 1º turno.':status==='s'?'O TSE marcou esta disputa como matematicamente definida para 2º turno.':'Sem definição matemática oficial no arquivo neste momento.')+'</div></article>';
+ '<div class="mathNote">'+proofText+'</div><div style="margin-top:8px"><span class="mathStatus '+officialClass+'">'+officialMathLabel(officialStatus)+'</span></div></article>';
 }
 function renderMathResults(cargo,rows){
  const valid=(rows||[]).filter(d=>d&&!d.__error),mapped=valid.map(d=>mathRow(d,cargo)),e=mapped.filter(x=>x.status==='e'),s=mapped.filter(x=>x.status==='s'),o=mapped.filter(x=>x.status==='o');
  $('mathECount').textContent=e.length;$('mathSCount').textContent=s.length;$('mathOCount').textContent=o.length;$('mathTotalCount').textContent=mapped.length;
- $('mathSecondRound').innerHTML=s.length?s.map(x=>'<span class="mathPill s">'+esc(x.d.uf==='br'?'BR':String(x.d.uf).toUpperCase())+'</span>').join(''):'<span class="foot" style="margin:0">Nenhum marcado pelo TSE.</span>';
- $('mathFirstRound').innerHTML=e.length?e.map(x=>'<span class="mathPill e">'+esc(x.d.uf==='br'?'BR':String(x.d.uf).toUpperCase())+'</span>').join(''):'<span class="foot" style="margin:0">Nenhum marcado pelo TSE.</span>';
+ $('mathSecondRound').innerHTML=s.length?s.map(x=>'<span class="mathPill s" title="'+fmt.format(x.proofMargin)+' votos de folga">'+esc(x.d.uf==='br'?'BR':String(x.d.uf).toUpperCase())+'</span>').join(''):'<span class="foot" style="margin:0">Nenhum pela nossa prova neste snapshot.</span>';
+ $('mathFirstRound').innerHTML=e.length?e.map(x=>'<span class="mathPill e" title="'+fmt.format(x.proofMargin)+' votos de folga">'+esc(x.d.uf==='br'?'BR':String(x.d.uf).toUpperCase())+'</span>').join(''):'<span class="foot" style="margin:0">Nenhum pela nossa prova neste snapshot.</span>';
  const order={s:0,e:1,o:2};mapped.sort((a,b)=>order[a.status]-order[b.status]||String(a.d.uf).localeCompare(String(b.d.uf)));
  $('mathList').innerHTML=mapped.length?mapped.map(mathCard).join(''):'<div class="finalEmpty">Sem dados disponíveis.</div>';
+ const officialE=mapped.filter(x=>x.officialStatus==='e').length,officialS=mapped.filter(x=>x.officialStatus==='s').length;
  $('mathStatus').textContent=cargo==='governador'
-   ? 'Governadores: '+s.length+' UF(s) com 2º turno matematicamente definido, '+e.length+' com definição matemática no 1º turno e '+o.length+' em aberto.'
-   : 'Presidente: status matemático nacional do TSE e indicadores numéricos atuais.';
+   ? '27 UFs: nossa prova aponta '+e.length+' 1º turno irreversível, '+s.length+' 2º turno irreversível e '+o.length+' em aberto. TSE: '+officialE+' com md=e e '+officialS+' com md=s.'
+   : 'Presidência nacional: nossa prova matemática conservadora + status md oficial do TSE, exibidos separadamente.';
 }
 async function loadMathResults(force=false){
  const cargo=$('mathCargo').value;
  if(mathResultsCache[cargo]&&!force){renderMathResults(cargo,mathResultsCache[cargo]);return}
- $('mathStatus').textContent='Lendo o campo matemático oficial do TSE…';$('mathList').innerHTML='<div class="finalEmpty">Calculando fotografia numérica…</div>';
+ $('mathStatus').textContent=cargo==='governador'?'Recalculando os 27 estados com votos válidos e eleitorado não totalizado…':'Recalculando cenário presidencial nacional…';
+ $('mathList').innerHTML='<div class="finalEmpty">Calculando prova matemática conservadora…</div>';
  let rows=[];
  if(cargo==='presidente'){
    const cached=ideologyCache.presidente?.br;
@@ -518,6 +535,8 @@ async function loadMathResults(force=false){
  }else{
    const cached=(!force&&ideologyCache.governador)?UFS.map(uf=>ideologyCache.governador.states?.[uf]).filter(Boolean):[];
    rows=cached.length===UFS.length?cached:await mapLimit(UFS,6,uf=>electionFetch('governador',uf));
+   const states={};for(const d of rows){if(d&&!d.__error&&d.uf)states[d.uf]=d}
+   ideologyCache.governador={states,br:null};
  }
  rows=rows.filter(x=>x&&!x.__error);mathResultsCache[cargo]=rows;renderMathResults(cargo,rows);
 }
