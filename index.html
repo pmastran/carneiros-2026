@@ -285,6 +285,7 @@ function renderGlobal(){
 }
 function renderSummary(){
  const d=activeData()||{},p=d.percentSections||0;
+ const homeD=state.cargo==='presidente'?(activeData()||d):d;
  $('homeTitle').textContent=cargoLabel(state.cargo)+roundSuffix();
  $('resultTitle').textContent=cargoLabel(state.cargo)+(state.cargo==='presidente'?' • '+(state.resultScope==='br'?'Brasil':state.resultScope==='zz'?(state.exteriorLocationName||'Exterior'):STATES[state.uf]):'')+roundSuffix();
  const stamp=(d.generatedDate||d.generatedTime)?[d.generatedDate,d.generatedTime].filter(Boolean).join(' • '):(d.fetchedAt?'Consulta '+new Date(d.fetchedAt).toLocaleTimeString('pt-BR'):'Dados oficiais do TSE');
@@ -294,7 +295,6 @@ function renderSummary(){
  $('resultProgress').style.width=p+'%';
  $('homeProgressText').textContent=percent(state.cargo==='presidente'?(homeD?.percentSections||0):p)+' das seções';
  $('resultProgressText').textContent=percent(p)+' das seções';
- const homeD=state.cargo==='presidente'?(activeData()||d):d;
  $('homeStatusText').textContent=statusText(homeD);$('resultStatusText').textContent=statusText(d);
  $('statSections').textContent=homeD.sectionsTotal?fmt.format(homeD.sectionsTotalized||0)+' / '+fmt.format(homeD.sectionsTotal):'—';
  $('statValid').textContent=homeD.validVotes?fmt.format(homeD.validVotes):'—';
@@ -329,7 +329,7 @@ function renderHeroPresidentScope(){
  $('heroScopeUf').textContent='📍 '+STATES[state.uf];
 }
 async function openPresidentScope(scope){
- await setPresidentScope(scope);
+ await window.setPresidentScope(scope);
  showView('results');
 }
 window.openPresidentScope=openPresidentScope;
