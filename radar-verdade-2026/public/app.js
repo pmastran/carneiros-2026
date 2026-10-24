@@ -285,5 +285,41 @@ function renderNotes(){const root=$('notesList');if(!state.notes.length){root.re
 function saveNotes(){try{localStorage.setItem('radar:notes',JSON.stringify(state.notes))}catch{}}
 function initNotes(){$('noteForm').addEventListener('submit',e=>{e.preventDefault();const form=new FormData(e.currentTarget);const claim=String(form.get('claim')||'').trim();if(!claim)return;state.notes.unshift({candidate:String(form.get('candidate')),date:'23/10/2026',time:String(form.get('time')||''),claim:claim.slice(0,650)});state.notes=state.notes.slice(0,40);saveNotes();renderNotes();e.currentTarget.reset();$('notesList').scrollIntoView({behavior:'smooth',block:'nearest'})});readNotes()}
 function initInstall(){window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.installPrompt=e;$('installNow').hidden=false});$('installButton').addEventListener('click',()=>{$('installDialog').showModal()});$('closeDialog').addEventListener('click',()=>$('installDialog').close());$('installNow').addEventListener('click',async()=>{if(state.installPrompt){await state.installPrompt.prompt();state.installPrompt=null;$('installNow').hidden=true}});if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
-function boot(){clock();setInterval(clock,10000);updateNet();window.addEventListener('online',()=>{updateNet();fetchClaims();fetchNews();fetchGlobo()});window.addEventListener('offline',()=>{updateNet();$('feedStatus').textContent='Offline · exibindo dados salvos quando disponíveis';$('feedStatus').className='feed-status err'});document.querySelectorAll('.event-tab').forEach(b=>b.addEventListener('click',()=>changeEvent(b.dataset.event)));document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{state.candidate=b.dataset.candidate;document.querySelectorAll('.filter').forEach(v=>v.classList.toggle('active',v===b));renderClaims()}));$('verdictFilter').addEventListener('change',e=>{state.verdict=e.target.value;renderClaims()});$('refresh').addEventListener('click',fetchNews);document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(Date.now()-state.lastFeedAt>=90_000)fetchNews();if(Date.now()-state.lastGloboAt>=90000){fetchGlobo();fetchFactcheckAPI()}}});initInstall();initNotes();initShare();fetchClaims();fetchNews();fetchGlobo();fetchFactcheckAPI();$('globoRefresh').addEventListener('click',()=>{fetchGlobo();fetchFactcheckAPI()});setInterval(()=>{if(!document.hidden&&navigator.onLine){fetchClaims();fetchNews();fetchGlobo();fetchFactcheckAPI()}},60_000)}
+
+const financeState={data:null,scope:'secretaria'};
+const moneyBRL=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+function financeMessage(){
+ const item=financeState.data?.scopes?.[financeState.scope];
+ if(!item)return 'Cartões corporativos: consulte o Portal da Transparência';
+ const fmt=e=>e.annual?e.annual.map(x=>x.year+': '+moneyBRL.format(x.value)).join('\n'):(e.approximate?'aproximadamente ':'')+moneyBRL.format(e.value);
+ return 'RADAR DA VERDADE | CARTÕES CORPORATIVOS\n'+item.title+'\nJair Bolsonaro ('+item.bolsonaro.period+'):\n'+fmt(item.bolsonaro)+'\nLula ('+item.lula.period+'):\n'+fmt(item.lula)+'\nValores nominais de órgãos públicos, não gastos pessoais. Períodos de 4 e 3 anos, respectivamente. Fonte oficial: https://portaldatransparencia.gov.br/cartoes/consulta\nLeituras metodológicas: https://checamos.afp.com/doc.afp.com.98XY4WG\n'+location.origin+'/#cartoes';
+}
+function renderFinance(){
+ const item=financeState.data?.scopes?.[financeState.scope];if(!item)return;
+ $('financeTitle').textContent=item.title+' · '+item.type;
+ $('financeDefinition').textContent=item.definition;
+ document.querySelectorAll('[data-finance]').forEach(b=>b.classList.toggle('active',b.dataset.finance===financeState.scope));
+ const cards=[['Jair Bolsonaro',item.bolsonaro],['Lula',item.lula]].map(([name,d])=>{
+  const card=el('article','finance-card');
+  card.append(el('h3','',name),el('p','',d.period));
+  if(Array.isArray(d.annual)){
+   for(const y of d.annual){const row=el('div','finance-row');row.append(el('span','',String(y.year)),el('strong','',moneyBRL.format(y.value)));card.append(row)}
+  }else card.append(el('strong','finance-total',(d.approximate?'≈ ':'')+moneyBRL.format(d.value)));
+  return card;
+ });
+ $('financeCards').replaceChildren(...cards);
+ $('financeStatus').textContent='Fonte: dados documentais verificados até fevereiro de 2026. Os valores não foram corrigidos pela inflação. Para 2026 consulte os arquivos oficiais da Casa Civil.';
+}
+function initFinance(){
+ document.querySelectorAll('[data-finance]').forEach(b=>b.addEventListener('click',()=>{financeState.scope=b.dataset.finance;renderFinance()}));
+ $('financeShare').addEventListener('click',async()=>{
+  const text=financeMessage();
+  try{if(navigator.share){await navigator.share({title:'Cartões corporativos: dados dos mandatos',text,url:location.origin+'/#cartoes'});return}}catch(e){if(e?.name==='AbortError')return}
+  const ok=await writeClipboard(text);$('financeStatus').textContent=ok?'Dados com fontes copiados.':'Use o botão de copiar.';
+ });
+ $('financeCopy').addEventListener('click',async()=>{$('financeStatus').textContent=(await writeClipboard(financeMessage()))?'Dados com fontes copiados.':'Falha ao copiar.'});
+ fetch('/api/cards',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(data=>{financeState.data=data;renderFinance()}).catch(()=>{$('financeTitle').textContent='Dados indisponíveis';$('financeStatus').textContent='Acesse diretamente o Portal da Transparência.'});
+}
+
+function boot(){clock();setInterval(clock,10000);updateNet();window.addEventListener('online',()=>{updateNet();fetchClaims();fetchNews();fetchGlobo()});window.addEventListener('offline',()=>{updateNet();$('feedStatus').textContent='Offline · exibindo dados salvos quando disponíveis';$('feedStatus').className='feed-status err'});document.querySelectorAll('.event-tab').forEach(b=>b.addEventListener('click',()=>changeEvent(b.dataset.event)));document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{state.candidate=b.dataset.candidate;document.querySelectorAll('.filter').forEach(v=>v.classList.toggle('active',v===b));renderClaims()}));$('verdictFilter').addEventListener('change',e=>{state.verdict=e.target.value;renderClaims()});$('refresh').addEventListener('click',fetchNews);document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(Date.now()-state.lastFeedAt>=90_000)fetchNews();if(Date.now()-state.lastGloboAt>=90000){fetchGlobo();fetchFactcheckAPI()}}});initInstall();initNotes();initShare();initFinance();fetchClaims();fetchNews();fetchGlobo();fetchFactcheckAPI();$('globoRefresh').addEventListener('click',()=>{fetchGlobo();fetchFactcheckAPI()});setInterval(()=>{if(!document.hidden&&navigator.onLine){fetchClaims();fetchNews();fetchGlobo();fetchFactcheckAPI()}},60_000)}
 boot();

@@ -134,6 +134,12 @@ async function handle(req, res) {
     try { const data=JSON.parse(await readFile(path.join(root,'data/claims.json'),'utf8')); const live=await getLiveClaims(); const merged=mergeVerifiedClaims(data.claims,live); return json(res,200,{...data,claims:merged.claims,sourceStatus:live.status,sourceCheckedAt:live.fetchedAt,liveDetectedCount:live.detectedCount,autoAdded:merged.added,autoCorrected:merged.corrected,servedAt:new Date().toISOString()}); }
     catch { return json(res,503,{ok:false,error:'Base de checagens indisponível.'}); }
   }
+  if (url.pathname === '/api/cards') {
+    try {
+      const data=JSON.parse(await readFile(path.join(root,'data/corporate-cards.json'),'utf8'));
+      return json(res,200,data);
+    } catch { return json(res,503,{ok:false,error:'Dados não disponíveis'}); }
+  }
   if (url.pathname === '/api/factchecks') return json(res,200,await fetchStructured());
   if (url.pathname === '/api/coverage') {
     const kind=url.searchParams.get('kind') || 'checagens';
