@@ -1,6 +1,6 @@
 'use strict';
 const $ = id => document.getElementById(id);
-const state = {event:'globo-23',candidate:'todos',verdict:'todos',claims:[],notes:[],news:[],lastFeedAt:0,installPrompt:null,shareClaim:null,globoNews:[],lastGloboAt:0,lastClaimStatus:null,globoClaims:[],globoSync:null,globoSnapshotReady:false};
+const state = {event:'globo-23',candidate:'todos',verdict:'todos',claims:[],notes:[],news:[],lastFeedAt:0,installPrompt:null,shareClaim:null,globoNews:[],lastGloboAt:0,lastClaimStatus:null,globoClaims:[],globoSync:null,globoSnapshotReady:false,globoError:false,lastDeepLinkId:null};
 const CANDIDATES={lula:'Lula',flavio:'Flávio Bolsonaro'};
 const VERDICTS={'verdadeiro':'VERDADEIRO','falso':'FALSO','exagerado':'EXAGERADO','falta-contexto':'FALTA CONTEXTO','nao-comprovado':'NÃO COMPROVADO'};
 const editorialLinks=[{name:'Agência Lupa (pesquisa)',url:'https://www.google.com/search?q=site%3Aagencialupa.org+Lula+Fl%C3%A1vio+checagem'},{name:'g1 Fato ou Fake',url:'https://g1.globo.com/fato-ou-fake/'},{name:'UOL Confere',url:'https://noticias.uol.com.br/confere/'}];
@@ -10,31 +10,60 @@ function clock(){const n=new Date; $('clock').textContent=new Intl.DateTimeForma
 function updateNet(){const ok=navigator.onLine; const n=$('network');n.className='net '+(ok?'connected':'disconnected');n.lastChild.textContent=ok?'Conectado':'Sem internet'}
 function link(url,label){const u=new URL(url);if(u.protocol!=='https:')return el('span','',label);const a=el('a','',label);a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';return a}
 function showEmpty(parent,title,body){const div=el('div','empty');div.append(el('div','symbol','◎'),el('h3','',title),el('p','',body));const links=el('div','');for(const s of editorialLinks){const a=link(s.url,s.name+' ↗');a.style.margin='0 9px';links.append(a)}div.append(links);parent.replaceChildren(div)}
-function renderCounts(){const array=(state.event==='globo-23'?state.globoClaims:state.claims.filter(c=>c.event===state.event));$('claimCount').textContent=String(array.length);for(const candidate of ['lula','flavio'])for(const v of ['true','false']){$(candidate+'-'+v).textContent=String(array.filter(c=>c.candidate===candidate&&c.verdict===(v==='true'?'verdadeiro':'falso')).length)}}
-function renderClaims(){renderCounts();const root=$('claimsList');const filtered=(state.event==='globo-23'?state.globoClaims:state.claims.filter(c=>c.event===state.event)).filter(c=>(state.candidate==='todos'||c.candidate===state.candidate)&&(state.verdict==='todos'||c.verdict===state.verdict));if(!filtered.length){const isGlobo=state.event==='globo-23';showEmpty(root,isGlobo?'Aguardando vereditos da Globo':'Nenhum registro neste filtro',isGlobo?'Esta versão ainda não contém falas da Globo de 23/10 com checagem individualizada publicada. Use os links de checadores abaixo, ou registre uma fala para pesquisar. Não há qualquer classificação inventada.':'Altere os filtros ou consulte as análises originais.');return}
-const selectedId=new URLSearchParams(location.search).get('verificacao');
-const nodes=filtered.map(c=>{
- const box=el('article','claim');
- box.id='verificacao-'+c.id;
- if(c.id===selectedId)box.classList.add('shared-claim');
- const head=el('div','claim-top');
- const who=el('div','claim-who');
- who.append(el('span','claim-tag '+c.candidate,c.candidate==='lula'?'PT':'PL'),el('span','',CANDIDATES[c.candidate]));
- head.append(who,el('span','verdict '+c.verdict,VERDICTS[c.verdict]||c.verdict));
- box.append(head,el('h3','',c.claim),el('p','',c.explanation));if(c.editorialLabel){box.append(el('p','proof-label has-proof','Selo editorial publicado pelo Fato ou Fake: '+c.editorialLabel));}
- const foot=el('div','claim-foot');
- foot.append(el('span','',c.checker+' · '+c.date.split('-').reverse().join('/')+' · '+c.subject),link(c.sourceUrl,'Ver checagem original ↗'));
- box.append(foot);
- const actions=el('div','claim-actions');
- const share=el('button','share-trigger','↗ Compartilhar esta verificação');
- share.type='button';
- share.setAttribute('aria-label','Compartilhar verificação de '+CANDIDATES[c.candidate]+': '+c.claim);
- share.addEventListener('click',()=>openShare(c));
- actions.append(share);
- box.append(actions);
- return box;
-});
-root.replaceChildren(...nodes)}
+
+function sourceMetadata(){
+ const globo=state.event==='globo-23';
+ $('g1SourceStatus').hidden=!globo;
+ $('auditNotice').hidden=globo;
+ $('syncStatus').hidden=globo;
+}
+function renderCounts(){
+ const loaded=state.event==='globo-23'?state.globoSnapshotReady:!!state.lastClaimStatus;
+ const count=state.event==='globo-23'?state.globoClaims.length:state.claims.filter(c=>c.event==='band-18').length;
+ $('claimCount').textContent=loaded?String(count):'—';
+}
+function renderClaims(){
+ sourceMetadata();renderCounts();
+ const globo=state.event==='globo-23';
+ const root=$('claimsList');
+ if(globo&&!state.globoSnapshotReady){
+  showEmpty(root,state.globoError?'Fonte temporariamente indisponível':'Consultando Fato ou Fake',
+    state.globoError?'Não exibimos informações de outras agências como se fossem do g1. Consulte a publicação original.':'Carregando verificações documentadas do g1. Ainda não há dados para apresentar.');
+  return;
+ }
+ if(!globo&&!state.lastClaimStatus){
+  showEmpty(root,'Consultando Agência Lupa','A apuração da Band usa uma base separada do Fato ou Fake.');
+  return;
+ }
+ const relevant=globo?state.globoClaims:state.claims.filter(c=>c.event==='band-18');
+ const filtered=relevant.filter(c=>(state.candidate==='todos'||c.candidate===state.candidate)&&(state.verdict==='todos'||c.verdict===state.verdict));
+ if(!filtered.length){showEmpty(root,'Sem declarações neste filtro','Escolha outro filtro para consultar os registros publicados nesta fonte.');return}
+ const selectedId=new URLSearchParams(location.search).get('verificacao');
+ const nodes=filtered.map(c=>{
+  const box=el('article','claim');box.id='verificacao-'+c.id;
+  if(c.id===selectedId)box.classList.add('shared-claim');
+  const head=el('div','claim-top');
+  const who=el('div','claim-who');
+  who.append(el('span','claim-tag '+c.candidate,c.candidate==='lula'?'PT':'PL'),el('span','',CANDIDATES[c.candidate]));
+  head.append(who,el('span','verdict '+c.verdict,c.editorialLabel||VERDICTS[c.verdict]||c.verdict));
+  box.append(head,el('h3','',c.claim),el('p','',c.explanation));
+  box.append(el('p',c.editorialLabel?'proof-label has-proof':'proof-label no-proof',c.editorialLabel?'Classificação publicada pelo Fato ou Fake. A fala foi resumida para consulta.':'Classificação publicada pela Agência Lupa; não é veredito do Fato ou Fake.'));
+  if(c.primarySource&&c.primarySource.startsWith('https://')){
+   const source=el('div','proof-source');
+   source.append(el('span','','Documento ou registro relacionado: '),link(c.primarySource,'Consultar ↗'));
+   box.append(source);
+  }
+  const foot=el('div','claim-foot');
+  foot.append(el('span','',c.checker+' · '+c.date.split('-').reverse().join('/')+' · '+c.subject),link(c.sourceUrl,'Ler checagem na origem ↗'));
+  box.append(foot);
+  const actions=el('div','claim-actions');
+  const share=el('button','share-trigger','↗ Compartilhar esta verificação');
+  share.type='button';share.addEventListener('click',()=>openShare(c));
+  actions.append(share);box.append(actions);
+  return box;
+ });
+ root.replaceChildren(...nodes);
+}
 
 const SHARE_VERDICT_LABELS={...VERDICTS,'subestimado':'SUBESTIMADO'};
 function verificationUrl(c){
@@ -213,27 +242,52 @@ function initShare(){
 function changeEvent(next){state.event=next;for(const b of document.querySelectorAll('.event-tab')){const selected=b.dataset.event===next;b.classList.toggle('active',selected);b.setAttribute('aria-selected',selected?'true':'false')}renderClaims()}
 function renderAudit(a){const root=$('auditDetail');if(!root)return;if(!a){root.textContent='Auditoria indisponível nesta atualização.';return}const recent=(a.recent||[]).slice(0,3);root.textContent='Origem: Agência Lupa · última captura válida: '+(a.lastFreshAt?timestamp(a.lastFreshAt):'não confirmada')+' · '+a.observations+' declarações observadas. '+(recent.length?'Eventos recentes: '+recent.map(x=>x.type.replaceAll('-',' ')+' ('+x.id+')').join('; ')+'. ':'')+'Histórico nesta instância do servidor; pode reiniciar após nova implantação. Confirme a evidência na publicação original.'}
 function renderSyncStatus(data){const el=$('syncStatus');if(!el)return;const fresh=data.sourceStatus==='fresh';const stale=data.sourceStatus==='stale';const time=data.sourceCheckedAt?timestamp(data.sourceCheckedAt):'sem coleta confirmada';el.textContent=(fresh?'● Fonte consultada: ':stale?'◐ Última consulta válida: ':'○ Sincronização externa indisponível · registros editoriais preservados')+(fresh||stale?time:'')+' · '+(data.autoAdded||0)+' novas verificações automáticas';el.className='sync-status '+(fresh?'ok':stale?'warn':'err');}
+
 async function fetchG1Catalog(){
  try{
   const response=await fetch('/api/g1-checks',{cache:'no-store'});
-  if(!response.ok)throw Error('Falha na consulta');
+  if(!response.ok)throw new Error('HTTP '+response.status);
   const data=await response.json();
-  if(!data.ok||!Array.isArray(data.claims))throw Error('Resposta inválida');
+  if(!data.ok||!Array.isArray(data.claims)||data.sourceStatus!=='editorial-snapshot')throw new Error('Resposta inválida');
   const tags={verdadeiro:'#FATO',falso:'#FAKE','falta-contexto':'#NÃOÉBEMASSIM'};
-  state.globoClaims=data.claims.filter(c=>tags[c.verdict]===c.editorialLabel&&c.checker==='Fato ou Fake (Grupo Globo)');
-  state.globoSync=data;
-  state.globoSnapshotReady=true;
-  const x=$('g1SourceStatus');
-  if(x)x.textContent='Fonte principal: Fato ou Fake (g1) · '+state.globoClaims.length+' verificações atribuídas · catálogo editorial conferido em '+data.reviewedAt+' · não é API ao vivo';
-  renderClaims();
+  const claims=data.claims.filter(c=>tags[c.verdict]===c.editorialLabel&&c.checker==='Fato ou Fake (Grupo Globo)'&&c.sourceId==='g1'&&typeof c.sourceUrl==='string'&&c.sourceUrl.startsWith('https://g1.globo.com/fato-ou-fake/'));
+  if(!claims.length)throw new Error('Catálogo sem registros atribuídos');
+  state.globoClaims=claims;state.globoSync=data;state.globoSnapshotReady=true;state.globoError=false;
+  $('g1SourceStatus').textContent='Fonte principal: Fato ou Fake (g1). Catálogo de verificações publicadas, conferido em '+data.reviewedAt+'. Não é uma conexão interna ao vivo da Globo.';
+  if(state.event==='globo-23')renderClaims();
+  const id=new URLSearchParams(location.search).get('verificacao');
+  if(state.event==='globo-23'&&state.lastDeepLinkId!==id&&claims.some(c=>c.id===id)){
+   state.lastDeepLinkId=id;state.candidate='todos';state.verdict='todos';$('verdictFilter').value='todos';
+   document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b.dataset.candidate==='todos'));
+   renderClaims();setTimeout(()=>document.getElementById('verificacao-'+id)?.scrollIntoView({block:'center'}),250);
+  }
  }catch{
-  state.globoSnapshotReady=false;
-  const x=$('g1SourceStatus');
-  if(x)x.textContent='A fonte principal não pôde ser carregada. Sem substituir por dados de outro veículo.';
-  if(state.event==='globo-23')showEmpty($('claimsList'),'Fonte principal indisponível','Confira a reportagem original do g1.');
+  state.globoClaims=[];state.globoSnapshotReady=false;state.globoError=true;
+  $('g1SourceStatus').textContent='O Fato ou Fake não pôde ser carregado. Não exibimos dados da Lupa como substitutos.';
+  if(state.event==='globo-23')renderClaims();
  }
 }
-async function fetchClaims(){try{const r=await fetch('/api/claims',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const data=await r.json();if(!Array.isArray(data.claims))throw Error('Catálogo inválido');state.claims=data.claims;state.lastClaimStatus=data;renderSyncStatus(data);renderAudit(data.audit);const id=new URLSearchParams(location.search).get('verificacao');const shared=[...state.globoClaims,...state.claims].find(c=>c.id===id);if(shared){state.candidate='todos';state.verdict='todos';$('verdictFilter').value='todos';document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b.dataset.candidate==='todos'));changeEvent(shared.event);setTimeout(()=>document.getElementById('verificacao-'+shared.id)?.scrollIntoView({behavior:'smooth',block:'center'}),450)}else renderClaims()}catch(e){showEmpty($('claimsList'),'Verificações indisponíveis','Não foi possível carregar a base de verificações. Nenhuma classificação é exibida sem fonte.');$('claimCount').textContent='—'}}
+async function fetchClaims(){
+ try{
+  const response=await fetch('/api/claims',{cache:'no-store'});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const data=await response.json();
+  if(!Array.isArray(data.claims))throw new Error('Formato inválido');
+  state.claims=data.claims.filter(c=>c.event==='band-18'&&c.checker==='Agência Lupa');
+  state.lastClaimStatus=data;
+  renderSyncStatus(data);renderAudit(data.audit);
+  const id=new URLSearchParams(location.search).get('verificacao');
+  const shared=state.claims.find(c=>c.id===id);
+  if(shared&&state.lastDeepLinkId!==id){
+   state.lastDeepLinkId=id;state.candidate='todos';state.verdict='todos';$('verdictFilter').value='todos';
+   document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b.dataset.candidate==='todos'));
+   changeEvent('band-18');
+   setTimeout(()=>document.getElementById('verificacao-'+id)?.scrollIntoView({block:'center'}),250);
+  }else if(state.event==='band-18')renderClaims();
+ }catch{
+  if(state.event==='band-18'){state.lastClaimStatus=null;renderClaims()}
+ }
+}
 async function fetchNews(){if(document.hidden||!navigator.onLine)return;const status=$('feedStatus');status.textContent='Atualizando cobertura...';status.className='feed-status';$('refresh').disabled=true;try{const r=await fetch('/api/coverage?kind=checagens',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const data=await r.json();if(data.ok&&!data.stale){state.news=data.items;try{localStorage.setItem('radar:news',JSON.stringify(data.items))}catch{}} else if(!data.ok){throw Error(data.error||'Feed indisponível')}else state.news=data.items;state.lastFeedAt=Date.now();status.textContent=`${data.stale?'Dados anteriores':'Consultado'} às ${timestamp(data.updatedAt)}${data.stale?' · Feed temporariamente indisponível':''}`;status.className='feed-status '+(data.stale?'err':'ok');renderNews()}catch(e){try{const cached=JSON.parse(localStorage.getItem('radar:news')||'[]');if(Array.isArray(cached)&&cached.length){state.news=cached;status.textContent='Feed indisponível · mostrando última coleta salva no aparelho';status.className='feed-status err';renderNews()}else{status.textContent='Não foi possível consultar o feed neste momento';status.className='feed-status err';showEmpty($('feedItems'),'Sem matérias carregadas','O feed pode falhar ou atrasar. Consulte diretamente a Agência Lupa, o g1 e o UOL Confere.') }}catch{showEmpty($('feedItems'),'Feed indisponível','Acesse os veículos originais pelos links abaixo.');status.textContent='Feed indisponível';status.className='feed-status err'}}finally{$('refresh').disabled=false}}
 function renderNews(){const root=$('feedItems');if(!state.news.length){showEmpty(root,'Nenhuma publicação retornada','O feed ainda não apresentou artigos na consulta. Isso não significa que o debate não tenha sido checado.');return}const cards=state.news.map(item=>{const card=el('article','news');const m=el('div','meta');m.append(el('b','',item.source),el('span','',timestamp(item.published)));const title=el('h3','',item.title);const explanation=el('p','source-note','Título recebido de um agregador. Não é um veredito. O endereço original pode ter sido removido.');const actions=el('div','news-actions');const q=encodeURIComponent('"'+item.title.slice(0,170)+'"');const search=link('https://www.google.com/search?q='+q,'Pesquisar esta manchete ↗');search.className='safe-search';actions.append(search);if(item.url){try{const u=new URL(item.url);if(u.protocol==='https:'){const original=link(item.url,'Tentar link do veículo ↗');original.className='original-link';original.title='Link externo não validado; poderá apresentar erro 404';actions.append(original)}}catch{}}card.append(m,title,explanation,actions);return card});root.replaceChildren(...cards)}
 
@@ -305,7 +359,7 @@ function readNotes(){try{const value=JSON.parse(localStorage.getItem('radar:note
 function renderNotes(){const root=$('notesList');if(!state.notes.length){root.replaceChildren();return}const list=state.notes.map((n,idx)=>{const card=el('article','note');const inner=el('div','');inner.append(el('span','note-label','NÃO VERIFICADO · '+CANDIDATES[n.candidate]+' · '+n.date+(n.time?' '+n.time:'')),el('p','',n.claim));const query=encodeURIComponent('"'+n.claim.slice(0,110)+'" '+CANDIDATES[n.candidate]);inner.append(link('https://news.google.com/search?q='+query,'Pesquisar fontes ↗'));const remove=el('button','','Excluir');remove.type='button';remove.addEventListener('click',()=>{state.notes.splice(idx,1);saveNotes();renderNotes()});card.append(inner,remove);return card});root.replaceChildren(...list)}
 function saveNotes(){try{localStorage.setItem('radar:notes',JSON.stringify(state.notes))}catch{}}
 function initNotes(){$('noteForm').addEventListener('submit',e=>{e.preventDefault();const form=new FormData(e.currentTarget);const claim=String(form.get('claim')||'').trim();if(!claim)return;state.notes.unshift({candidate:String(form.get('candidate')),date:'23/10/2026',time:String(form.get('time')||''),claim:claim.slice(0,650)});state.notes=state.notes.slice(0,40);saveNotes();renderNotes();e.currentTarget.reset();$('notesList').scrollIntoView({behavior:'smooth',block:'nearest'})});readNotes()}
-function initInstall(){window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.installPrompt=e;$('installNow').hidden=false});$('installButton').addEventListener('click',()=>{$('installDialog').showModal()});$('closeDialog').addEventListener('click',()=>$('installDialog').close());$('installNow').addEventListener('click',async()=>{if(state.installPrompt){await state.installPrompt.prompt();state.installPrompt=null;$('installNow').hidden=true}});if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
+function initInstall(){window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.installPrompt=e;$('installNow').hidden=false});$('installButton').addEventListener('click',()=>{$('installDialog').showModal()});$('closeDialog').addEventListener('click',()=>$('installDialog').close());$('installNow').addEventListener('click',async()=>{if(state.installPrompt){await state.installPrompt.prompt();state.installPrompt=null;$('installNow').hidden=true}});if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js?v=11').catch(()=>{}))}
 
 const financeState={data:null,scope:'secretaria'};
 const moneyBRL=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
@@ -342,5 +396,5 @@ function initFinance(){
  fetch('/api/cards',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(data=>{financeState.data=data;renderFinance()}).catch(()=>{$('financeTitle').textContent='Dados indisponíveis';$('financeStatus').textContent='Acesse diretamente o Portal da Transparência.'});
 }
 
-function boot(){clock();setInterval(clock,10000);updateNet();window.addEventListener('online',()=>{updateNet();fetchClaims();fetchNews();fetchGlobo()});window.addEventListener('offline',()=>{updateNet();$('feedStatus').textContent='Offline · exibindo dados salvos quando disponíveis';$('feedStatus').className='feed-status err'});document.querySelectorAll('.event-tab').forEach(b=>b.addEventListener('click',()=>changeEvent(b.dataset.event)));document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{state.candidate=b.dataset.candidate;document.querySelectorAll('.filter').forEach(v=>v.classList.toggle('active',v===b));renderClaims()}));$('verdictFilter').addEventListener('change',e=>{state.verdict=e.target.value;renderClaims()});$('refresh').addEventListener('click',fetchNews);document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(Date.now()-state.lastFeedAt>=90_000)fetchNews();if(Date.now()-state.lastGloboAt>=90000){fetchGlobo();fetchFactcheckAPI()}}});initInstall();initNotes();initShare();initFinance();fetchClaims();fetchG1Catalog();fetchNews();fetchGlobo();fetchFactcheckAPI();$('globoRefresh').addEventListener('click',()=>{fetchGlobo();fetchFactcheckAPI()});setInterval(()=>{if(!document.hidden&&navigator.onLine){fetchClaims();fetchG1Catalog();fetchNews();fetchGlobo();fetchFactcheckAPI()}},60_000)}
+function boot(){renderClaims();clock();setInterval(clock,10000);updateNet();window.addEventListener('online',()=>{updateNet();fetchClaims();fetchNews();fetchGlobo()});window.addEventListener('offline',()=>{updateNet();$('feedStatus').textContent='Offline · exibindo dados salvos quando disponíveis';$('feedStatus').className='feed-status err'});document.querySelectorAll('.event-tab').forEach(b=>b.addEventListener('click',()=>changeEvent(b.dataset.event)));document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{state.candidate=b.dataset.candidate;document.querySelectorAll('.filter').forEach(v=>v.classList.toggle('active',v===b));renderClaims()}));$('verdictFilter').addEventListener('change',e=>{state.verdict=e.target.value;renderClaims()});$('refresh').addEventListener('click',fetchNews);document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(Date.now()-state.lastFeedAt>=90_000)fetchNews();if(Date.now()-state.lastGloboAt>=90000){fetchGlobo();fetchFactcheckAPI()}}});initInstall();initNotes();initShare();initFinance();fetchClaims();fetchG1Catalog();fetchNews();fetchGlobo();fetchFactcheckAPI();$('globoRefresh').addEventListener('click',()=>{fetchGlobo();fetchFactcheckAPI()});setInterval(()=>{if(!document.hidden&&navigator.onLine){fetchClaims();fetchG1Catalog();fetchNews();fetchGlobo();fetchFactcheckAPI()}},60_000)}
 boot();
