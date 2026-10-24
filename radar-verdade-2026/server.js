@@ -190,7 +190,7 @@ async function handle(req, res) {
 
     const ext=path.extname(file);
     const contentType=types[ext] || 'application/octet-stream';
-    const cacheTime=ext==='.html'?'no-store':ext==='.js'||ext==='.css'?'public, max-age=300':'public, max-age=3600';
+    const cacheTime=ext==='.html'||ext==='.js'||ext==='.css'?'no-store':'public, max-age=3600';
     res.writeHead(200,headers({'Content-Type':contentType,'Cache-Control':cacheTime}));
     res.end(req.method==='HEAD'?undefined:content);
   } catch {res.writeHead(404,headers({'Content-Type':'text/plain; charset=utf-8'}));res.end('Arquivo não encontrado');}

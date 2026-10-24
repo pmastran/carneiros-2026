@@ -12,9 +12,9 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="/icon.svg">
   <link rel="apple-touch-icon" href="/icon-192.png">
-  <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/app.css?v=11">
   <title>Radar da Verdade — Debate 2026</title>
-  <script src="/app.js" defer></script>
+  <script src="/app.js?v=11" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -53,7 +53,7 @@
       <div class="section-head">
         <div>
           <div class="section-kicker">01 / DECLARAÇÕES</div>
-          <h2>Declarações verificadas</h2>
+          <h2>Declarações verificadas por fonte</h2>
           <p>Globo: classificações publicadas pelo Fato ou Fake do Grupo Globo. Band: registros separados da Agência Lupa. Fontes e metodologia identificadas.</p>
         </div>
         <div class="checked-count"><strong id="claimCount">—</strong><small>registros nesta base</small></div>
@@ -64,12 +64,12 @@
         <button id="event-band" class="event-tab" type="button" role="tab" aria-selected="false" data-event="band-18"><span class="event-day">18 OUT</span><span><b>Band</b><small>2º turno · checagens publicadas</small></span></button>
       </div>
 
-      <p id="g1SourceStatus" class="sync-status">Carregando classificações publicadas pelo Fato ou Fake (Grupo Globo)...</p>
+      <p id="g1SourceStatus" class="sync-status" aria-live="polite">Consultando exclusivamente o Fato ou Fake do g1...</p>
       <div class="candidate-row">
-        <article class="candidate-card pt"><div><span class="candidate-party">PT</span><h3>Lula</h3><p>Luiz Inácio Lula da Silva</p></div><div class="metrics"><span><strong id="lula-true">—</strong> verdadeiras</span><span><strong id="lula-false">—</strong> falsas</span></div></article>
-        <article class="candidate-card pl"><div><span class="candidate-party">PL</span><h3>Flávio Bolsonaro</h3><p>Flávio Nantes Bolsonaro</p></div><div class="metrics"><span><strong id="flavio-true">—</strong> verdadeiras</span><span><strong id="flavio-false">—</strong> falsas</span></div></article>
+        <article class="candidate-card pt"><div><span class="candidate-party">PT</span><h3>Lula</h3><p>Luiz Inácio Lula da Silva</p></div><p class="candidate-context">Falas com checagem e fonte individual</p></article>
+        <article class="candidate-card pl"><div><span class="candidate-party">PL</span><h3>Flávio Bolsonaro</h3><p>Flávio Nantes Bolsonaro</p></div><p class="candidate-context">Falas com checagem e fonte individual</p></article>
       </div>
-      <div class="small-note">Contagens se referem somente aos registros exibidos nesta base para o debate selecionado. Não são estatísticas completas dos discursos.</div>
+      <div class="small-note">Os registros são uma seleção editorial das falas verificadas. Não representam todas as declarações, nem demonstram intenção de mentir.</div>
 
       <div class="filterbar">
         <div class="filters" aria-label="Filtrar por candidato">
@@ -81,8 +81,8 @@
           <select id="verdictFilter" aria-label="Filtrar por classificação"><option value="todos">Todas</option><option value="verdadeiro">Verdadeiro</option><option value="falso">Falso</option><option value="exagerado">Exagerado</option><option value="falta-contexto">Falta contexto</option><option value="nao-comprovado">Não comprovado</option></select>
         </label>
       </div>
-<div class="source-notice" id="auditNotice"><div class="notice-icon">i</div><p id="auditDetail">Histórico de captura e correções da fonte em preparação.</p></div>
-      <p id="syncStatus" class="sync-status" role="status" aria-live="polite">Conferindo verificações publicadas...</p>
+<div class="source-notice" id="auditNotice" hidden><div class="notice-icon">i</div><p id="auditDetail">Histórico de captura e correções da fonte em preparação.</p></div>
+      <p id="syncStatus" class="sync-status" hidden role="status" aria-live="polite">Conferindo verificações publicadas...</p>
       <div id="claimsList" class="claim-list" aria-live="polite"><div class="skeleton"></div><div class="skeleton"></div></div>
     </section>
 
