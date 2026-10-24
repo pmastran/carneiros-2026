@@ -1,6 +1,6 @@
 'use strict';
 const $ = id => document.getElementById(id);
-const state = {event:'globo-23',candidate:'todos',verdict:'todos',claims:[],notes:[],news:[],lastFeedAt:0,installPrompt:null};
+const state = {event:'globo-23',candidate:'todos',verdict:'todos',claims:[],notes:[],news:[],lastFeedAt:0,installPrompt:null,shareClaim:null};
 const CANDIDATES={lula:'Lula',flavio:'Flávio Bolsonaro'};
 const VERDICTS={'verdadeiro':'VERDADEIRO','falso':'FALSO','exagerado':'EXAGERADO','falta-contexto':'FALTA CONTEXTO','nao-comprovado':'NÃO COMPROVADO'};
 const editorialLinks=[{name:'Agência Lupa (pesquisa)',url:'https://www.google.com/search?q=site%3Aagencialupa.org+Lula+Fl%C3%A1vio+checagem'},{name:'g1 Fato ou Fake',url:'https://g1.globo.com/fato-ou-fake/'},{name:'UOL Confere',url:'https://noticias.uol.com.br/confere/'}];
@@ -12,9 +12,206 @@ function link(url,label){const u=new URL(url);if(u.protocol!=='https:')return el
 function showEmpty(parent,title,body){const div=el('div','empty');div.append(el('div','symbol','◎'),el('h3','',title),el('p','',body));const links=el('div','');for(const s of editorialLinks){const a=link(s.url,s.name+' ↗');a.style.margin='0 9px';links.append(a)}div.append(links);parent.replaceChildren(div)}
 function renderCounts(){const array=state.claims.filter(c=>c.event===state.event);$('claimCount').textContent=String(array.length);for(const candidate of ['lula','flavio'])for(const v of ['true','false']){$(candidate+'-'+v).textContent=String(array.filter(c=>c.candidate===candidate&&c.verdict===(v==='true'?'verdadeiro':'falso')).length)}}
 function renderClaims(){renderCounts();const root=$('claimsList');const filtered=state.claims.filter(c=>c.event===state.event&&(state.candidate==='todos'||c.candidate===state.candidate)&&(state.verdict==='todos'||c.verdict===state.verdict));if(!filtered.length){const isGlobo=state.event==='globo-23';showEmpty(root,isGlobo?'Aguardando vereditos da Globo':'Nenhum registro neste filtro',isGlobo?'Esta versão ainda não contém falas da Globo de 23/10 com checagem individualizada publicada. Use os links de checadores abaixo, ou registre uma fala para pesquisar. Não há qualquer classificação inventada.':'Altere os filtros ou consulte as análises originais.');return}
-const nodes=filtered.map(c=>{const box=el('article','claim');const head=el('div','claim-top');const who=el('div','claim-who');who.append(el('span','claim-tag '+c.candidate,c.candidate==='lula'?'PT':'PL'),el('span','',CANDIDATES[c.candidate]));head.append(who,el('span','verdict '+c.verdict,VERDICTS[c.verdict]||c.verdict));box.append(head,el('h3','',c.claim),el('p','',c.explanation));const foot=el('div','claim-foot');foot.append(el('span','',`${c.checker} · ${c.date.split('-').reverse().join('/')} · ${c.subject}`),link(c.sourceUrl,'Ver checagem original ↗'));box.append(foot);return box});root.replaceChildren(...nodes)}
+const selectedId=new URLSearchParams(location.search).get('verificacao');
+const nodes=filtered.map(c=>{
+ const box=el('article','claim');
+ box.id='verificacao-'+c.id;
+ if(c.id===selectedId)box.classList.add('shared-claim');
+ const head=el('div','claim-top');
+ const who=el('div','claim-who');
+ who.append(el('span','claim-tag '+c.candidate,c.candidate==='lula'?'PT':'PL'),el('span','',CANDIDATES[c.candidate]));
+ head.append(who,el('span','verdict '+c.verdict,VERDICTS[c.verdict]||c.verdict));
+ box.append(head,el('h3','',c.claim),el('p','',c.explanation));
+ const foot=el('div','claim-foot');
+ foot.append(el('span','',c.checker+' · '+c.date.split('-').reverse().join('/')+' · '+c.subject),link(c.sourceUrl,'Ver checagem original ↗'));
+ box.append(foot);
+ const actions=el('div','claim-actions');
+ const share=el('button','share-trigger','↗ Compartilhar esta verificação');
+ share.type='button';
+ share.setAttribute('aria-label','Compartilhar verificação de '+CANDIDATES[c.candidate]+': '+c.claim);
+ share.addEventListener('click',()=>openShare(c));
+ actions.append(share);
+ box.append(actions);
+ return box;
+});
+root.replaceChildren(...nodes)}
+
+const SHARE_VERDICT_LABELS={...VERDICTS,'subestimado':'SUBESTIMADO'};
+function verificationUrl(c){
+ const u=new URL('/',location.origin);
+ u.searchParams.set('verificacao',c.id);
+ u.hash='verificacoes';
+ return u.toString();
+}
+function verificationLabel(c){
+ return SHARE_VERDICT_LABELS[c.verdict]||String(c.verdict).toUpperCase();
+}
+function shareMessage(c,includeLink=true){
+ const source=c.checker||'Veículo de checagem identificado';
+ const lines=[
+  '🔎 *RADAR DA VERDADE — CHECAGEM DE FATO*',
+  '',
+  '*'+CANDIDATES[c.candidate]+' — '+verificationLabel(c)+'*',
+  '',
+  '*Afirmação:* '+c.claim,
+  '',
+  '*Contexto da checagem:* '+c.explanation,
+  '',
+  '*Veredito atribuído a:* '+source,
+  '*Fonte original:* '+c.sourceUrl
+ ];
+ if(includeLink)lines.push('','*Abrir esta verificação no Radar:* '+verificationUrl(c));
+ lines.push('','Classificação da fonte citada. Não é uma afirmação de intenção de mentir.');
+ return lines.join('\n');
+}
+function shareFeedback(message,isError=false){
+ const status=$('shareFeedback');
+ status.textContent=message;
+ status.className=isError?'share-feedback error':'share-feedback';
+}
+function openShare(c){
+ state.shareClaim=c;
+ const preview=$('sharePreview');
+ const name=el('div','share-candidate',CANDIDATES[c.candidate]+' · '+c.date.split('-').reverse().join('/'));
+ const verdict=el('span','verdict '+c.verdict,verificationLabel(c));
+ const title=el('h3','',c.claim);
+ const summary=el('p','',c.explanation);
+ const source=el('div','share-attribution','Classificação publicada por '+(c.checker||'fonte identificada'));
+ const sources=el('div','share-source-links');
+ const linkSource=link(c.sourceUrl,'Ver fonte original ↗');
+ const searchSource=link('https://www.google.com/search?q='+encodeURIComponent('"'+c.claim+'" '+(c.checker||'checagem')),'Localizar a checagem ↗');
+ sources.append(linkSource,searchSource);
+ preview.replaceChildren(name,verdict,title,summary,source,sources);
+ $('shareWhatsapp').href='https://wa.me/?text='+encodeURIComponent(shareMessage(c));
+ shareFeedback('');
+ const dlg=$('shareDialog');
+ if(!dlg.open)dlg.showModal();
+}
+async function writeClipboard(value){
+ try{
+  if(navigator.clipboard&&window.isSecureContext){
+   await navigator.clipboard.writeText(value);
+   return true;
+  }
+ }catch{}
+ const dlg=$('shareDialog');
+ const t=document.createElement('textarea');
+ t.value=value;t.setAttribute('readonly','');
+ t.style.position='fixed';t.style.left='12px';t.style.top='12px';
+ t.style.opacity='0.01';t.style.width='1px';t.style.height='1px';
+ (dlg.open?dlg:document.body).appendChild(t);
+ t.focus();t.select();t.setSelectionRange(0,t.value.length);
+ let ok=false;
+ try{ok=document.execCommand('copy')}catch{}
+ t.remove();
+ return ok;
+}
+async function nativeShare(){
+ const c=state.shareClaim;if(!c)return;
+ try{
+  if(typeof navigator.share==='function'){
+   await navigator.share({title:'Radar da Verdade: '+verificationLabel(c)+' · '+CANDIDATES[c.candidate],text:shareMessage(c,false),url:verificationUrl(c)});
+   shareFeedback('Compartilhamento enviado ao menu do celular.');
+  }else{
+   const ok=await writeClipboard(shareMessage(c));
+   shareFeedback(ok?'Mensagem copiada. Cole no aplicativo que desejar.':'Não foi possível copiar.',!ok);
+  }
+ }catch(e){
+  if(e&&e.name==='AbortError')return;
+  shareFeedback('O compartilhamento não foi concluído. Use o WhatsApp ou Copiar mensagem.',true);
+ }
+}
+function canvasLines(ctx,text,maxWidth,maxLines){
+ const words=String(text||'').split(/\s+/).filter(Boolean);
+ let lines=[],line='';
+ for(const word of words){
+  const proposed=line?line+' '+word:word;
+  if(!line||ctx.measureText(proposed).width<=maxWidth){line=proposed}
+  else{lines.push(line);line=word}
+ }
+ if(line)lines.push(line);
+ if(lines.length>maxLines){
+  lines=lines.slice(0,maxLines);
+  let last=lines[maxLines-1];
+  while(last.includes(' ')&&ctx.measureText(last+'…').width>maxWidth)last=last.split(' ').slice(0,-1).join(' ');
+  lines[maxLines-1]=last+'…';
+ }
+ return lines;
+}
+function drawCardText(ctx,text,x,y,width,lineHeight,maxLines){
+ const lines=canvasLines(ctx,text,width,maxLines);
+ for(const line of lines){ctx.fillText(line,x,y);y+=lineHeight}
+ return y;
+}
+async function shareImage(){
+ const c=state.shareClaim;if(!c)return;
+ const btn=$('shareImage');
+ btn.disabled=true;
+ shareFeedback('Preparando o card de verificação…');
+ try{
+  const cvs=document.createElement('canvas');cvs.width=1080;cvs.height=1920;
+  const ctx=cvs.getContext('2d');if(!ctx)throw Error('Canvas indisponível');
+  const bg=ctx.createLinearGradient(0,0,1080,1920);bg.addColorStop(0,'#07101d');bg.addColorStop(1,'#102235');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,1080,1920);
+  ctx.strokeStyle='rgba(53,212,227,.20)';ctx.lineWidth=3;
+  for(const r of [95,165,235]){ctx.beginPath();ctx.arc(950,150,r,0,Math.PI*2);ctx.stroke()}
+  ctx.fillStyle='#42d9e6';ctx.fillRect(64,63,12,100);
+  ctx.font='800 48px Arial, sans-serif';ctx.fillStyle='#f0faff';ctx.fillText('RADAR DA VERDADE',108,115);
+  ctx.font='700 25px Arial, sans-serif';ctx.fillStyle='#8dc1d0';ctx.fillText('ELEIÇÕES 2026  •  VERIFICAÇÃO DOCUMENTADA',108,159);
+  ctx.font='700 31px Arial, sans-serif';ctx.fillStyle='#adbecd';ctx.fillText('AFIRMAÇÃO DE',75,285);
+  ctx.font='800 56px Arial, sans-serif';ctx.fillStyle='#fff';ctx.fillText(CANDIDATES[c.candidate],75,365);
+  const color=c.verdict==='verdadeiro'?'#61d9af':c.verdict==='falso'?'#ff9298':'#f3c77f';
+  ctx.fillStyle=color;ctx.fillRect(75,405,930,93);
+  ctx.font='900 47px Arial, sans-serif';ctx.fillStyle='#071420';ctx.fillText(verificationLabel(c),110,471);
+  ctx.font='700 28px Arial, sans-serif';ctx.fillStyle='#83c6d1';ctx.fillText('O QUE FOI DITO',75,585);
+  ctx.font='800 53px Arial, sans-serif';ctx.fillStyle='#f7fcff';
+  drawCardText(ctx,c.claim,75,672,930,71,6);
+  ctx.strokeStyle='#304658';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(75,1130);ctx.lineTo(1000,1130);ctx.stroke();
+  ctx.font='700 28px Arial, sans-serif';ctx.fillStyle='#83c6d1';ctx.fillText('O QUE A CHECAGEM APONTOU',75,1215);
+  ctx.font='400 36px Arial, sans-serif';ctx.fillStyle='#d4e3eb';
+  drawCardText(ctx,c.explanation,75,1284,930,50,6);
+  ctx.fillStyle='#102d39';ctx.fillRect(0,1610,1080,310);
+  ctx.font='700 31px Arial, sans-serif';ctx.fillStyle='#69dfe4';ctx.fillText('Fonte do veredito: '+c.checker,75,1704);
+  ctx.font='500 27px Arial, sans-serif';ctx.fillStyle='#e7f2f5';ctx.fillText('Verifique a fala e a fonte no aplicativo:',75,1764);
+  ctx.fillText('radar-verdade-debate-2026.onrender.com',75,1808);
+  ctx.font='400 22px Arial, sans-serif';ctx.fillStyle='#a6c0c9';ctx.fillText('A classificação não demonstra intenção de mentir.',75,1871);
+  const blob=await new Promise(resolve=>cvs.toBlob(resolve,'image/png',0.95));
+  if(!blob)throw Error('Imagem indisponível');
+  const file=new File([blob],'radar-da-verdade-'+c.id+'.png',{type:'image/png'});
+  if(typeof navigator.share==='function'&&typeof navigator.canShare==='function'&&navigator.canShare({files:[file]})){
+   try{
+    await navigator.share({files:[file],title:'Radar da Verdade — '+verificationLabel(c),text:'Veja a classificação e a fonte: '+verificationUrl(c)});
+    shareFeedback('Card de imagem enviado ao menu de compartilhamento.');
+    return;
+   }catch(e){if(e&&e.name==='AbortError'){shareFeedback('Compartilhamento cancelado.');return}}
+  }
+  const href=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=href;a.download=file.name;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(href),10000);
+  shareFeedback('Card PNG criado. Use-o em Stories ou mensagens.');
+ }catch{
+  shareFeedback('Não foi possível criar o card neste navegador. Compartilhe a mensagem ou o link.',true);
+ }finally{btn.disabled=false}
+}
+function initShare(){
+ $('shareClose').addEventListener('click',()=>$('shareDialog').close());
+ $('shareNative').addEventListener('click',nativeShare);
+ $('shareImage').addEventListener('click',shareImage);
+ $('shareCopyMessage').addEventListener('click',async()=>{
+  if(!state.shareClaim)return;
+  const ok=await writeClipboard(shareMessage(state.shareClaim));
+  shareFeedback(ok?'Mensagem com veredito, contexto, fonte e link copiada.':'Não foi possível copiar a mensagem.',!ok);
+ });
+ $('shareCopyLink').addEventListener('click',async()=>{
+  if(!state.shareClaim)return;
+  const ok=await writeClipboard(verificationUrl(state.shareClaim));
+  shareFeedback(ok?'Link direto desta verificação copiado.':'Não foi possível copiar o link.',!ok);
+ });
+}
+
 function changeEvent(next){state.event=next;for(const b of document.querySelectorAll('.event-tab')){const selected=b.dataset.event===next;b.classList.toggle('active',selected);b.setAttribute('aria-selected',selected?'true':'false')}renderClaims()}
-async function fetchClaims(){try{const r=await fetch('/api/claims',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const data=await r.json();if(!Array.isArray(data.claims))throw Error('Catálogo inválido');state.claims=data.claims;renderClaims()}catch(e){showEmpty($('claimsList'),'Verificações indisponíveis','Não foi possível carregar a base de verificações. Nenhuma classificação é exibida sem fonte.');$('claimCount').textContent='—'}}
+async function fetchClaims(){try{const r=await fetch('/api/claims',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const data=await r.json();if(!Array.isArray(data.claims))throw Error('Catálogo inválido');state.claims=data.claims;const id=new URLSearchParams(location.search).get('verificacao');const shared=state.claims.find(c=>c.id===id);if(shared){state.candidate='todos';state.verdict='todos';$('verdictFilter').value='todos';document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b.dataset.candidate==='todos'));changeEvent(shared.event);setTimeout(()=>document.getElementById('verificacao-'+shared.id)?.scrollIntoView({behavior:'smooth',block:'center'}),450)}else renderClaims()}catch(e){showEmpty($('claimsList'),'Verificações indisponíveis','Não foi possível carregar a base de verificações. Nenhuma classificação é exibida sem fonte.');$('claimCount').textContent='—'}}
 async function fetchNews(){if(document.hidden||!navigator.onLine)return;const status=$('feedStatus');status.textContent='Atualizando cobertura...';status.className='feed-status';$('refresh').disabled=true;try{const r=await fetch('/api/coverage?kind=checagens',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const data=await r.json();if(data.ok&&!data.stale){state.news=data.items;try{localStorage.setItem('radar:news',JSON.stringify(data.items))}catch{}} else if(!data.ok){throw Error(data.error||'Feed indisponível')}else state.news=data.items;state.lastFeedAt=Date.now();status.textContent=`${data.stale?'Dados anteriores':'Consultado'} às ${timestamp(data.updatedAt)}${data.stale?' · Feed temporariamente indisponível':''}`;status.className='feed-status '+(data.stale?'err':'ok');renderNews()}catch(e){try{const cached=JSON.parse(localStorage.getItem('radar:news')||'[]');if(Array.isArray(cached)&&cached.length){state.news=cached;status.textContent='Feed indisponível · mostrando última coleta salva no aparelho';status.className='feed-status err';renderNews()}else{status.textContent='Não foi possível consultar o feed neste momento';status.className='feed-status err';showEmpty($('feedItems'),'Sem matérias carregadas','O feed pode falhar ou atrasar. Consulte diretamente a Agência Lupa, o g1 e o UOL Confere.') }}catch{showEmpty($('feedItems'),'Feed indisponível','Acesse os veículos originais pelos links abaixo.');status.textContent='Feed indisponível';status.className='feed-status err'}}finally{$('refresh').disabled=false}}
 function renderNews(){const root=$('feedItems');if(!state.news.length){showEmpty(root,'Nenhuma publicação retornada','O feed ainda não apresentou artigos na consulta. Isso não significa que o debate não tenha sido checado.');return}const cards=state.news.map(item=>{const card=el('article','news');const m=el('div','meta');m.append(el('b','',item.source),el('span','',timestamp(item.published)));const title=el('h3','',item.title);const explanation=el('p','source-note','Título recebido de um agregador. Não é um veredito. O endereço original pode ter sido removido.');const actions=el('div','news-actions');const q=encodeURIComponent('"'+item.title.slice(0,170)+'"');const search=link('https://www.google.com/search?q='+q,'Pesquisar esta manchete ↗');search.className='safe-search';actions.append(search);if(item.url){try{const u=new URL(item.url);if(u.protocol==='https:'){const original=link(item.url,'Tentar link do veículo ↗');original.className='original-link';original.title='Link externo não validado; poderá apresentar erro 404';actions.append(original)}}catch{}}card.append(m,title,explanation,actions);return card});root.replaceChildren(...cards)}
 function readNotes(){try{const value=JSON.parse(localStorage.getItem('radar:notes')||'[]');state.notes=Array.isArray(value)?value:[]}catch{state.notes=[]}renderNotes()}
@@ -22,5 +219,5 @@ function renderNotes(){const root=$('notesList');if(!state.notes.length){root.re
 function saveNotes(){try{localStorage.setItem('radar:notes',JSON.stringify(state.notes))}catch{}}
 function initNotes(){$('noteForm').addEventListener('submit',e=>{e.preventDefault();const form=new FormData(e.currentTarget);const claim=String(form.get('claim')||'').trim();if(!claim)return;state.notes.unshift({candidate:String(form.get('candidate')),date:'23/10/2026',time:String(form.get('time')||''),claim:claim.slice(0,650)});state.notes=state.notes.slice(0,40);saveNotes();renderNotes();e.currentTarget.reset();$('notesList').scrollIntoView({behavior:'smooth',block:'nearest'})});readNotes()}
 function initInstall(){window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.installPrompt=e;$('installNow').hidden=false});$('installButton').addEventListener('click',()=>{$('installDialog').showModal()});$('closeDialog').addEventListener('click',()=>$('installDialog').close());$('installNow').addEventListener('click',async()=>{if(state.installPrompt){await state.installPrompt.prompt();state.installPrompt=null;$('installNow').hidden=true}});if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
-function boot(){clock();setInterval(clock,10000);updateNet();window.addEventListener('online',()=>{updateNet();fetchNews()});window.addEventListener('offline',()=>{updateNet();$('feedStatus').textContent='Offline · exibindo dados salvos quando disponíveis';$('feedStatus').className='feed-status err'});document.querySelectorAll('.event-tab').forEach(b=>b.addEventListener('click',()=>changeEvent(b.dataset.event)));document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{state.candidate=b.dataset.candidate;document.querySelectorAll('.filter').forEach(v=>v.classList.toggle('active',v===b));renderClaims()}));$('verdictFilter').addEventListener('change',e=>{state.verdict=e.target.value;renderClaims()});$('refresh').addEventListener('click',fetchNews);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-state.lastFeedAt>=90_000)fetchNews()});initInstall();initNotes();fetchClaims();fetchNews();setInterval(()=>{if(!document.hidden&&navigator.onLine)fetchNews()},120_000)}
+function boot(){clock();setInterval(clock,10000);updateNet();window.addEventListener('online',()=>{updateNet();fetchNews()});window.addEventListener('offline',()=>{updateNet();$('feedStatus').textContent='Offline · exibindo dados salvos quando disponíveis';$('feedStatus').className='feed-status err'});document.querySelectorAll('.event-tab').forEach(b=>b.addEventListener('click',()=>changeEvent(b.dataset.event)));document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{state.candidate=b.dataset.candidate;document.querySelectorAll('.filter').forEach(v=>v.classList.toggle('active',v===b));renderClaims()}));$('verdictFilter').addEventListener('change',e=>{state.verdict=e.target.value;renderClaims()});$('refresh').addEventListener('click',fetchNews);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-state.lastFeedAt>=90_000)fetchNews()});initInstall();initNotes();initShare();fetchClaims();fetchNews();setInterval(()=>{if(!document.hidden&&navigator.onLine)fetchNews()},120_000)}
 boot();

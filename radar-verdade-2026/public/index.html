@@ -118,6 +118,26 @@
     <section class="install-panel"><div><img src="/icon.svg" alt="" width="48" height="48"><div><h3>Radar da Verdade no celular</h3><p>Instale como aplicativo para acesso rápido.</p></div></div><button id="installButton" class="button outline" type="button">Como instalar ↗</button></section>
     <footer><p><b>RADAR DA VERDADE 2026</b> · Iniciativa independente de acompanhamento de checagens. Não é um órgão eleitoral, não representa partidos e não decide intenção de mentir. Os vereditos são atribuídos aos checadores citados.</p><p>Os feeds podem ter atrasos, e a publicação de checagens exige tempo de investigação. Registro de correções: cada alteração no catálogo é versionada na fonte do projeto.</p></footer>
   </main>
+
+  <dialog id="shareDialog" class="share-dialog" aria-labelledby="shareTitle">
+    <div class="share-inner">
+      <div class="share-heading">
+        <div><span class="section-kicker">VERIFICAÇÃO COM FONTE</span><h2 id="shareTitle">Compartilhar checagem</h2></div>
+        <button type="button" id="shareClose" class="share-close" aria-label="Fechar compartilhamento">×</button>
+      </div>
+      <div id="sharePreview" class="share-preview" aria-live="polite"></div>
+      <p class="share-note">O veredito é atribuído ao veículo de checagem. Compartilhe a afirmação junto da explicação e da fonte, sem afirmar intenção de mentir.</p>
+      <div class="share-grid">
+        <a id="shareWhatsapp" class="share-choice whatsapp" href="#" target="_blank" rel="noopener noreferrer">WhatsApp ↗</a>
+        <button id="shareNative" class="share-choice" type="button">Compartilhar no celular ↗</button>
+        <button id="shareImage" class="share-choice" type="button">Card PNG para Stories ↓</button>
+        <button id="shareCopyMessage" class="share-choice" type="button">Copiar texto completo</button>
+        <button id="shareCopyLink" class="share-choice span" type="button">Copiar link desta verificação ↗</button>
+      </div>
+      <div id="shareFeedback" class="share-feedback" role="status" aria-live="polite"></div>
+    </div>
+  </dialog>
+
   <dialog id="installDialog"><div class="dialog-inner"><button type="button" id="closeDialog" class="close-btn" aria-label="Fechar">×</button><h2>Instalar o Radar</h2><p>Android: no Chrome, abra o menu ⋮ e escolha <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</p><p>iPhone: abra no Safari, use <b>Compartilhar</b> e depois <b>Adicionar à Tela de Início</b>.</p><button class="button primary" id="installNow" type="button" hidden>Instalar agora</button></div></dialog>
 </body>
 </html>

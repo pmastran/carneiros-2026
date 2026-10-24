@@ -87,7 +87,34 @@ async function handle(req, res) {
   const file=path.resolve(publicRoot,'.'+(pathname === '/' ? '/index.html': pathname));
   if (!file.startsWith(publicRoot+path.sep)) return json(res,403,{error:'Acesso não permitido'});
   try {
-    const content=await readFile(file);
+    let content=await readFile(file);
+
+    if (url.pathname === '/' && url.searchParams.has('verificacao')) {
+      try {
+        const id=url.searchParams.get('verificacao') || '';
+        if (/^[a-z0-9-]{1,100}$/.test(id)) {
+          const catalog=JSON.parse(await readFile(path.join(root,'data/claims.json'),'utf8'));
+          const claim=(catalog.claims || []).find(item=>item.id===id);
+          if (claim) {
+            const escapeMeta=value=>String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+            const verdicts={'verdadeiro':'VERDADEIRO','falso':'FALSO','exagerado':'EXAGERADO','falta-contexto':'FALTA CONTEXTO','nao-comprovado':'NÃO COMPROVADO','subestimado':'SUBESTIMADO'};
+            const label=verdicts[claim.verdict] || String(claim.verdict).toUpperCase();
+            const candidate=claim.candidate==='lula'?'Lula':'Flávio Bolsonaro';
+            const title=escapeMeta(label+' | '+candidate+' — Radar da Verdade');
+            const descr=escapeMeta(claim.claim+' Classificação de '+claim.checker+': '+claim.explanation).slice(0,460);
+            const origin='https://radar-verdade-debate-2026.onrender.com';
+            const canonical=escapeMeta(origin+'/?verificacao='+encodeURIComponent(id));
+            let html=content.toString('utf8');
+            html=html.replace('<meta property="og:title" content="Radar da Verdade 2026">','<meta property="og:title" content="'+title+'">');
+            html=html.replace(/<meta property="og:description" content="[^"]*">/,'<meta property="og:description" content="'+descr+'">');
+            html=html.replace('<title>Radar da Verdade — Debate 2026</title>','<title>'+title+'</title>');
+            html=html.replace('</head>','<meta name="description" content="'+descr+'">\n<meta property="og:type" content="article">\n<meta property="og:url" content="'+canonical+'">\n<meta property="og:image" content="'+origin+'/icon-512.png">\n<meta name="twitter:card" content="summary">\n</head>');
+            content=Buffer.from(html);
+          }
+        }
+      }catch{}
+    }
+
     const ext=path.extname(file);
     const contentType=types[ext] || 'application/octet-stream';
     const cacheTime=ext==='.html'?'no-store':ext==='.js'||ext==='.css'?'public, max-age=300':'public, max-age=3600';

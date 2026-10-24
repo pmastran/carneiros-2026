@@ -23,3 +23,7 @@ Web Service gratuito Node 20+, comando `node server.js`, diretório raiz deste p
 ## Limites editoriais
 
 Não apresentar "quem mentiu mais" com base em seleção parcial de falas, misturar debates em métricas, ou considerar opiniões/promessas checáveis como fatos. Veredito é sempre atribuído ao checador e pode ser corrigido. Não atribuir intenções: usar "afirmação classificada como falsa" em vez de inferir mentira deliberada.
+
+## Compartilhamento individual (v1.1)
+
+Em cada checagem documentada, o botão **Compartilhar esta verificação** disponibiliza WhatsApp, menu nativo Android/iOS, copiar texto, copiar link específico (`/?verificacao=<id>`) e card PNG vertical gerado no próprio aparelho. O link abre o debate e a fala corretos; o servidor fornece metadados Open Graph individualizados com a classificação, candidato e checador. Os compartilhamentos atribuem o veredito à fonte, mostram contexto e não insinuam intenção comprovada de mentir. Notícias de RSS não ganham botão de compartilhamento como se fossem vereditos; anotações não verificadas também não.
