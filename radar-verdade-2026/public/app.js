@@ -56,13 +56,53 @@ function openCandidateClaims(candidate){
  if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+
+function activeCatalog(){
+ if(state.event==='globo-23')return state.globoSnapshotReady?state.globoClaims:null;
+ return state.lastClaimStatus?state.claims.filter(c=>c.event==='band-18'):null;
+}
+function renderSummary(){
+ const catalog=activeCatalog();
+ const numbers={todos:catalog?.length,'verdadeiro':catalog?.filter(c=>c.verdict==='verdadeiro').length,'falso':catalog?.filter(c=>c.verdict==='falso').length,'falta-contexto':catalog?.filter(c=>c.verdict==='falta-contexto').length};
+ const globo=state.event==='globo-23';
+ const labels=globo?['#FATO','#FAKE','#NÃOÉBEMASSIM']:['Verdadeiro','Falso','Falta contexto'];
+ $('summaryLabelFato').textContent=labels[0];
+ $('summaryLabelFake').textContent=labels[1];
+ $('summaryLabelContext').textContent=labels[2];
+ $('summaryLabelTotal').textContent='Falas checadas';
+ for(const [verdict,id] of Object.entries({'todos':'summaryTotal','verdadeiro':'summaryFato','falso':'summaryFake','falta-contexto':'summaryContext'})){
+  const button=document.querySelector('[data-summary-verdict="'+verdict+'"]');
+  const value=numbers[verdict];
+  $(id).textContent=Number.isInteger(value)?String(value):'—';
+  if(button){
+   button.disabled=!catalog||!catalog.length||(!value&&verdict!=='todos');
+   button.classList.toggle('active',state.verdict===verdict);
+   button.setAttribute('aria-pressed',String(state.verdict===verdict));
+   button.setAttribute('aria-label',(Number.isInteger(value)?value+' registros: ':'Aguardando consulta: ')+
+      (verdict==='todos'?'todas as checagens':labels[{'verdadeiro':0,'falso':1,'falta-contexto':2}[verdict]])+
+      '. Filtrar as declarações.');
+  }
+ }
+}
+function applySummaryVerdict(verdict){
+ const catalog=activeCatalog();
+ if(!catalog)return;
+ if(verdict!=='todos'&&!catalog.some(c=>c.verdict===verdict))return;
+ state.verdict=verdict;
+ state.candidate='todos';
+ $('verdictFilter').value=verdict;
+ document.querySelectorAll('.filters .filter').forEach(b=>b.classList.toggle('active',b.dataset.candidate==='todos'));
+ renderClaims();
+ $('claimsList').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 function renderCounts(){
  const loaded=state.event==='globo-23'?state.globoSnapshotReady:!!state.lastClaimStatus;
  const count=state.event==='globo-23'?state.globoClaims.length:state.claims.filter(c=>c.event==='band-18').length;
  $('claimCount').textContent=loaded?String(count):'—';
 }
 function renderClaims(){
- sourceMetadata();renderCounts();renderCandidatePreviews();
+ sourceMetadata();renderCounts();renderSummary();renderCandidatePreviews();
  const globo=state.event==='globo-23';
  const root=$('claimsList');
  if(globo&&!state.globoSnapshotReady){
@@ -76,6 +116,7 @@ function renderClaims(){
  }
  const relevant=globo?state.globoClaims:state.claims.filter(c=>c.event==='band-18');
  const filtered=relevant.filter(c=>(state.candidate==='todos'||c.candidate===state.candidate)&&(state.verdict==='todos'||c.verdict===state.verdict));
+ $('filteredCount').textContent=filtered.length+' registros neste filtro';
  if(!filtered.length){showEmpty(root,'Sem declarações neste filtro','Escolha outro filtro para consultar os registros publicados nesta fonte.');return}
  const selectedId=new URLSearchParams(location.search).get('verificacao');
  const nodes=filtered.map(c=>{
@@ -278,7 +319,7 @@ function initShare(){
  });
 }
 
-function changeEvent(next){state.event=next;for(const b of document.querySelectorAll('.event-tab')){const selected=b.dataset.event===next;b.classList.toggle('active',selected);b.setAttribute('aria-selected',selected?'true':'false')}renderClaims()}
+function changeEvent(next){if(state.event!==next){state.candidate='todos';state.verdict='todos';$('verdictFilter').value='todos';document.querySelectorAll('.filters .filter').forEach(b=>b.classList.toggle('active',b.dataset.candidate==='todos'));}state.event=next;for(const b of document.querySelectorAll('.event-tab')){const selected=b.dataset.event===next;b.classList.toggle('active',selected);b.setAttribute('aria-selected',selected?'true':'false')}renderClaims()}
 function renderAudit(a){const root=$('auditDetail');if(!root)return;if(!a){root.textContent='Auditoria indisponível nesta atualização.';return}const recent=(a.recent||[]).slice(0,3);root.textContent='Origem: Agência Lupa · última captura válida: '+(a.lastFreshAt?timestamp(a.lastFreshAt):'não confirmada')+' · '+a.observations+' declarações observadas. '+(recent.length?'Eventos recentes: '+recent.map(x=>x.type.replaceAll('-',' ')+' ('+x.id+')').join('; ')+'. ':'')+'Histórico nesta instância do servidor; pode reiniciar após nova implantação. Confirme a evidência na publicação original.'}
 function renderSyncStatus(data){const el=$('syncStatus');if(!el)return;const fresh=data.sourceStatus==='fresh';const stale=data.sourceStatus==='stale';const time=data.sourceCheckedAt?timestamp(data.sourceCheckedAt):'sem coleta confirmada';el.textContent=(fresh?'● Fonte consultada: ':stale?'◐ Última consulta válida: ':'○ Sincronização externa indisponível · registros editoriais preservados')+(fresh||stale?time:'')+' · '+(data.autoAdded||0)+' novas verificações automáticas';el.className='sync-status '+(fresh?'ok':stale?'warn':'err');}
 
@@ -292,7 +333,7 @@ async function fetchG1Catalog(){
   const claims=data.claims.filter(c=>tags[c.verdict]===c.editorialLabel&&c.checker==='Fato ou Fake (Grupo Globo)'&&c.sourceId==='g1'&&typeof c.sourceUrl==='string'&&c.sourceUrl.startsWith('https://g1.globo.com/fato-ou-fake/'));
   if(!claims.length)throw new Error('Catálogo sem registros atribuídos');
   state.globoClaims=claims;state.globoSync=data;state.globoSnapshotReady=true;state.globoError=false;
-  $('g1SourceStatus').textContent='Fonte principal: Fato ou Fake (g1). Catálogo de verificações publicadas, conferido em '+data.reviewedAt+'. Não é uma conexão interna ao vivo da Globo.';
+  $('g1SourceStatus').textContent='Fonte: Fato ou Fake (g1) · revisão '+String(data.reviewedAt||'não informada').split('-').reverse().join('/')+' · amostra editorial, não API ao vivo.';
   if(state.event==='globo-23')renderClaims();
   const id=new URLSearchParams(location.search).get('verificacao');
   if(state.event==='globo-23'&&state.lastDeepLinkId!==id&&claims.some(c=>c.id===id)){
@@ -398,7 +439,7 @@ function readNotes(){try{const value=JSON.parse(localStorage.getItem('radar:note
 function renderNotes(){const root=$('notesList');if(!state.notes.length){root.replaceChildren();return}const list=state.notes.map((n,idx)=>{const card=el('article','note');const inner=el('div','');inner.append(el('span','note-label','NÃO VERIFICADO · '+CANDIDATES[n.candidate]+' · '+n.date+(n.time?' '+n.time:'')),el('p','',n.claim));const query=encodeURIComponent('"'+n.claim.slice(0,110)+'" '+CANDIDATES[n.candidate]);inner.append(link('https://news.google.com/search?q='+query,'Pesquisar fontes ↗'));const remove=el('button','','Excluir');remove.type='button';remove.addEventListener('click',()=>{state.notes.splice(idx,1);saveNotes();renderNotes()});card.append(inner,remove);return card});root.replaceChildren(...list)}
 function saveNotes(){try{localStorage.setItem('radar:notes',JSON.stringify(state.notes))}catch{}}
 function initNotes(){$('noteForm').addEventListener('submit',e=>{e.preventDefault();const form=new FormData(e.currentTarget);const claim=String(form.get('claim')||'').trim();if(!claim)return;state.notes.unshift({candidate:String(form.get('candidate')),date:'23/10/2026',time:String(form.get('time')||''),claim:claim.slice(0,650)});state.notes=state.notes.slice(0,40);saveNotes();renderNotes();e.currentTarget.reset();$('notesList').scrollIntoView({behavior:'smooth',block:'nearest'})});readNotes()}
-function initInstall(){window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.installPrompt=e;$('installNow').hidden=false});$('installButton').addEventListener('click',()=>{$('installDialog').showModal()});$('closeDialog').addEventListener('click',()=>$('installDialog').close());$('installNow').addEventListener('click',async()=>{if(state.installPrompt){await state.installPrompt.prompt();state.installPrompt=null;$('installNow').hidden=true}});if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js?v=12').catch(()=>{}))}
+function initInstall(){window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.installPrompt=e;$('installNow').hidden=false});$('installButton').addEventListener('click',()=>{$('installDialog').showModal()});$('closeDialog').addEventListener('click',()=>$('installDialog').close());$('installNow').addEventListener('click',async()=>{if(state.installPrompt){await state.installPrompt.prompt();state.installPrompt=null;$('installNow').hidden=true}});if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js?v=13').catch(()=>{}))}
 
 const financeState={data:null,scope:'secretaria'};
 const moneyBRL=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
@@ -435,5 +476,5 @@ function initFinance(){
  fetch('/api/cards',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(data=>{financeState.data=data;renderFinance()}).catch(()=>{$('financeTitle').textContent='Dados indisponíveis';$('financeStatus').textContent='Acesse diretamente o Portal da Transparência.'});
 }
 
-function boot(){renderClaims();document.querySelectorAll('[data-candidate-open]').forEach(b=>b.addEventListener('click',()=>openCandidateClaims(b.dataset.candidateOpen)));clock();setInterval(clock,10000);updateNet();window.addEventListener('online',()=>{updateNet();fetchClaims();fetchNews();fetchGlobo()});window.addEventListener('offline',()=>{updateNet();$('feedStatus').textContent='Offline · exibindo dados salvos quando disponíveis';$('feedStatus').className='feed-status err'});document.querySelectorAll('.event-tab').forEach(b=>b.addEventListener('click',()=>changeEvent(b.dataset.event)));document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{state.candidate=b.dataset.candidate;document.querySelectorAll('.filter').forEach(v=>v.classList.toggle('active',v===b));renderClaims()}));$('verdictFilter').addEventListener('change',e=>{state.verdict=e.target.value;renderClaims()});$('refresh').addEventListener('click',fetchNews);document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(Date.now()-state.lastFeedAt>=90_000)fetchNews();if(Date.now()-state.lastGloboAt>=90000){fetchGlobo();fetchFactcheckAPI()}}});initInstall();initNotes();initShare();initFinance();fetchClaims();fetchG1Catalog();fetchNews();fetchGlobo();fetchFactcheckAPI();$('globoRefresh').addEventListener('click',()=>{fetchGlobo();fetchFactcheckAPI()});setInterval(()=>{if(!document.hidden&&navigator.onLine){fetchClaims();fetchG1Catalog();fetchNews();fetchGlobo();fetchFactcheckAPI()}},60_000)}
+function boot(){renderClaims();document.querySelectorAll('[data-summary-verdict]').forEach(b=>b.addEventListener('click',()=>applySummaryVerdict(b.dataset.summaryVerdict)));document.querySelectorAll('[data-candidate-open]').forEach(b=>b.addEventListener('click',()=>openCandidateClaims(b.dataset.candidateOpen)));clock();setInterval(clock,10000);updateNet();window.addEventListener('online',()=>{updateNet();fetchClaims();fetchNews();fetchGlobo()});window.addEventListener('offline',()=>{updateNet();$('feedStatus').textContent='Offline · exibindo dados salvos quando disponíveis';$('feedStatus').className='feed-status err'});document.querySelectorAll('.event-tab').forEach(b=>b.addEventListener('click',()=>changeEvent(b.dataset.event)));document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{state.candidate=b.dataset.candidate;document.querySelectorAll('.filter').forEach(v=>v.classList.toggle('active',v===b));renderClaims()}));$('verdictFilter').addEventListener('change',e=>{state.verdict=e.target.value;renderClaims()});$('refresh').addEventListener('click',fetchNews);document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(Date.now()-state.lastFeedAt>=90_000)fetchNews();if(Date.now()-state.lastGloboAt>=90000){fetchGlobo();fetchFactcheckAPI()}}});initInstall();initNotes();initShare();initFinance();fetchClaims();fetchG1Catalog();fetchNews();fetchGlobo();fetchFactcheckAPI();$('globoRefresh').addEventListener('click',()=>{fetchGlobo();fetchFactcheckAPI()});setInterval(()=>{if(!document.hidden&&navigator.onLine){fetchClaims();fetchG1Catalog();fetchNews();fetchGlobo();fetchFactcheckAPI()}},60_000)}
 boot();
