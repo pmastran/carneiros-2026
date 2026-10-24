@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "compiledAt": "2026-10-23",
+  "snapshot": "2026-02-27",
+  "currency": "BRL",
+  "note": "Valores nominais, sem ajuste pela inflação. Referem-se a despesas registradas em órgãos públicos, não a gastos pessoais dos presidentes.",
+  "cutoff": "O período de 2019–2022 tem 4 anos; o período de 2023–2025 tem 3 anos. 2026 está fora dos valores históricos desta seção; o Portal da Transparência disponibiliza arquivos parciais de 2026.",
+  "scopes": {
+    "secretaria": {
+      "title": "Secretaria de Administração da Presidência",
+      "type": "CPGF",
+      "definition": "Despesas com CPGF da Secretaria de Administração. O órgão cuida de despesas ligadas à estrutura presidencial, sem atribuição pessoal de cada transação.",
+      "bolsonaro": {
+        "period": "2019–2022",
+        "value": 42000000,
+        "approximate": true
+      },
+      "lula": {
+        "period": "2023–2025",
+        "value": 20400000,
+        "approximate": true
+      },
+      "source": [
+        "afp",
+        "aosfatos"
+      ]
+    },
+    "presidencia": {
+      "title": "Presidência da República (todas as unidades)",
+      "type": "CPGF",
+      "definition": "CPGF de unidades vinculadas à Presidência, incluindo estruturas administrativas e órgãos de apoio como Abin e GSI. Escopo distinto da Secretaria de Administração.",
+      "bolsonaro": {
+        "period": "2019–2022",
+        "value": 82400000,
+        "approximate": true
+      },
+      "lula": {
+        "period": "2023–2025",
+        "value": 45200000,
+        "approximate": true
+      },
+      "source": [
+        "aosfatos",
+        "aosfatos2"
+      ]
+    },
+    "executivo": {
+      "title": "Poder Executivo federal (todos os cartões)",
+      "type": "CPGF + CPCC + CPDC",
+      "definition": "Despesas de todos os órgãos do Executivo nas três modalidades, incluindo cartões da Defesa Civil. Não representa apenas a Presidência ou gastos pessoais.",
+      "bolsonaro": {
+        "period": "2019–2022",
+        "annual": [
+          {
+            "year": 2019,
+            "value": 198415662
+          },
+          {
+            "year": 2020,
+            "value": 170797436
+          },
+          {
+            "year": 2021,
+            "value": 241561989
+          },
+          {
+            "year": 2022,
+            "value": 422916480
+          }
+        ]
+      },
+      "lula": {
+        "period": "2023–2025",
+        "annual": [
+          {
+            "year": 2023,
+            "value": 430542660
+          },
+          {
+            "year": 2024,
+            "value": 584658537
+          },
+          {
+            "year": 2025,
+            "value": 423333335
+          }
+        ]
+      },
+      "source": [
+        "uol",
+        "afp"
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "portal",
+      "label": "Portal da Transparência (CGU)",
+      "url": "https://portaldatransparencia.gov.br/cartoes/consulta"
+    },
+    {
+      "id": "casacivil",
+      "label": "Casa Civil: arquivos oficiais 2023–2026",
+      "url": "https://www.gov.br/casacivil/pt-br/acesso-a-informacao/informacoes-classificadas/despesas-com-cartao-de-pagamento"
+    },
+    {
+      "id": "afp",
+      "label": "AFP Checamos, 27/02/2026",
+      "url": "https://checamos.afp.com/doc.afp.com.98XY4WG"
+    },
+    {
+      "id": "aosfatos",
+      "label": "Aos Fatos, 24/02/2026",
+      "url": "https://www.aosfatos.org/noticias/posts-enganam-ao-comparar-gastos-de-cartao-corporativo-de-lula-e-bolsonaro/"
+    },
+    {
+      "id": "aosfatos2",
+      "label": "Aos Fatos, 17/04/2026",
+      "url": "https://www.aosfatos.org/noticias/bolsonaro-cartao-corporativo/"
+    },
+    {
+      "id": "uol",
+      "label": "UOL Confere, 27/02/2026",
+      "url": "https://noticias.uol.com.br/confere/ultimas-noticias/2026/02/27/post-engana-comparacao-cartao-corporativo-lula-bolsonaro.amp.htm"
+    }
+  ]
+}
