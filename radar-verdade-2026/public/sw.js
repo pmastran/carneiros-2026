@@ -1,11 +1,11 @@
-const CACHE='radar-verdade-v13';
-const ASSETS=['/','/app.css?v=13','/app.js?v=13','/manifest.webmanifest','/icon.svg','/icon-192.png','/icon-512.png'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{
- const r=e.request,u=new URL(r.url);
- if(r.method!=='GET'||u.origin!==location.origin||u.pathname.startsWith('/api/'))return;
- if(r.mode==='navigate'){e.respondWith(fetch(r).catch(()=>caches.match('/')));return}
- if(['/app.js','/app.css','/sw.js'].includes(u.pathname)){e.respondWith(fetch(r).catch(()=>caches.match(r)));return}
- e.respondWith(caches.match(r).then(c=>c||fetch(r)));
+const CACHE='radar-verdade-v14';
+const ASSETS=['/','/app.css?v=14','/app.js?v=14','/manifest.webmanifest','/icon.svg','/icon-192.png','/icon-512.png'];
+self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',event=>{
+ const request=event.request;const url=new URL(request.url);
+ if(request.method!=='GET'||url.origin!==location.origin||url.pathname.startsWith('/api/'))return;
+ if(request.mode==='navigate'){event.respondWith(fetch(request).catch(()=>caches.match('/')));return}
+ if(['/app.js','/app.css','/sw.js'].includes(url.pathname)){event.respondWith(fetch(request).catch(()=>caches.match(request)));return}
+ event.respondWith(caches.match(request).then(cached=>cached||fetch(request)));
 });
