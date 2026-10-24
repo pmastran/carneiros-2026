@@ -17,13 +17,52 @@ function sourceMetadata(){
  $('auditNotice').hidden=globo;
  $('syncStatus').hidden=globo;
 }
+
+function renderCandidatePreviews(){
+ const isGlobo=state.event==='globo-23';
+ const ready=isGlobo?state.globoSnapshotReady:!!state.lastClaimStatus;
+ const records=isGlobo?state.globoClaims:state.claims.filter(c=>c.event==='band-18');
+ for(const candidate of ['lula','flavio']){
+  const root=$(candidate+'-candidate-preview');
+  const button=document.querySelector('[data-candidate-open="'+candidate+'"]');
+  if(!root||!button)continue;
+  const sample=ready?records.find(c=>c.candidate===candidate):null;
+  button.disabled=!sample;
+  if(!ready){
+   root.replaceChildren(el('p','candidate-preview-loading',isGlobo?(state.globoError?'Fato ou Fake indisponível nesta consulta.':'Consultando Fato ou Fake (g1)…'):'Consultando Agência Lupa…'));
+   continue;
+  }
+  if(!sample){
+   root.replaceChildren(el('p','candidate-preview-loading','Nenhuma declaração encontrada para este recorte editorial.'));
+   continue;
+  }
+  root.replaceChildren(
+   el('span','candidate-preview-label','EXEMPLO DE FALA CHECADA'),
+   el('p','candidate-preview-claim',sample.claim),
+   el('span','candidate-preview-source','Fonte: '+sample.checker)
+  );
+ }
+}
+function openCandidateClaims(candidate){
+ const globo=state.event==='globo-23';
+ const records=globo?state.globoClaims:state.claims.filter(c=>c.event==='band-18');
+ if(!records.some(c=>c.candidate===candidate))return;
+ state.candidate=candidate;
+ state.verdict='todos';
+ $('verdictFilter').value='todos';
+ document.querySelectorAll('.filters .filter').forEach(b=>b.classList.toggle('active',b.dataset.candidate===candidate));
+ renderClaims();
+ const target=$('claimsList');
+ if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 function renderCounts(){
  const loaded=state.event==='globo-23'?state.globoSnapshotReady:!!state.lastClaimStatus;
  const count=state.event==='globo-23'?state.globoClaims.length:state.claims.filter(c=>c.event==='band-18').length;
  $('claimCount').textContent=loaded?String(count):'—';
 }
 function renderClaims(){
- sourceMetadata();renderCounts();
+ sourceMetadata();renderCounts();renderCandidatePreviews();
  const globo=state.event==='globo-23';
  const root=$('claimsList');
  if(globo&&!state.globoSnapshotReady){
@@ -359,7 +398,7 @@ function readNotes(){try{const value=JSON.parse(localStorage.getItem('radar:note
 function renderNotes(){const root=$('notesList');if(!state.notes.length){root.replaceChildren();return}const list=state.notes.map((n,idx)=>{const card=el('article','note');const inner=el('div','');inner.append(el('span','note-label','NÃO VERIFICADO · '+CANDIDATES[n.candidate]+' · '+n.date+(n.time?' '+n.time:'')),el('p','',n.claim));const query=encodeURIComponent('"'+n.claim.slice(0,110)+'" '+CANDIDATES[n.candidate]);inner.append(link('https://news.google.com/search?q='+query,'Pesquisar fontes ↗'));const remove=el('button','','Excluir');remove.type='button';remove.addEventListener('click',()=>{state.notes.splice(idx,1);saveNotes();renderNotes()});card.append(inner,remove);return card});root.replaceChildren(...list)}
 function saveNotes(){try{localStorage.setItem('radar:notes',JSON.stringify(state.notes))}catch{}}
 function initNotes(){$('noteForm').addEventListener('submit',e=>{e.preventDefault();const form=new FormData(e.currentTarget);const claim=String(form.get('claim')||'').trim();if(!claim)return;state.notes.unshift({candidate:String(form.get('candidate')),date:'23/10/2026',time:String(form.get('time')||''),claim:claim.slice(0,650)});state.notes=state.notes.slice(0,40);saveNotes();renderNotes();e.currentTarget.reset();$('notesList').scrollIntoView({behavior:'smooth',block:'nearest'})});readNotes()}
-function initInstall(){window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.installPrompt=e;$('installNow').hidden=false});$('installButton').addEventListener('click',()=>{$('installDialog').showModal()});$('closeDialog').addEventListener('click',()=>$('installDialog').close());$('installNow').addEventListener('click',async()=>{if(state.installPrompt){await state.installPrompt.prompt();state.installPrompt=null;$('installNow').hidden=true}});if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js?v=11').catch(()=>{}))}
+function initInstall(){window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.installPrompt=e;$('installNow').hidden=false});$('installButton').addEventListener('click',()=>{$('installDialog').showModal()});$('closeDialog').addEventListener('click',()=>$('installDialog').close());$('installNow').addEventListener('click',async()=>{if(state.installPrompt){await state.installPrompt.prompt();state.installPrompt=null;$('installNow').hidden=true}});if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js?v=12').catch(()=>{}))}
 
 const financeState={data:null,scope:'secretaria'};
 const moneyBRL=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
@@ -396,5 +435,5 @@ function initFinance(){
  fetch('/api/cards',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(data=>{financeState.data=data;renderFinance()}).catch(()=>{$('financeTitle').textContent='Dados indisponíveis';$('financeStatus').textContent='Acesse diretamente o Portal da Transparência.'});
 }
 
-function boot(){renderClaims();clock();setInterval(clock,10000);updateNet();window.addEventListener('online',()=>{updateNet();fetchClaims();fetchNews();fetchGlobo()});window.addEventListener('offline',()=>{updateNet();$('feedStatus').textContent='Offline · exibindo dados salvos quando disponíveis';$('feedStatus').className='feed-status err'});document.querySelectorAll('.event-tab').forEach(b=>b.addEventListener('click',()=>changeEvent(b.dataset.event)));document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{state.candidate=b.dataset.candidate;document.querySelectorAll('.filter').forEach(v=>v.classList.toggle('active',v===b));renderClaims()}));$('verdictFilter').addEventListener('change',e=>{state.verdict=e.target.value;renderClaims()});$('refresh').addEventListener('click',fetchNews);document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(Date.now()-state.lastFeedAt>=90_000)fetchNews();if(Date.now()-state.lastGloboAt>=90000){fetchGlobo();fetchFactcheckAPI()}}});initInstall();initNotes();initShare();initFinance();fetchClaims();fetchG1Catalog();fetchNews();fetchGlobo();fetchFactcheckAPI();$('globoRefresh').addEventListener('click',()=>{fetchGlobo();fetchFactcheckAPI()});setInterval(()=>{if(!document.hidden&&navigator.onLine){fetchClaims();fetchG1Catalog();fetchNews();fetchGlobo();fetchFactcheckAPI()}},60_000)}
+function boot(){renderClaims();document.querySelectorAll('[data-candidate-open]').forEach(b=>b.addEventListener('click',()=>openCandidateClaims(b.dataset.candidateOpen)));clock();setInterval(clock,10000);updateNet();window.addEventListener('online',()=>{updateNet();fetchClaims();fetchNews();fetchGlobo()});window.addEventListener('offline',()=>{updateNet();$('feedStatus').textContent='Offline · exibindo dados salvos quando disponíveis';$('feedStatus').className='feed-status err'});document.querySelectorAll('.event-tab').forEach(b=>b.addEventListener('click',()=>changeEvent(b.dataset.event)));document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{state.candidate=b.dataset.candidate;document.querySelectorAll('.filter').forEach(v=>v.classList.toggle('active',v===b));renderClaims()}));$('verdictFilter').addEventListener('change',e=>{state.verdict=e.target.value;renderClaims()});$('refresh').addEventListener('click',fetchNews);document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(Date.now()-state.lastFeedAt>=90_000)fetchNews();if(Date.now()-state.lastGloboAt>=90000){fetchGlobo();fetchFactcheckAPI()}}});initInstall();initNotes();initShare();initFinance();fetchClaims();fetchG1Catalog();fetchNews();fetchGlobo();fetchFactcheckAPI();$('globoRefresh').addEventListener('click',()=>{fetchGlobo();fetchFactcheckAPI()});setInterval(()=>{if(!document.hidden&&navigator.onLine){fetchClaims();fetchG1Catalog();fetchNews();fetchGlobo();fetchFactcheckAPI()}},60_000)}
 boot();

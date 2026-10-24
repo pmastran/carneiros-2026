@@ -12,9 +12,9 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="/icon.svg">
   <link rel="apple-touch-icon" href="/icon-192.png">
-  <link rel="stylesheet" href="/app.css?v=11">
+  <link rel="stylesheet" href="/app.css?v=12">
   <title>Radar da Verdade — Debate 2026</title>
-  <script src="/app.js?v=11" defer></script>
+  <script src="/app.js?v=12" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -65,11 +65,19 @@
       </div>
 
       <p id="g1SourceStatus" class="sync-status" aria-live="polite">Consultando exclusivamente o Fato ou Fake do g1...</p>
-      <div class="candidate-row">
-        <article class="candidate-card pt"><div><span class="candidate-party">PT</span><h3>Lula</h3><p>Luiz Inácio Lula da Silva</p></div><p class="candidate-context">Falas com checagem e fonte individual</p></article>
-        <article class="candidate-card pl"><div><span class="candidate-party">PL</span><h3>Flávio Bolsonaro</h3><p>Flávio Nantes Bolsonaro</p></div><p class="candidate-context">Falas com checagem e fonte individual</p></article>
+      <div class="candidate-row" aria-label="Consultar as declarações de cada candidato">
+        <article class="candidate-card pt">
+          <div class="candidate-identity"><span class="candidate-party">PT</span><h3>Lula</h3><p>Luiz Inácio Lula da Silva</p></div>
+          <div id="lula-candidate-preview" class="candidate-preview" aria-live="polite"><p>Consultando a publicação...</p></div>
+          <button type="button" class="candidate-open" data-candidate-open="lula" disabled>Ver declarações e fontes <span aria-hidden="true">↗</span></button>
+        </article>
+        <article class="candidate-card pl">
+          <div class="candidate-identity"><span class="candidate-party">PL</span><h3>Flávio Bolsonaro</h3><p>Flávio Nantes Bolsonaro</p></div>
+          <div id="flavio-candidate-preview" class="candidate-preview" aria-live="polite"><p>Consultando a publicação...</p></div>
+          <button type="button" class="candidate-open" data-candidate-open="flavio" disabled>Ver declarações e fontes <span aria-hidden="true">↗</span></button>
+        </article>
       </div>
-      <div class="small-note">Os registros são uma seleção editorial das falas verificadas. Não representam todas as declarações, nem demonstram intenção de mentir.</div>
+      <div class="small-note">Os quadros mostram exemplos de falas selecionadas por um veículo de checagem, não um placar geral. Toque em “Ver declarações e fontes” para consultar os vereditos atribuídos e suas evidências.</div>
 
       <div class="filterbar">
         <div class="filters" aria-label="Filtrar por candidato">

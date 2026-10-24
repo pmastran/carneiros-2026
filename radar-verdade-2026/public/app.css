@@ -53,3 +53,24 @@
 @media(max-width:700px){.finance-cards{grid-template-columns:1fr}}
 
 [hidden]{display:none!important}.candidate-context{font-size:10px!important;color:#9bb8c7!important;line-height:1.55!important}.proof-source{margin:11px 0;border:1px solid #35516a;padding:12px;background:#0c2030;border-radius:10px;font-size:11px;color:#a8c4cc}.proof-source a{color:#75dee6;text-decoration:none;font-weight:800}
+
+/* Verifiable, source-attributed excerpts instead of candidate scorecards */
+.candidate-row .candidate-card{display:flex;flex-direction:column;align-items:stretch;justify-content:space-between;gap:0;min-height:262px;padding:16px}
+.candidate-row .candidate-identity{min-width:0}
+.candidate-row .candidate-identity h3{min-height:0;margin:6px 0}
+.candidate-row .candidate-identity p{font-size:10px;line-height:1.5;color:#91a7b6}
+.candidate-preview{border-top:1px solid #2b3e52;margin:15px 0 12px;padding-top:13px;min-height:108px}
+.candidate-preview-label{font-size:9px;letter-spacing:.7px;font-weight:900;color:#67d7e3}
+.candidate-preview-claim{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:12px!important;line-height:1.55!important;color:#d3e6f0!important;margin:7px 0 9px!important}
+.candidate-preview-source{font-size:10px;color:#a1bac9;line-height:1.4}
+.candidate-preview-loading{font-size:11px!important;color:#9bb6c6!important;line-height:1.6!important}
+.candidate-open{min-height:44px;padding:10px 11px;border:1px solid #2b8e9e;border-radius:10px;background:#15333f;color:#b5f0f2;font-size:11px;font-weight:800;line-height:1.4;text-align:center}
+.candidate-open:not(:disabled):active{transform:scale(.98)}
+.candidate-open:disabled{opacity:.5;cursor:not-allowed;border-color:#395165}
+@media(max-width:700px){
+ .candidate-row .candidate-card{min-height:300px;padding:14px}
+ .candidate-row .candidate-identity h3{font-size:16px}
+ .candidate-preview{min-height:135px}
+ .candidate-preview-claim{-webkit-line-clamp:4;font-size:11px!important}
+ .candidate-open{font-size:10px;padding:9px 6px}
+}
