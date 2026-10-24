@@ -1,0 +1,9 @@
+{
+  "name": "radar-da-verdade-2026",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Acompanhamento transparente de checagens verificadas de debates presidenciais",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node server.js", "test": "node --test test/*.test.js" }
+}

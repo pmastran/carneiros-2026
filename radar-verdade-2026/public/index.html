@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090e1a">
+  <meta name="description" content="Acompanhe a checagem de afirmações de Lula e Flávio Bolsonaro. Cada veredito vem de uma fonte de checagem identificada.">
+  <meta property="og:title" content="Radar da Verdade 2026">
+  <meta property="og:description" content="O que foi dito, o que foi checado e onde estão as fontes.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="stylesheet" href="/app.css">
+  <title>Radar da Verdade — Debate 2026</title>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="/" aria-label="Radar da Verdade, início">
+        <img src="/icon.svg" alt="" width="38" height="38">
+        <span><strong>RADAR <em>DA VERDADE</em></strong><small>ELEIÇÕES 2026 · CHECAGEM DE FATOS</small></span>
+      </a>
+      <div class="header-right">
+        <span class="net" id="network"><span class="net-dot"></span>Conectando</span>
+        <time id="clock" aria-label="Horário de Brasília">--:--</time>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="hero-main">
+        <div class="eyebrow"><span class="pulse"></span> CHECAGEM DOCUMENTADA · SEM PLACAR ELEITORAL</div>
+        <h1>O que foi dito.<br><span>O que os fatos mostram.</span></h1>
+        <p>Um radar das afirmações de <b>Lula</b> e <b>Flávio Bolsonaro</b>, com vereditos atribuídos a checadores e links para examinar as provas.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#verificacoes">Consultar verificações <span aria-hidden="true">↘</span></a>
+          <a class="button outline" href="#noticias">Ver checagens recentes <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+      <div class="hero-aside" aria-hidden="true"><div class="radar-graphic"><div class="sweep"></div><div class="blip one"></div><div class="blip two"></div></div><span>FONTES, NÃO ACHISMOS</span></div>
+    </section>
+
+    <div class="source-notice">
+      <div class="notice-icon">i</div>
+      <p><strong>Atenção editorial:</strong> uma notícia que fala de checagem não é uma fala comprovadamente falsa ou verdadeira. Somente publicamos <b>vereditos de fontes identificadas</b>. A quantidade de falas verificadas não representa o total do debate e não indica quem “mentiu mais”.</p>
+    </div>
+
+    <section id="verificacoes" class="panel verifier-panel">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">01 / DECLARAÇÕES</div>
+          <h2>Verdade ou mentira?</h2>
+          <p>Selecione o debate. Os registros abaixo têm origem, data, contexto e explicação verificáveis.</p>
+        </div>
+        <div class="checked-count"><strong id="claimCount">—</strong><small>registros nesta base</small></div>
+      </div>
+
+      <div class="event-tabs" role="tablist" aria-label="Selecionar debate">
+        <button id="event-globo" class="event-tab active" type="button" role="tab" aria-selected="true" data-event="globo-23"><span class="event-day">23 OUT</span><span><b>Globo</b><small>2º turno · debate atual</small></span></button>
+        <button id="event-band" class="event-tab" type="button" role="tab" aria-selected="false" data-event="band-18"><span class="event-day">18 OUT</span><span><b>Band</b><small>2º turno · checagens publicadas</small></span></button>
+      </div>
+
+      <div class="candidate-row">
+        <article class="candidate-card pt"><div><span class="candidate-party">PT</span><h3>Lula</h3><p>Luiz Inácio Lula da Silva</p></div><div class="metrics"><span><strong id="lula-true">—</strong> verdadeiras</span><span><strong id="lula-false">—</strong> falsas</span></div></article>
+        <article class="candidate-card pl"><div><span class="candidate-party">PL</span><h3>Flávio Bolsonaro</h3><p>Flávio Nantes Bolsonaro</p></div><div class="metrics"><span><strong id="flavio-true">—</strong> verdadeiras</span><span><strong id="flavio-false">—</strong> falsas</span></div></article>
+      </div>
+      <div class="small-note">Contagens se referem somente aos registros exibidos nesta base para o debate selecionado. Não são estatísticas completas dos discursos.</div>
+
+      <div class="filterbar">
+        <div class="filters" aria-label="Filtrar por candidato">
+          <button class="filter active" data-candidate="todos" type="button">Todos</button>
+          <button class="filter" data-candidate="lula" type="button">Lula</button>
+          <button class="filter" data-candidate="flavio" type="button">Flávio</button>
+        </div>
+        <label class="select-box">Classificação
+          <select id="verdictFilter" aria-label="Filtrar por classificação"><option value="todos">Todas</option><option value="verdadeiro">Verdadeiro</option><option value="falso">Falso</option><option value="exagerado">Exagerado</option><option value="falta-contexto">Falta contexto</option><option value="nao-comprovado">Não comprovado</option></select>
+        </label>
+      </div>
+      <div id="claimsList" class="claim-list" aria-live="polite"><div class="skeleton"></div><div class="skeleton"></div></div>
+    </section>
+
+    <section id="noticias" class="panel news-panel">
+      <div class="section-head">
+        <div><div class="section-kicker">02 / NOTÍCIAS E CHECADORES</div><h2>Publicações recentes</h2><p>Matérias em tempo quase real. <strong>Não recebem veredito automático.</strong></p></div>
+        <button id="refresh" class="button outline tiny" type="button" aria-label="Atualizar agora">⟳ Atualizar</button>
+      </div>
+      <div class="feed-top"><span id="feedStatus" class="feed-status">Buscando as publicações...</span><span class="feed-interval">Atualização a cada 2 min</span></div>
+      <div id="feedItems" class="news-list" aria-live="polite"><div class="skeleton"></div><div class="skeleton"></div></div>
+      <div class="outlets">
+        <a href="https://www.agencialupa.org/checagem/" target="_blank" rel="noopener noreferrer">Agência Lupa ↗</a>
+        <a href="https://g1.globo.com/fato-ou-fake/" target="_blank" rel="noopener noreferrer">Fato ou Fake ↗</a>
+        <a href="https://noticias.uol.com.br/confere/" target="_blank" rel="noopener noreferrer">UOL Confere ↗</a>
+        <a href="https://www1.folha.uol.com.br/" target="_blank" rel="noopener noreferrer">Folha ↗</a>
+      </div>
+    </section>
+
+    <section id="anotacoes" class="panel notes-panel">
+      <div class="section-head"><div><div class="section-kicker">03 / SUA PRÓPRIA INVESTIGAÇÃO</div><h2>Ouviu uma afirmação?</h2><p>Registre para pesquisar. Ela continuará marcada como <b>não verificada</b> até que haja checagem identificada.</p></div></div>
+      <form id="noteForm" class="capture-form">
+        <label>Candidato<select name="candidate" required><option value="lula">Lula</option><option value="flavio">Flávio Bolsonaro</option></select></label>
+        <label>Horário aproximado (opcional)<input type="time" name="time" aria-label="Horário aproximado da fala"></label>
+        <label class="full">Fala que você quer verificar<textarea name="claim" rows="3" maxlength="650" placeholder="Anote a declaração ou o número mencionado no debate..." required></textarea></label>
+        <button class="button primary" type="submit">Registrar como não verificado <span>+</span></button>
+      </form>
+      <p class="local-note">Privacidade: as anotações ficam somente neste navegador. Elas não são enviadas para nós, para uma IA ou para um candidato.</p>
+      <div id="notesList" class="notes-list"></div>
+    </section>
+
+    <section class="method">
+      <div><div class="section-kicker">04 / O MÉTODO</div><h2>Como uma fala ganha um veredito?</h2></div>
+      <div class="method-grid"><div><span>01</span><h3>Identificar</h3><p>Registrar o que foi dito, quem disse e em qual debate.</p></div><div><span>02</span><h3>Investigar</h3><p>Confrontar a afirmação com dados públicos, contexto e evidências.</p></div><div><span>03</span><h3>Conferir</h3><p>Consultar checagem jornalística identificada e revisar a conclusão.</p></div><div><span>04</span><h3>Publicar</h3><p>Exibir classificação, justificativa e link para a verificação original.</p></div></div>
+    </section>
+
+    <section class="install-panel"><div><img src="/icon.svg" alt="" width="48" height="48"><div><h3>Radar da Verdade no celular</h3><p>Instale como aplicativo para acesso rápido.</p></div></div><button id="installButton" class="button outline" type="button">Como instalar ↗</button></section>
+    <footer><p><b>RADAR DA VERDADE 2026</b> · Iniciativa independente de acompanhamento de checagens. Não é um órgão eleitoral, não representa partidos e não decide intenção de mentir. Os vereditos são atribuídos aos checadores citados.</p><p>Os feeds podem ter atrasos, e a publicação de checagens exige tempo de investigação. Registro de correções: cada alteração no catálogo é versionada na fonte do projeto.</p></footer>
+  </main>
+  <dialog id="installDialog"><div class="dialog-inner"><button type="button" id="closeDialog" class="close-btn" aria-label="Fechar">×</button><h2>Instalar o Radar</h2><p>Android: no Chrome, abra o menu ⋮ e escolha <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</p><p>iPhone: abra no Safari, use <b>Compartilhar</b> e depois <b>Adicionar à Tela de Início</b>.</p><button class="button primary" id="installNow" type="button" hidden>Instalar agora</button></div></dialog>
+</body>
+</html>

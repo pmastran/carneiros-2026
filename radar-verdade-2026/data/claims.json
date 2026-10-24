@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "editorialNote": "Registros de checagens publicadas. Nao representam todas as falas de qualquer candidato e nao permitem inferir quem 'mentiu mais'. Rótulos pertencem ao checador citado; nenhum resultado foi inventado ou decidido por IA.",
+  "updatedAt": "2026-10-23T22:20:00-03:00",
+  "claims": [
+    {
+      "id": "band-lula-pib-2010",
+      "event": "band-18",
+      "candidate": "lula",
+      "date": "2026-10-18",
+      "subject": "Economia",
+      "claim": "Lula afirmou que o Brasil cresceu 7,5% em 2010.",
+      "verdict": "verdadeiro",
+      "explanation": "A Lupa confirmou o índice de 7,5% para o PIB brasileiro em 2010, citando a série histórica do IBGE.",
+      "checker": "Agência Lupa",
+      "sourceUrl": "https://www.agencialupa.org/checagem/2026/10/23/erros-e-acertos-de-lula-na-campanha-pela-reeleicao-a-presidencia-em-2026/",
+      "primarySource": "https://www.ibge.gov.br/"
+    },
+    {
+      "id": "band-lula-pib-3-porcento",
+      "event": "band-18",
+      "candidate": "lula",
+      "date": "2026-10-18",
+      "subject": "Economia",
+      "claim": "Lula disse que a economia só voltou a crescer acima de 3% após seu retorno à Presidência.",
+      "verdict": "falso",
+      "explanation": "A Lupa apontou crescimento de pelo menos 3% em outros governos, incluindo 2011, 2013, 2021 e 2022, usando séries do IBGE.",
+      "checker": "Agência Lupa",
+      "sourceUrl": "https://www.agencialupa.org/checagem/2026/10/23/erros-e-acertos-de-lula-na-campanha-pela-reeleicao-a-presidencia-em-2026/",
+      "primarySource": "https://www.ibge.gov.br/"
+    },
+    {
+      "id": "band-flavio-veto-saidinha",
+      "event": "band-18",
+      "candidate": "flavio",
+      "date": "2026-10-18",
+      "subject": "Segurança e Justiça",
+      "claim": "Flávio disse que o Congresso derrubou um veto de Lula à restrição das saídas temporárias de presos.",
+      "verdict": "verdadeiro",
+      "explanation": "Segundo a Lupa, o Congresso derrubou em maio de 2024 o veto presidencial a restrições das saídas temporárias.",
+      "checker": "Agência Lupa",
+      "sourceUrl": "https://www.agencialupa.org/jornalismo/2026/10/23/erros-e-acertos-de-flavio-bolsonaro-na-campanha-pela-presidencia-em-2026/",
+      "primarySource": "https://www.congressonacional.leg.br/"
+    },
+    {
+      "id": "band-flavio-viagens-7bi",
+      "event": "band-18",
+      "candidate": "flavio",
+      "date": "2026-10-18",
+      "subject": "Gastos públicos",
+      "claim": "Flávio atribuiu a Lula e Janja R$ 7 bilhões em gastos com viagens.",
+      "verdict": "falso",
+      "explanation": "O valor se refere a despesas de viagens de toda a administração federal de 2023 a 2025, não apenas do presidente e da primeira-dama, conforme checagem da Lupa com dados do Portal da Transparência.",
+      "checker": "Agência Lupa",
+      "sourceUrl": "https://www.agencialupa.org/checagem/2026/10/18/ao-vivo-checagem-do-debate-entre-lula-e-flavio-bolsonaro-na-band/",
+      "primarySource": "https://portaldatransparencia.gov.br/"
+    }
+  ]
+}
