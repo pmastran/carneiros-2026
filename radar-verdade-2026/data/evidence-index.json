@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "reviewedOn": "2026-10-24",
+  "notice": "Documento vinculado sustenta parte verificável da afirmação; não constitui laudo pericial, nem substitui a análise editorial sobre contexto. Sem documento específico não significa que a fala seja falsa ou verdadeira.",
+  "records": {
+    "globo-lula-6000-obras": {
+      "documents": [
+        {
+          "issuer": "TCU",
+          "kind": "Acórdão 2600/2024",
+          "title": "Acompanhamento de obras paralisadas (2022–2024)",
+          "url": "https://pesquisa.apps.tcu.gov.br/doc/acordao-completo/2600/2024/Plen%C3%A1rio",
+          "explain": "Séries históricas das obras financiadas com recursos federais; não atribui todas as paralisações a uma gestão."
+        }
+      ],
+      "otherChecks": [
+        {
+          "publisher": "g1 — Fato ou Fake",
+          "verdict": "#FATO",
+          "url": "https://g1.globo.com/fato-ou-fake/eleicoes/noticia/2026/10/23/veja-o-que-e-fato-ou-fake-nas-falas-de-flavio-bolsonaro-e-lula-no-debate-da-globo-no-2o-turno-das-eleicoes-2026.ghtml",
+          "note": "O g1 classifica a fala como #FATO; a Lupa a classificou como SUBESTIMADO. Mantenha o veredito atribuído a cada veículo."
+        }
+      ]
+    },
+    "globo-flavio-11500-obras": {
+      "documents": [
+        {
+          "issuer": "TCU",
+          "kind": "Acórdão 2600/2024",
+          "title": "Acompanhamento de obras paralisadas (2022–2024)",
+          "url": "https://pesquisa.apps.tcu.gov.br/doc/acordao-completo/2600/2024/Plen%C3%A1rio",
+          "explain": "Séries históricas das obras financiadas com recursos federais; não atribui todas as paralisações a uma gestão."
+        }
+      ]
+    },
+    "globo-lula-fome-33-milhoes": {
+      "documents": [
+        {
+          "issuer": "Rede PENSSAN",
+          "kind": "Pesquisa primária",
+          "title": "II Inquérito Nacional sobre Insegurança Alimentar — 2022",
+          "url": "https://redepenssan.org.br/2o-inquerito-nacional-sobre-inseguranca-alimentar-no-contexto-da-pandemia-da-covid-19-no-brasil/",
+          "explain": "Pesquisa domiciliar (2021–2022), com descrição da amostra e estimativa de 33,1 milhões em insegurança alimentar grave."
+        }
+      ],
+      "otherChecks": [
+        {
+          "publisher": "g1 — Fato ou Fake",
+          "verdict": "#FATO",
+          "url": "https://g1.globo.com/fato-ou-fake/eleicoes/noticia/2026/10/23/veja-o-que-e-fato-ou-fake-nas-falas-de-flavio-bolsonaro-e-lula-no-debate-da-globo-no-2o-turno-das-eleicoes-2026.ghtml",
+          "note": "O g1 também cita os dados da Rede PENSSAN."
+        }
+      ]
+    },
+    "globo-lula-700-mercados": {
+      "documents": [
+        {
+          "issuer": "Ministério da Agricultura e Pecuária",
+          "kind": "Comunicado administrativo",
+          "title": "Comunicado de 700 mercados abertos desde 2023",
+          "url": "https://www.gov.br/agricultura/pt-br/assuntos/noticias/vice-presidente-geraldo-alckmin-e-ministro-andre-de-paula-anunciam-marca-de-700-novos-mercados-abertos-para-o-agro-brasileiro",
+          "explain": "Anúncio administrativo da pasta; não é auditoria independente das autorizações."
+        }
+      ]
+    },
+    "globo-lula-br319": {
+      "documents": [
+        {
+          "issuer": "DNIT",
+          "kind": "Histórico oficial",
+          "title": "47 anos da BR-319 — inauguração em 1976",
+          "url": "https://www.gov.br/dnit/pt-br/assuntos/portais-tematicos/br-319-am-ro/noticias/47-anos-da-br-319",
+          "explain": "O DNIT documenta a inauguração oficial da rodovia em 1976."
+        }
+      ]
+    },
+    "globo-flavio-bolsa-familia-600": {
+      "documents": [
+        {
+          "issuer": "Câmara dos Deputados",
+          "kind": "Norma legal",
+          "title": "Emenda Constitucional 123/2022 — texto original",
+          "url": "https://www2.camara.leg.br/legin/fed/emecon/2022/emendaconstitucional-123-14-julho-2022-792985-publicacaooriginal-165734-pl.html",
+          "explain": "Estabelece adicional extraordinário ao benefício de agosto a dezembro de 2022."
+        }
+      ],
+      "otherChecks": [
+        {
+          "publisher": "g1 — Fato ou Fake",
+          "verdict": "#NÃOÉBEMASSIM",
+          "url": "https://g1.globo.com/fato-ou-fake/eleicoes/noticia/2026/10/23/veja-o-que-e-fato-ou-fake-nas-falas-de-flavio-bolsonaro-e-lula-no-debate-da-globo-no-2o-turno-das-eleicoes-2026.ghtml",
+          "note": "O g1 classifica como #NÃOÉBEMASSIM; a Lupa usa EXAGERADO, categorias editoriais diferentes."
+        }
+      ]
+    },
+    "globo-flavio-marco-saneamento": {
+      "documents": [
+        {
+          "issuer": "Presidência da República",
+          "kind": "Lei federal",
+          "title": "Lei nº 14.026/2020 — Marco Legal do Saneamento",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2020/lei/l14026.htm",
+          "explain": "Texto legal publicado; o histórico da iniciativa é questão legislativa separada."
+        }
+      ]
+    },
+    "globo-flavio-divida-11tri": {
+      "documents": [
+        {
+          "issuer": "Banco Central do Brasil",
+          "kind": "Estatística oficial",
+          "title": "Estatísticas fiscais — Dívida Bruta do Governo Geral",
+          "url": "https://www.bcb.gov.br/estatisticas/estatisticasfiscais",
+          "explain": "Indicador inclui governo federal, INSS e governos regionais; não representa apenas a Presidência."
+        }
+      ]
+    },
+    "globo-flavio-selic-14": {
+      "documents": [
+        {
+          "issuer": "Banco Central do Brasil",
+          "kind": "Série oficial",
+          "title": "SGS 432 — Meta Selic definida pelo Copom",
+          "url": "https://dadosabertos.bcb.gov.br/dataset/432-taxa-de-juros---meta-selic-definida-pelo-copom",
+          "explain": "Série diária. A leitura exige selecionar a data correspondente à declaração."
+        }
+      ]
+    },
+    "band-lula-pib-2010": {
+      "documents": [
+        {
+          "issuer": "IBGE",
+          "kind": "Série estatística",
+          "title": "Sistema de Contas Nacionais — série de crescimento real do PIB",
+          "url": "https://www.ibge.gov.br/estatisticas/economicas/comercio/9052-sistema-de-contas-nacionais-brasil.html",
+          "explain": "Dados anuais do PIB e alterações metodológicas; consultar a tabela correspondente ao ano citado."
+        }
+      ]
+    },
+    "band-lula-pib-3-porcento": {
+      "documents": [
+        {
+          "issuer": "IBGE",
+          "kind": "Série estatística",
+          "title": "Sistema de Contas Nacionais — série de crescimento real do PIB",
+          "url": "https://www.ibge.gov.br/estatisticas/economicas/comercio/9052-sistema-de-contas-nacionais-brasil.html",
+          "explain": "Dados anuais do PIB e alterações metodológicas; consultar a tabela correspondente ao ano citado."
+        }
+      ]
+    },
+    "globo-lula-fome-2012": {
+      "documents": [],
+      "otherChecks": [
+        {
+          "publisher": "g1 — Fato ou Fake",
+          "verdict": "#NÃOÉBEMASSIM",
+          "url": "https://g1.globo.com/fato-ou-fake/eleicoes/noticia/2026/10/23/veja-o-que-e-fato-ou-fake-nas-falas-de-flavio-bolsonaro-e-lula-no-debate-da-globo-no-2o-turno-das-eleicoes-2026.ghtml",
+          "note": "O g1 cita o critério da FAO; documento original da FAO ainda não anexado."
+        }
+      ]
+    }
+  }
+}
