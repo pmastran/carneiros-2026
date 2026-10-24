@@ -27,3 +27,9 @@ Não apresentar "quem mentiu mais" com base em seleção parcial de falas, mistu
 ## Compartilhamento individual (v1.1)
 
 Em cada checagem documentada, o botão **Compartilhar esta verificação** disponibiliza WhatsApp, menu nativo Android/iOS, copiar texto, copiar link específico (`/?verificacao=<id>`) e card PNG vertical gerado no próprio aparelho. O link abre o debate e a fala corretos; o servidor fornece metadados Open Graph individualizados com a classificação, candidato e checador. Os compartilhamentos atribuem o veredito à fonte, mostram contexto e não insinuam intenção comprovada de mentir. Notícias de RSS não ganham botão de compartilhamento como se fossem vereditos; anotações não verificadas também não.
+
+
+## Acompanhamento da Globo
+O painel Fato ou Fake acompanha publicações públicas usando três consultas fixas ao Google News RSS, filtradas pelos veículos do Grupo Globo, com cache de 90 segundos. Nenhuma conexão oficial com os sistemas internos da emissora é reivindicada. Manchetes não recebem vereditos automáticos.
+
+Opcional: configurar a variável privada FACTCHECK_API_KEY no Render ativa a integração com a Fact Check Tools API do Google para vereditos estruturados atribuídos às redações do Grupo Globo que estejam presentes na base. Na ausência da chave, o monitor público segue disponível.

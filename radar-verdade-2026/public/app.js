@@ -1,6 +1,6 @@
 'use strict';
 const $ = id => document.getElementById(id);
-const state = {event:'globo-23',candidate:'todos',verdict:'todos',claims:[],notes:[],news:[],lastFeedAt:0,installPrompt:null,shareClaim:null};
+const state = {event:'globo-23',candidate:'todos',verdict:'todos',claims:[],notes:[],news:[],lastFeedAt:0,installPrompt:null,shareClaim:null,globoNews:[],lastGloboAt:0};
 const CANDIDATES={lula:'Lula',flavio:'Flávio Bolsonaro'};
 const VERDICTS={'verdadeiro':'VERDADEIRO','falso':'FALSO','exagerado':'EXAGERADO','falta-contexto':'FALTA CONTEXTO','nao-comprovado':'NÃO COMPROVADO'};
 const editorialLinks=[{name:'Agência Lupa (pesquisa)',url:'https://www.google.com/search?q=site%3Aagencialupa.org+Lula+Fl%C3%A1vio+checagem'},{name:'g1 Fato ou Fake',url:'https://g1.globo.com/fato-ou-fake/'},{name:'UOL Confere',url:'https://noticias.uol.com.br/confere/'}];
@@ -214,10 +214,75 @@ function changeEvent(next){state.event=next;for(const b of document.querySelecto
 async function fetchClaims(){try{const r=await fetch('/api/claims',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const data=await r.json();if(!Array.isArray(data.claims))throw Error('Catálogo inválido');state.claims=data.claims;const id=new URLSearchParams(location.search).get('verificacao');const shared=state.claims.find(c=>c.id===id);if(shared){state.candidate='todos';state.verdict='todos';$('verdictFilter').value='todos';document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b.dataset.candidate==='todos'));changeEvent(shared.event);setTimeout(()=>document.getElementById('verificacao-'+shared.id)?.scrollIntoView({behavior:'smooth',block:'center'}),450)}else renderClaims()}catch(e){showEmpty($('claimsList'),'Verificações indisponíveis','Não foi possível carregar a base de verificações. Nenhuma classificação é exibida sem fonte.');$('claimCount').textContent='—'}}
 async function fetchNews(){if(document.hidden||!navigator.onLine)return;const status=$('feedStatus');status.textContent='Atualizando cobertura...';status.className='feed-status';$('refresh').disabled=true;try{const r=await fetch('/api/coverage?kind=checagens',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const data=await r.json();if(data.ok&&!data.stale){state.news=data.items;try{localStorage.setItem('radar:news',JSON.stringify(data.items))}catch{}} else if(!data.ok){throw Error(data.error||'Feed indisponível')}else state.news=data.items;state.lastFeedAt=Date.now();status.textContent=`${data.stale?'Dados anteriores':'Consultado'} às ${timestamp(data.updatedAt)}${data.stale?' · Feed temporariamente indisponível':''}`;status.className='feed-status '+(data.stale?'err':'ok');renderNews()}catch(e){try{const cached=JSON.parse(localStorage.getItem('radar:news')||'[]');if(Array.isArray(cached)&&cached.length){state.news=cached;status.textContent='Feed indisponível · mostrando última coleta salva no aparelho';status.className='feed-status err';renderNews()}else{status.textContent='Não foi possível consultar o feed neste momento';status.className='feed-status err';showEmpty($('feedItems'),'Sem matérias carregadas','O feed pode falhar ou atrasar. Consulte diretamente a Agência Lupa, o g1 e o UOL Confere.') }}catch{showEmpty($('feedItems'),'Feed indisponível','Acesse os veículos originais pelos links abaixo.');status.textContent='Feed indisponível';status.className='feed-status err'}}finally{$('refresh').disabled=false}}
 function renderNews(){const root=$('feedItems');if(!state.news.length){showEmpty(root,'Nenhuma publicação retornada','O feed ainda não apresentou artigos na consulta. Isso não significa que o debate não tenha sido checado.');return}const cards=state.news.map(item=>{const card=el('article','news');const m=el('div','meta');m.append(el('b','',item.source),el('span','',timestamp(item.published)));const title=el('h3','',item.title);const explanation=el('p','source-note','Título recebido de um agregador. Não é um veredito. O endereço original pode ter sido removido.');const actions=el('div','news-actions');const q=encodeURIComponent('"'+item.title.slice(0,170)+'"');const search=link('https://www.google.com/search?q='+q,'Pesquisar esta manchete ↗');search.className='safe-search';actions.append(search);if(item.url){try{const u=new URL(item.url);if(u.protocol==='https:'){const original=link(item.url,'Tentar link do veículo ↗');original.className='original-link';original.title='Link externo não validado; poderá apresentar erro 404';actions.append(original)}}catch{}}card.append(m,title,explanation,actions);return card});root.replaceChildren(...cards)}
+
+function renderGlobo(){
+ const root=$('globoItems');
+ if(!state.globoNews.length){
+  showEmpty(root,'Sem publicações localizadas','A indexação pelo Google Notícias pode levar minutos; nenhuma afirmação será inventada. Veja os links para o Fato ou Fake e a busca de matérias abaixo.');
+  return;
+ }
+ const cards=state.globoNews.map(item=>{
+  const card=el('article','news');
+  const meta=el('div','meta');
+  meta.append(el('b','',item.source),el('span','',timestamp(item.published)));
+  const title=el('h3','',item.title);
+  const notice=el('p','source-note','Título localizado em agregador; ainda não é um veredito individualizado.');
+  const buttons=el('div','news-actions');
+  const google=link('https://www.google.com/search?q='+encodeURIComponent('"'+item.title.slice(0,180)+'"'),'Encontrar matéria ↗');
+  google.className='safe-search';buttons.append(google);
+  card.append(meta,title,notice,buttons);
+  return card;
+ });
+ root.replaceChildren(...cards);
+}
+async function fetchGlobo(){
+ if(document.hidden||!navigator.onLine)return;
+ const status=$('globoStatus');const button=$('globoRefresh');
+ button.disabled=true;status.textContent='Buscando publicações públicas do Grupo Globo...';
+ try{
+  const r=await fetch('/api/coverage?kind=globo',{cache:'no-store'});
+  if(!r.ok)throw Error('Rede indisponível');
+  const data=await r.json();if(!data.ok)throw Error(data.error||'Fonte indisponível');
+  state.globoNews=Array.isArray(data.items)?data.items:[];
+  try{localStorage.setItem('radar:globoItems',JSON.stringify(state.globoNews))}catch{}
+  status.textContent='Consultado às '+timestamp(data.updatedAt)+' · '+state.globoNews.length+' publicações';
+  status.className='feed-status '+(data.stale?'err':'ok');
+ }catch{
+  try{const stored=JSON.parse(localStorage.getItem('radar:globoItems')||'[]');state.globoNews=Array.isArray(stored)?stored:[]}catch{state.globoNews=[]}
+  status.textContent='Consulta indisponível; '+(state.globoNews.length?'mostrando itens salvos':'use o link do g1 abaixo');
+  status.className='feed-status err';
+ }finally{state.lastGloboAt=Date.now();button.disabled=false;renderGlobo()}
+}
+async function fetchFactcheckAPI(){
+ const status=$('globoStructuredStatus');const root=$('globoStructuredItems');
+ try{
+  const r=await fetch('/api/factchecks',{cache:'no-store'});
+  if(!r.ok)throw Error('API indisponível');
+  const data=await r.json();
+  if(!data.configured){
+   status.textContent='API do Google ainda sem chave configurada. O monitor de publicações acima funciona sem ela.';
+   root.replaceChildren();return;
+  }
+  if(!data.ok)throw Error('Serviço de checagem indisponível');
+  const items=Array.isArray(data.items)?data.items:[];
+  status.textContent='Classificações estruturadas encontradas: '+items.length+' · fonte: Google Fact Check Tools.';
+  if(!items.length){root.replaceChildren();return}
+  root.replaceChildren(...items.map(item=>{
+   const card=el('article','claim');
+   const top=el('div','claim-top');
+   top.append(el('span','claim-tag','CLASSIFICAÇÃO DA FONTE'),el('span','verdict',item.rating));
+   const title=el('h3','',item.statement||'Declaração verificada');
+   const info=el('p','',(item.claimant?item.claimant+' · ':'')+'Classificado por '+item.publisher);
+   const footer=el('div','claim-foot');footer.append(link(item.url,'Ver verificação publicada ↗'));
+   card.append(top,title,info,footer);return card;
+  }));
+ }catch{status.textContent='API de classificações indisponível. Consulte as publicações do g1.';root.replaceChildren()}
+}
+
 function readNotes(){try{const value=JSON.parse(localStorage.getItem('radar:notes')||'[]');state.notes=Array.isArray(value)?value:[]}catch{state.notes=[]}renderNotes()}
 function renderNotes(){const root=$('notesList');if(!state.notes.length){root.replaceChildren();return}const list=state.notes.map((n,idx)=>{const card=el('article','note');const inner=el('div','');inner.append(el('span','note-label','NÃO VERIFICADO · '+CANDIDATES[n.candidate]+' · '+n.date+(n.time?' '+n.time:'')),el('p','',n.claim));const query=encodeURIComponent('"'+n.claim.slice(0,110)+'" '+CANDIDATES[n.candidate]);inner.append(link('https://news.google.com/search?q='+query,'Pesquisar fontes ↗'));const remove=el('button','','Excluir');remove.type='button';remove.addEventListener('click',()=>{state.notes.splice(idx,1);saveNotes();renderNotes()});card.append(inner,remove);return card});root.replaceChildren(...list)}
 function saveNotes(){try{localStorage.setItem('radar:notes',JSON.stringify(state.notes))}catch{}}
 function initNotes(){$('noteForm').addEventListener('submit',e=>{e.preventDefault();const form=new FormData(e.currentTarget);const claim=String(form.get('claim')||'').trim();if(!claim)return;state.notes.unshift({candidate:String(form.get('candidate')),date:'23/10/2026',time:String(form.get('time')||''),claim:claim.slice(0,650)});state.notes=state.notes.slice(0,40);saveNotes();renderNotes();e.currentTarget.reset();$('notesList').scrollIntoView({behavior:'smooth',block:'nearest'})});readNotes()}
 function initInstall(){window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.installPrompt=e;$('installNow').hidden=false});$('installButton').addEventListener('click',()=>{$('installDialog').showModal()});$('closeDialog').addEventListener('click',()=>$('installDialog').close());$('installNow').addEventListener('click',async()=>{if(state.installPrompt){await state.installPrompt.prompt();state.installPrompt=null;$('installNow').hidden=true}});if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
-function boot(){clock();setInterval(clock,10000);updateNet();window.addEventListener('online',()=>{updateNet();fetchNews()});window.addEventListener('offline',()=>{updateNet();$('feedStatus').textContent='Offline · exibindo dados salvos quando disponíveis';$('feedStatus').className='feed-status err'});document.querySelectorAll('.event-tab').forEach(b=>b.addEventListener('click',()=>changeEvent(b.dataset.event)));document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{state.candidate=b.dataset.candidate;document.querySelectorAll('.filter').forEach(v=>v.classList.toggle('active',v===b));renderClaims()}));$('verdictFilter').addEventListener('change',e=>{state.verdict=e.target.value;renderClaims()});$('refresh').addEventListener('click',fetchNews);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-state.lastFeedAt>=90_000)fetchNews()});initInstall();initNotes();initShare();fetchClaims();fetchNews();setInterval(()=>{if(!document.hidden&&navigator.onLine)fetchNews()},120_000)}
+function boot(){clock();setInterval(clock,10000);updateNet();window.addEventListener('online',()=>{updateNet();fetchNews()});window.addEventListener('offline',()=>{updateNet();$('feedStatus').textContent='Offline · exibindo dados salvos quando disponíveis';$('feedStatus').className='feed-status err'});document.querySelectorAll('.event-tab').forEach(b=>b.addEventListener('click',()=>changeEvent(b.dataset.event)));document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{state.candidate=b.dataset.candidate;document.querySelectorAll('.filter').forEach(v=>v.classList.toggle('active',v===b));renderClaims()}));$('verdictFilter').addEventListener('change',e=>{state.verdict=e.target.value;renderClaims()});$('refresh').addEventListener('click',fetchNews);document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(Date.now()-state.lastFeedAt>=90_000)fetchNews();if(Date.now()-state.lastGloboAt>=90000){fetchGlobo();fetchFactcheckAPI()}}});initInstall();initNotes();initShare();fetchClaims();fetchNews();fetchGlobo();fetchFactcheckAPI();$('globoRefresh').addEventListener('click',()=>{fetchGlobo();fetchFactcheckAPI()});setInterval(()=>{if(!document.hidden&&navigator.onLine){fetchNews();fetchGlobo();fetchFactcheckAPI()}},120_000)}
 boot();

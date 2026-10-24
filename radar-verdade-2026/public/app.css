@@ -29,3 +29,12 @@
 .share-feedback{min-height:23px;color:#72e0c4;font-size:11px;line-height:1.5;margin-top:12px}
 .share-feedback.error{color:#ffadad}
 @media(max-width:440px){.share-inner{padding:17px}.share-grid{gap:8px}.share-choice{font-size:11px;padding:9px 6px}.share-heading h2{font-size:21px}}
+
+/* Grupo Globo fact-check public-index integration */
+.globo-panel{border-color:#2a5b68;background:linear-gradient(180deg,#152d3e,#111b2a)}
+.globo-selos{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 10px}
+.globo-selos span{border:1px solid currentColor;border-radius:100px;padding:6px 10px;font-size:10px;font-weight:850}
+.selo-fato{color:#69dbb3}.selo-fake{color:#ff9fa7}.selo-contexto{color:#f1cf87}
+.globo-structured{border-top:1px solid #395165;padding-top:20px;margin-top:25px}
+.globo-structured h3{margin:0 0 8px;font-size:17px}
+.globo-structured .feed-status{font-size:11px;color:#a7c0ca}

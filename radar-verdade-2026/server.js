@@ -9,8 +9,51 @@ const cache = new Map();
 const TTL_MS = 90_000;
 const FEEDS = Object.freeze({
   checagens: '"Lula" "Flávio Bolsonaro" (checagem OR "fato ou fake" OR "Agência Lupa" OR "UOL Confere") when:3d',
-  globo: '"Lula" "Flávio Bolsonaro" debate Globo 23 outubro 2026 when:3d'
+  globo: 'site:g1.globo.com/fato-ou-fake/ (Lula OR "Flávio Bolsonaro") debate when:7d'
 });
+
+const GLOBO_SEARCHES = Object.freeze([
+ FEEDS.globo,
+ '"Fato ou Fake" "Lula" "Flávio Bolsonaro" debate when:7d',
+ '("O Globo" OR "CBN" OR "Valor Econômico") Lula "Flávio Bolsonaro" checagem debate when:7d'
+]);
+function isGrupoGlobo(item){
+ return /^(g1|g1\.globo\.com|o globo|extra|valor econ[oô]mico|cbn|globonews)$/i.test(String(item.source||'').trim());
+}
+const structuredCache=new Map();
+async function fetchStructured(){
+ const apiKey=process.env.FACTCHECK_API_KEY;
+ if(!apiKey)return {ok:false,configured:false,items:[],note:'A API do Google exige uma chave privada. A consulta pública por notícias continua disponível.'};
+ const old=structuredCache.get('g1');
+ if(old&&Date.now()-old.time<300000)return {...old.payload,cached:true};
+ const u=new URL('https://factchecktools.googleapis.com/v1alpha1/claims:search');
+ u.searchParams.set('query','Lula Flávio Bolsonaro debate');
+ u.searchParams.set('languageCode','pt');
+ u.searchParams.set('pageSize','50');
+ u.searchParams.set('maxAgeDays','30');
+ u.searchParams.set('key',apiKey);
+ try{
+  const response=await fetch(u,{signal:AbortSignal.timeout(9000),headers:{Accept:'application/json'}});
+  if(!response.ok)throw Error('Falha da API de checagem');
+  const data=await response.json();
+  const items=[];
+  for(const claim of Array.isArray(data.claims)?data.claims:[]){
+   for(const review of Array.isArray(claim.claimReview)?claim.claimReview:[]){
+    let parsed;try{parsed=new URL(review.url)}catch{continue}
+    if(parsed.protocol!=='https:'||!['g1.globo.com','oglobo.globo.com','extra.globo.com','valor.globo.com','cbn.globo.com'].includes(parsed.hostname))continue;
+    if(!review.textualRating)continue;
+    items.push({statement:String(claim.text||'').slice(0,600),claimant:String(claim.claimant||'').slice(0,150),rating:String(review.textualRating).slice(0,100),publisher:String(review.publisher?.name||parsed.hostname).slice(0,140),url:parsed.toString(),reviewedAt:review.reviewDate||null});
+   }
+  }
+  const payload={ok:true,configured:true,items:[...new Map(items.map(x=>[x.url+' '+x.statement,x])).values()].slice(0,40),updatedAt:new Date().toISOString(),note:'Classificações publicadas pelos veículos e registradas na base do Google, sem avaliação automática pelo Radar.'};
+  structuredCache.set('g1',{time:Date.now(),payload});
+  return payload;
+ }catch{
+  if(old)return {...old.payload,stale:true,cached:true};
+  return {ok:false,configured:true,items:[],note:'API de vereditos indisponível.'};
+ }
+}
+
 const types = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.webmanifest':'application/manifest+json; charset=utf-8'};
 
 function decodeXml(str) {
@@ -49,23 +92,38 @@ function headers(extra={}) {
   return {'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','X-Frame-Options':'DENY','Permissions-Policy':'camera=(), microphone=(), geolocation=()', 'Content-Security-Policy': "default-src 'self'; base-uri 'self'; connect-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; manifest-src 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'", ...extra};
 }
 function json(res, code, payload, extra={}) {res.writeHead(code,headers({'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',...extra}));res.end(JSON.stringify(payload));}
-async function liveFeed(feedKey) {
-  const entry = cache.get(feedKey);
-  if (entry && Date.now() - entry.time < TTL_MS) return {...entry.payload,cached:true};
-  const query = new URL('https://news.google.com/rss/search');
-  query.searchParams.set('q',FEEDS[feedKey]); query.searchParams.set('hl','pt-BR'); query.searchParams.set('gl','BR'); query.searchParams.set('ceid','BR:pt-419');
-  try {
-    const response = await fetch(query.toString(), {signal:AbortSignal.timeout(10_000),headers:{'User-Agent':'Mozilla/5.0 RadarDaVerdade/1.0','Accept':'application/rss+xml,application/xml,text/xml'}});
-    if (!response.ok) throw Error('O feed de notícias retornou HTTP ' + response.status);
-    const xml = await response.text();
-    if (!xml.includes('<rss') && !xml.includes('<feed')) throw Error('A origem não retornou um feed RSS válido.');
-    const payload = {ok:true,category:feedKey,updatedAt:new Date().toISOString(),cached:false,items:parseFeed(xml),note:'Títulos de matérias sobre checagem não são vereditos de falas.'};
-    cache.set(feedKey,{time:Date.now(),payload});
-    return payload;
-  } catch (e) {
-    if (entry) return {...entry.payload,cached:true,stale:true,error:'Falha na atualização; mostrando coleta anterior.'};
-    return {ok:false,category:feedKey,updatedAt:new Date().toISOString(),cached:false,items:[],error:'Feed indisponível. Use os links diretos de checadores.',detail:String(e?.message || e)};
-  }
+async function fetchRssItems(search){
+ const url=new URL('https://news.google.com/rss/search');
+ url.searchParams.set('q',search);url.searchParams.set('hl','pt-BR');url.searchParams.set('gl','BR');url.searchParams.set('ceid','BR:pt-419');
+ const response=await fetch(url.toString(),{signal:AbortSignal.timeout(9000),headers:{'User-Agent':'Mozilla/5.0 RadarDaVerdade/1.2','Accept':'application/rss+xml,application/xml,text/xml'}});
+ if(!response.ok)throw Error('Feed respondeu HTTP '+response.status);
+ const xml=await response.text();
+ if(!xml.includes('<rss')&&!xml.includes('<feed'))throw Error('Resposta não contém RSS');
+ return parseFeed(xml);
+}
+async function liveFeed(feedKey){
+ const old=cache.get(feedKey);
+ if(old&&Date.now()-old.time<TTL_MS)return {...old.payload,cached:true};
+ try{
+  let items;
+  if(feedKey==='globo'){
+   const results=await Promise.allSettled(GLOBO_SEARCHES.map(fetchRssItems));
+   const good=results.filter(x=>x.status==='fulfilled');
+   if(!good.length)throw Error('As consultas públicas não responderam');
+   const uniq=new Map();
+   for(const article of good.flatMap(x=>x.value).filter(isGrupoGlobo)){
+    const k=article.title.toLowerCase().replace(/[^a-z0-9à-ÿ]+/gi,' ').trim();
+    if(!uniq.has(k))uniq.set(k,article);
+   }
+   items=[...uniq.values()].sort((a,b)=>(b.published||'').localeCompare(a.published||'')).slice(0,35);
+  }else items=await fetchRssItems(FEEDS[feedKey]);
+  const payload={ok:true,category:feedKey,updatedAt:new Date().toISOString(),cached:false,items,sourceType:'google-news-rss',note:feedKey==='globo'?'Monitor público do Grupo Globo via agregador. NÃO é acesso à ferramenta interna de checagem. Uma manchete não é um veredito.':'Uma manchete não é um veredito.'};
+  cache.set(feedKey,{time:Date.now(),payload});
+  return payload;
+ }catch(e){
+  if(old)return {...old.payload,cached:true,stale:true,error:'Fonte indisponível; dados anteriores.'};
+  return {ok:false,category:feedKey,updatedAt:new Date().toISOString(),cached:false,items:[],error:'Não foi possível consultar o índice público.',detail:String(e?.message||e)};
+ }
 }
 async function handle(req, res) {
   if (req.method !== 'GET' && req.method !== 'HEAD') return json(res,405,{error:'Método não permitido'});
@@ -75,6 +133,7 @@ async function handle(req, res) {
     try { const data=JSON.parse(await readFile(path.join(root,'data/claims.json'),'utf8')); return json(res,200,{...data,servedAt:new Date().toISOString()}); }
     catch { return json(res,503,{ok:false,error:'Base de checagens indisponível.'}); }
   }
+  if (url.pathname === '/api/factchecks') return json(res,200,await fetchStructured());
   if (url.pathname === '/api/coverage') {
     const kind=url.searchParams.get('kind') || 'checagens';
     if (!Object.hasOwn(FEEDS,kind)) return json(res,400,{ok:false,error:'Categoria inválida'});

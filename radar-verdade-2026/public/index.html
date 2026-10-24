@@ -38,7 +38,7 @@
         <p>Um radar das afirmações de <b>Lula</b> e <b>Flávio Bolsonaro</b>, com vereditos atribuídos a checadores e links para examinar as provas.</p>
         <div class="hero-actions">
           <a class="button primary" href="#verificacoes">Consultar verificações <span aria-hidden="true">↘</span></a>
-          <a class="button outline" href="#noticias">Ver checagens recentes <span aria-hidden="true">↗</span></a>
+          <a class="button outline" href="#globo">Ver Fato ou Fake <span aria-hidden="true">↗</span></a>
         </div>
       </div>
       <div class="hero-aside" aria-hidden="true"><div class="radar-graphic"><div class="sweep"></div><div class="blip one"></div><div class="blip two"></div></div><span>FONTES, NÃO ACHISMOS</span></div>
@@ -95,6 +95,30 @@
         <a href="https://g1.globo.com/fato-ou-fake/" target="_blank" rel="noopener noreferrer">Fato ou Fake ↗</a>
         <a href="https://noticias.uol.com.br/confere/" target="_blank" rel="noopener noreferrer">UOL Confere ↗</a>
         <a href="https://www1.folha.uol.com.br/" target="_blank" rel="noopener noreferrer">Folha ↗</a>
+      </div>
+    </section>
+
+
+    <section id="globo" class="panel globo-panel">
+      <div class="section-head">
+        <div><div class="section-kicker">02B / PUBLICAÇÕES DAS REDAÇÕES</div><h2>Fato ou Fake · Grupo Globo</h2>
+          <p>O Radar acompanha publicações abertas de checagem do g1 e de outras redações do Grupo Globo. <strong>Não é uma conexão oficial à ferramenta interna da emissora.</strong></p>
+        </div>
+        <button id="globoRefresh" class="button outline tiny" type="button">⟳ Atualizar</button>
+      </div>
+      <div class="globo-selos"><span class="selo-fato">#FATO</span><span class="selo-fake">#FAKE</span><span class="selo-contexto">#NÃOÉBEMASSIM</span></div>
+      <p class="small-note">São selos utilizados pelo Fato ou Fake. O Radar só mostra uma classificação individual quando publicada explicitamente por um checador, nunca por adivinhação da IA.</p>
+      <div class="feed-top"><span id="globoStatus" class="feed-status" aria-live="polite">Consultando notícias...</span><span class="feed-interval">Atualização a cada 2 minutos</span></div>
+      <div id="globoItems" class="news-list" aria-live="polite"><div class="skeleton"></div></div>
+      <div class="outlets">
+       <a href="https://g1.globo.com/fato-ou-fake/" target="_blank" rel="noopener noreferrer">Abrir Fato ou Fake no g1 ↗</a>
+       <a href="https://www.google.com/search?q=site%3Ag1.globo.com%2Ffato-ou-fake%2F+Lula+Fl%C3%A1vio+debate" target="_blank" rel="noopener noreferrer">Pesquisar checagens do g1 ↗</a>
+      </div>
+      <div class="globo-structured">
+        <h3>Veredictos estruturados</h3>
+        <p class="small-note">A Fact Check Tools API do Google pode fornecer classificações atribuídas aos veículos, quando houver chave configurada e dados indexados.</p>
+        <p id="globoStructuredStatus" class="feed-status" aria-live="polite">Conferindo disponibilidade da API...</p>
+        <div id="globoStructuredItems" class="claim-list"></div>
       </div>
     </section>
 
