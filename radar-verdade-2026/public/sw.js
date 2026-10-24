@@ -1,4 +1,4 @@
-const CACHE = 'radar-verdade-v7';
+const CACHE = 'radar-verdade-v9';
 const ASSETS = ['/','/app.css','/app.js','/manifest.webmanifest','/icon.svg','/icon-192.png','/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(()=>self.skipWaiting()));

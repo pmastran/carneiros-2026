@@ -131,6 +131,12 @@ async function handle(req, res) {
   if (req.method !== 'GET' && req.method !== 'HEAD') return json(res,405,{error:'Método não permitido'});
   const url = new URL(req.url || '/', 'http://localhost');
   if (url.pathname === '/healthz') return json(res,200,{ok:true,application:'Radar da Verdade'});
+  if (url.pathname === '/api/g1-checks') {
+    try {
+      const snapshot=JSON.parse(await readFile(path.join(root,'data/g1-fato-ou-fake.json'),'utf8'));
+      return json(res,200,{ok:true,...snapshot,sourceStatus:'editorial-snapshot',isLive:false,servedAt:new Date().toISOString()});
+    } catch { return json(res,503,{ok:false,error:'Catálogo do Fato ou Fake indisponível'}); }
+  }
   if (url.pathname === '/api/claims') {
     try { const data=JSON.parse(await readFile(path.join(root,'data/claims.json'),'utf8')); const live=await getLiveClaims(); const merged=mergeVerifiedClaims(data.claims,live); const audit=collectAudit(live,data.claims); return json(res,200,{...data,audit,claims:merged.claims,sourceStatus:live.status,sourceCheckedAt:live.fetchedAt,liveDetectedCount:live.detectedCount,autoAdded:merged.added,autoCorrected:merged.corrected,servedAt:new Date().toISOString()}); }
     catch { return json(res,503,{ok:false,error:'Base de checagens indisponível.'}); }
