@@ -107,6 +107,7 @@ export function parseLupaLiveHtml(html) {
       id,event:'globo-23',candidate,date:'2026-10-23',subject:'Declara\u00e7\u00e3o do debate',
       claim:statement,verdict,
       explanation:explanation.length>12?explanation:'Consulte a an\u00e1lise detalhada publicada pela Ag\u00eancia Lupa.',
+      sourceQuote:statement,sourceVerdict:match[1].trim().toUpperCase(),
       checker:'Ag\u00eancia Lupa',sourceUrl:LUPA_LIVE_URL,sourceType:'automatic-lupa'
     });
   }
@@ -155,7 +156,7 @@ export function mergeVerifiedClaims(storedClaims,live){
     const old=byId.get(item.id);
     if(old){
       if(old.verdict!==item.verdict)corrected++;
-      byId.set(item.id,{...old,verdict:item.verdict,explanation:item.explanation,sourceUrl:item.sourceUrl,sourceType:'automatic-lupa',sourceFetchedAt:live.fetchedAt});
+      byId.set(item.id,{...old,verdict:item.verdict,explanation:item.explanation,sourceUrl:item.sourceUrl,sourceQuote:item.sourceQuote,sourceVerdict:item.sourceVerdict,sourceType:'automatic-lupa',sourceFetchedAt:live.fetchedAt});
     }else{
       byId.set(item.id,{...item,sourceFetchedAt:live.fetchedAt});
       added++;
