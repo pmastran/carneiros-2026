@@ -529,29 +529,29 @@ function renderNotice(){
  else $('homeNotice').innerHTML='';
 }
 function renderAll(){state.data=activeData();renderRoundSelector();renderRoundInfo();renderHeroPresidentScope();renderGlobal();renderSummary();renderTop3();renderTurnCompare();renderPresidentCompare();renderCandidates();renderFavorites();renderNotice()}
+let officialFallbackPromise=null;
+async function officialFallback(cargo,uf,round,municipio='',country=''){
+ if(cargo!=='presidente'||String(round)!=='1'||municipio||country)return null;
+ try{
+  if(!officialFallbackPromise)officialFallbackPromise=fetch('./dados/contingencia-presidencia-1turno-2026.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Contingencia HTTP '+r.status);return r.json()}).catch(e=>{officialFallbackPromise=null;throw e});
+  const data=await officialFallbackPromise;
+  const record=uf==='br'?data.br:uf==='zz'?data.zz:data.states?.[uf];
+  if(!record||!record.ok||record.validVotes<=0||!record.candidates?.length)return null;
+  return {...record,officialSnapshot:true,sourceStatus:'snapshot-oficial-1turno',fetchedAt:new Date().toISOString()};
+ }catch(e){return null}
+}
 async function fetchScope(cargo,uf,round=effectiveRound(cargo),municipio='',country=''){
  const key=roundCacheKey(cargo,uf,round,municipio,country);
  try{
   const r=await fetch(API+'?cargo='+encodeURIComponent(cargo)+'&uf='+encodeURIComponent(uf)+'&turno='+encodeURIComponent(round)+(municipio?'&municipio='+encodeURIComponent(municipio):'')+(country?'&pais='+encodeURIComponent(country):'')+'&_='+Date.now());
+  if(!r.ok)throw new Error('Servidor indisponível (HTTP '+r.status+')');
   const body=await r.json();
   if(!r.ok&&!body.pending)throw new Error(body.message||body.error||'Falha ao consultar');
   if(body.ok===false&&!body.pending)throw new Error(body.message||body.error||'Consulta oficial indisponível');
   state.cache[key]=body;return body;
  }catch(e){
-  // Contingencia verificada contra o arquivo oficial do TSE: somente 1o turno,
-  // presidencia, total do exterior (sem pais e sem cidade).
-  if(cargo==='presidente'&&uf==='zz'&&String(round)==='1'&&!municipio&&!country){
-   try{
-    const fallback=await fetch('./dados/exterior-2026-turno1.json',{cache:'no-store'});
-    if(fallback.ok){
-     const official=await fallback.json();
-     if(official.ok&&official.officialSnapshot&&official.requestedRound===1&&official.validVotes===330882&&official.candidates?.length){
-      state.cache[key]=official;
-      return official;
-     }
-    }
-   }catch(_){}
-  }
+  const official=await officialFallback(cargo,uf,round,municipio,country);
+  if(official){state.cache[key]=official;return official}
   return {ok:false,pending:false,cargo,uf,ufLabel:uf==='br'?'Brasil':uf==='zz'?'Exterior':STATES[uf],requestedRound:Number(round),candidates:[],percentSections:0,message:e.message};
  }
 }
