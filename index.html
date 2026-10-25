@@ -100,6 +100,7 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
 .roundInfo b{display:block;font-size:14px;color:#11396a}
 .roundInfo p{font-size:12px;color:#46617e;line-height:1.52;margin:8px 0 12px}
 .roundInfo button{background:#0c2b58;border:0;color:#fff;border-radius:12px;padding:11px 16px;font-size:12px;font-weight:900;cursor:pointer;width:100%}
+.statesPanel{margin:18px 0 0;padding:18px;background:#fff;border:1px solid #dfe7f0;border-radius:23px;box-shadow:var(--shadow)}.statesPanelHead{display:flex;align-items:center;justify-content:space-between;gap:12px}.statesPanelHead h3{margin:0;font-size:24px;letter-spacing:-.03em}.statesPanelHead p{margin:5px 0 0;font-size:11px;color:var(--mut)}.statesRefresh{border:0;border-radius:13px;padding:9px 13px;background:#edf4ff;color:#0c58cc;font-size:22px;cursor:pointer;font-weight:800}.statesStatus{color:var(--mut);font-size:12px;margin:12px 0}.statesRows{display:grid;gap:10px}.statesItem{border:1px solid #e2eaf5;border-radius:16px;padding:12px;background:#f9fbff}.statesItemTop{display:flex;justify-content:space-between;gap:8px;align-items:center}.statesItemTop strong{font-size:15px}.statesItemTop span{font-size:11px;color:var(--mut);font-weight:700;text-align:right}.statesProgress{height:6px;overflow:hidden;background:#e6edf7;border-radius:999px;margin:9px 0}.statesProgress>span{display:block;height:100%;background:#3978dc;border-radius:999px}.statesCandidate{display:flex;justify-content:space-between;gap:9px;align-items:center;padding:4px 0;font-size:12px}.statesCandidate b{font-size:12px;color:#1968d9}.statesCandidate small{font-size:11px;color:var(--mut)}.statesItemMeta{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:#72839a;margin-top:7px}.statesFoot{font-size:10px;color:#78889d;line-height:1.5;margin-top:12px}@media(min-width:740px){.statesRows{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -168,6 +169,7 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
       <div id="top3" class="top3"></div>
       <div id="turnCompareHome"></div>
       <div id="presCompareHome"></div>
+      <section id="allStatesPanel" class="statesPanel" aria-label="Apuração presidencial por estado"><div class="statesPanelHead"><div><h3>Todos os Estados</h3><p>Votos válidos e andamento da apuração · TSE</p></div><button type="button" class="statesRefresh" onclick="refreshAllStates(true)">↻</button></div><div id="statesStatus" class="statesStatus">Consultando as 27 unidades da Federação…</div><div id="statesRows" class="statesRows"></div><div class="statesFoot">Percentuais calculados sobre votos válidos já apurados. Restante = seções ainda não totalizadas, não previsão de votos.</div></section>
       <div id="homeNotice"></div>
       <button id="installBtn" class="install">＋ Instalar no celular</button>
     </section>
@@ -465,7 +467,7 @@ function setPublicRound(mode){
  state.roundMode=mode;localStorage.setItem('placar26_turno',mode);
  state.nationalData=null;state.stateData=null;state.exteriorData=null;state.data=null;
  state.roundCompareNational=null;state.roundCompareState=null;state.roundCompareExterior=null;state.roundCompareData=null;
- renderAll();loadCargo(state.cargo,{silent:false});
+ renderAll();loadCargo(state.cargo,{silent:false});refreshAllStates(true);
 }
 window.setPublicRound=setPublicRound;
 function turnCandidateKey(c){return String(c?.id||c?.number||c?.name||'').trim()}
@@ -528,7 +530,46 @@ function renderNotice(){
  else if(d&&!d.ok)$('homeNotice').innerHTML='<div class="notice"><b>Conexão temporariamente indisponível</b><br>Tente atualizar em alguns instantes.</div>';
  else $('homeNotice').innerHTML='';
 }
-function renderAll(){state.data=activeData();renderRoundSelector();renderRoundInfo();renderHeroPresidentScope();renderGlobal();renderSummary();renderTop3();renderTurnCompare();renderPresidentCompare();renderCandidates();renderFavorites();renderNotice()}
+function renderAll(){state.data=activeData();renderRoundSelector();renderRoundInfo();renderHeroPresidentScope();renderGlobal();renderSummary();renderTop3();renderTurnCompare();renderPresidentCompare();renderCandidates();renderFavorites();renderNotice();renderAllStates()}
+const STATES_API='https://myqjadacddyitxgowzkv.supabase.co/functions/v1/placar-eleicoes-estados';
+let statesPayload=null,statesLastFetch=0,statesBusy=false;
+function renderAllStates(){
+ const box=$('allStatesPanel');if(!box)return;
+ box.style.display=state.cargo==='presidente'?'block':'none';
+ if(state.cargo!=='presidente')return;
+ const mode=state.roundMode==='comparar'?'1':state.roundMode;
+ if(statesPayload?.round!==Number(mode)){statesPayload=null;statesLastFetch=0}
+ const rows=$('statesRows'),status=$('statesStatus');
+ if(!statesPayload){status.textContent=statesBusy?'Consultando o TSE por estado…':'Buscando dados oficiais…';rows.innerHTML='';return}
+ const items=statesPayload.states||[];
+ const ready=items.filter(x=>x.ok).length;
+ const stale=items.filter(x=>x.stale).length;
+ status.textContent=ready+' de 27 estados com dados · '+(stale?' '+stale+' sem atualização recente · ':'')+'Turno '+mode+' · '+new Date(statesPayload.fetchedAt).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+ rows.innerHTML=items.map(x=>{
+  const u=safe(x.uf.toUpperCase()),name=safe(x.name||STATES[x.uf]||u);
+  if(!x.ok)return '<div class="statesItem"><div class="statesItemTop"><strong>'+u+' · '+name+'</strong><span>Sem conexão</span></div><small>Não foi possível consultar este estado. Atualização pendente.</small></div>';
+  const pct=Number(x.percentSections||0);
+  const people=(x.candidates||[]).filter(c=>['13','22'].includes(String(c.number))).sort((a,b)=>Number(b.votes)-Number(a.votes));
+  const lines=people.map(c=>'<div class="statesCandidate"><span>'+safe(c.name)+'</span><span><b>'+percent(c.percentage)+'</b> <small>('+fmt.format(Number(c.votes||0))+' votos)</small></span></div>').join('');
+  return '<article class="statesItem"><div class="statesItemTop"><strong>'+u+' · '+name+'</strong><span>'+percent(pct)+' apurado'+(x.stale?' · última leitura':'')+'</span></div><div class="statesProgress"><span style="width:'+Math.max(0,Math.min(100,pct))+'%"></span></div>'+(Number(x.validVotes)>0?lines:'<small>Sem votos totalizados neste estado.</small>')+'<div class="statesItemMeta"><span>'+fmt.format(Number(x.validVotes||0))+' votos válidos</span><span>'+fmt.format(Number(x.sectionsRemaining||0))+' seções restantes ('+percent(x.percentRemaining)+')</span></div></article>';
+ }).join('');
+}
+async function refreshAllStates(force=false){
+ if(statesBusy||state.cargo!=='presidente')return;
+ const round=state.roundMode==='comparar'?'1':state.roundMode;
+ if(!force&&statesPayload?.round===Number(round)&&Date.now()-statesLastFetch<25000)return;
+ statesBusy=true;renderAllStates();
+ try{
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),13000);
+  let response;try{response=await fetch(STATES_API+'?turno='+encodeURIComponent(round)+'&_='+Date.now(),{signal:controller.signal,cache:'no-store'})}finally{clearTimeout(timeout)}
+  if(!response.ok)throw Error('HTTP '+response.status);
+  const body=await response.json();
+  if(!Array.isArray(body.states)||body.states.length!==27||body.round!==Number(round))throw Error('Resposta estadual incompleta');
+  statesPayload=body;statesLastFetch=Date.now();
+ }catch(err){$('statesStatus').textContent='Consulta temporariamente indisponível. Toque em ↻ para tentar novamente.'}
+ finally{statesBusy=false;renderAllStates()}
+}
+window.refreshAllStates=refreshAllStates;
 let officialFallbackPromise=null;
 async function officialFallback(cargo,uf,round,municipio='',country=''){
  if(cargo!=='presidente'||String(round)!=='1'||municipio||country)return null;
@@ -665,6 +706,7 @@ async function autoRefresh(){
  if(document.visibilityState==='hidden')return;
  lastAutoRefresh=Date.now();
  await loadCargo(state.cargo,{silent:true});
+ await refreshAllStates();
 }
 // Exibe a votacao ja apurada por padrao antes da divulgacao oficial do 2o turno.
 if(state.roundMode==='2'&&Date.now()<SECOND_ROUND_RELEASE){
@@ -673,6 +715,7 @@ if(state.roundMode==='2'&&Date.now()<SECOND_ROUND_RELEASE){
 }
 renderAll();
 autoRefresh();
+refreshAllStates();
 setInterval(autoRefresh,30000);
 document.addEventListener('visibilitychange',()=>{
  if(document.visibilityState==='visible'&&Date.now()-lastAutoRefresh>10000)autoRefresh();
