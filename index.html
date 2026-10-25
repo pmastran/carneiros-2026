@@ -96,6 +96,10 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
   .candidate{grid-template-columns:42px minmax(0,1fr)}.candidateRight{grid-column:2;justify-content:space-between;text-align:left}.votes{display:flex;gap:10px;align-items:baseline}.votes span{margin:0}
   .roundPublic{padding:0 10px}.roundPublicInner{grid-template-columns:1fr;gap:8px}.roundPublicLabel{display:flex;justify-content:space-between;align-items:center}.roundPublicBtns button{font-size:10px;padding:9px 4px}.turnCompareGrid{grid-template-columns:1fr}.exteriorRegionalGrid{grid-template-columns:1fr}
 }
+.roundInfo{margin:14px 16px 18px;padding:15px 16px;border:1px solid #bcd5f5;border-radius:19px;background:linear-gradient(135deg,#edf5ff,#fff);box-shadow:0 8px 24px rgba(18,62,127,.08)}
+.roundInfo b{display:block;font-size:14px;color:#11396a}
+.roundInfo p{font-size:12px;color:#46617e;line-height:1.52;margin:8px 0 12px}
+.roundInfo button{background:#0c2b58;border:0;color:#fff;border-radius:12px;padding:11px 16px;font-size:12px;font-weight:900;cursor:pointer;width:100%}
 </style>
 </head>
 <body>
@@ -143,6 +147,7 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
 
   <main>
     <section id="homeView" class="view active">
+      <div id="roundInfoHome"></div>
       <div class="head"><h2>Visão geral</h2><em id="scopeBadge">BRASIL</em></div>
       <div class="panel summary">
         <div class="summaryTop">
@@ -170,6 +175,7 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
       <div class="head"><h2>Resultados</h2><em id="resultScope">BRASIL</em></div>
       <div id="cargoChips" class="chips"></div>
       <div id="presScopeSwitch" class="scopeToggle" style="display:none"></div>
+      <div id="roundInfoResults"></div>
       <div id="exteriorRegional" class="exteriorRegional">
         <label>🌎 RECORTE REGIONAL DO EXTERIOR</label>
         <div class="exteriorRegionalGrid">
@@ -251,7 +257,7 @@ function roundSuffix(){if(!supportsRounds())return'';return state.roundMode==='2
 function exteriorScopeLabel(){return state.exteriorLocationName||state.exteriorCountry||'Exterior'}
 function activeCompare(){if(state.cargo==='presidente')return state.resultScope==='br'?state.roundCompareNational:state.resultScope==='zz'?state.roundCompareExterior:state.roundCompareState;return state.roundCompareData}
 function compareDisplayData(x){return x?.secondRound||x?.firstRound||null}
-function activeData(){if(state.cargo==='presidente')return state.resultScope==='br'?(state.nationalData||state.data):state.resultScope==='zz'?(state.exteriorData||state.data):(state.stateData||state.data);return state.data}
+function activeData(){if(state.cargo==='presidente')return state.resultScope==='br'?state.nationalData:state.resultScope==='zz'?state.exteriorData:state.stateData;return state.data}
 function favKey(cargo,id){return cargo+'|'+id}
 function getFavs(){try{return JSON.parse(localStorage.getItem('placar26_favoritos')||'{}')}catch{return {}}}
 function saveFavs(v){localStorage.setItem('placar26_favoritos',JSON.stringify(v))}
@@ -262,13 +268,23 @@ function toggleFavorite(cargo,c){
  saveFavs(f);renderCandidates();renderFavorites();renderTop3();
 }
 function setGauge(p){const val=Math.max(0,Math.min(100,Number(p||0)));$('heroGauge').style.setProperty('--p',val);$('heroPct').textContent=percent(val)}
+const SECOND_ROUND_RELEASE=Date.parse('2026-10-25T17:00:00-03:00');
+function waitingSecondRound(){return supportsRounds()&&state.roundMode==='2'&&Date.now()<SECOND_ROUND_RELEASE}
 function statusText(d){
- if(!d)return'Aguardando dados oficiais.';
- if(d.noSecondRound)return d.message||'Disputa encerrada no 1º turno.';
+ if(d?.noSecondRound)return d.message||'Disputa encerrada no 1º turno.';
+ if(waitingSecondRound())return'2º turno: resultados a partir das 17h de 25/10 (Brasília).';
+ if(!d)return state.loading?'Carregando resultados do TSE…':'Dados não carregados. Toque em Atualizar.';
  if(d.pending)return d.message||'Aguardando início da divulgação.';
+ if(d.ok===false)return d.message||d.error||'Falha ao consultar o TSE. Toque em Atualizar.';
  if(d.andamento==='f')return'Totalização finalizada.';
  if(d.percentSections>0)return'Totalização em andamento.';
  return'Aguardando totalização.';
+}
+function renderRoundInfo(){
+ const show=waitingSecondRound();
+ const html=show?'<aside class="roundInfo" role="status"><b>🗓️ O 2º turno será em 25 de outubro</b><p>O TSE divulgará os resultados a partir das 17h (horário de Brasília). Para consultar a votação presidencial no exterior já apurada no 1º turno, selecione abaixo.</p><button type="button" onclick="setPublicRound(\'1\')">Ver resultados do 1º turno</button></aside>':'';
+ $('roundInfoHome').innerHTML=html;
+ $('roundInfoResults').innerHTML=html;
 }
 function currentScopeName(){return state.cargo==='presidente'?(state.resultScope==='br'?'BRASIL':state.resultScope==='zz'?(exteriorScopeLabel().toUpperCase()):STATES[state.uf].toUpperCase()):STATES[state.uf].toUpperCase()}
 function renderGlobal(){
@@ -308,7 +324,10 @@ function renderSummary(){
 function renderTop3(){
  const d=state.cargo==='presidente'?activeData():state.data;
  const items=(d?.candidates||[]).slice(0,3),medals=['🥇','🥈','🥉'];
- if(!items.length){$('top3').innerHTML='<div class="empty" style="grid-column:1/-1"><div class="big">🕔</div><b>Aguardando os primeiros votos</b><br>Assim que o TSE liberar os dados, o ranking aparece aqui.</div>';return}
+ if(!items.length){
+  const heading=waitingSecondRound()?'2º turno ainda não iniciado':d?.ok===false?'Falha ao carregar resultados':'Nenhum voto exibido neste momento';
+  $('top3').innerHTML='<div class="empty" style="grid-column:1/-1"><div class="big">🕔</div><b>'+heading+'</b><br>'+safe(statusText(d))+'</div>';return;
+ }
  $('top3').innerHTML=items.map((c,i)=>'<article class="podium"><div class="medal">'+medals[i]+'</div><div><b>'+safe(c.name)+'</b><small>'+safe(c.party||('Nº '+c.number))+'</small></div><strong>'+percent(c.percentage)+'</strong></article>').join('');
 }
 function compareCard(title,d,accent=false){
@@ -348,11 +367,12 @@ function renderPresidentScopeSwitch(){
 window.setPresidentScope=async function(scope){
  if(!['br','uf','zz'].includes(scope))return;
  state.resultScope=scope;
+ state.data=activeData();renderAll();
  if(scope==='zz'){
    await ensureExteriorLocations();
    await loadExteriorSelection();
+   state.data=activeData();renderAll();
  }
- state.data=activeData();renderAll();
 }
 async function ensureExteriorLocations(){
  if(state.exteriorLocations.length)return state.exteriorLocations;
@@ -489,6 +509,7 @@ function renderCandidates(){
  if(state.loading&&!d){$('candidateList').innerHTML=Array.from({length:7},()=>'<div class="skeleton"></div>').join('');return}
  if(!filtered.length){
    if(d?.noSecondRound){$('candidateList').innerHTML='<div class="empty"><div class="big">✓</div><b>Não haverá 2º turno neste estado</b><br>'+safe(d.message||'A disputa foi definida no 1º turno segundo os dados oficiais do TSE.')+'</div>';return}
+   if(!q&&(waitingSecondRound()||d?.pending||d?.ok===false)){$('candidateList').innerHTML='<div class="empty"><div class="big">🗓️</div><b>'+(waitingSecondRound()?'2º turno ainda não iniciado':d?.ok===false?'Consulta temporariamente indisponível':'Aguardando o TSE')+'</b><br>'+safe(statusText(d))+'</div>';return}
    $('candidateList').innerHTML='<div class="empty"><div class="big">'+(q?'⌕':'🗳️')+'</div><b>'+(q?'Nenhum candidato encontrado':'Ainda não há votos para mostrar')+'</b><br>'+(q?'Tente outro nome, número ou partido.':'O app atualizará automaticamente quando os dados chegarem.')+'</div>';return
  }
  $('candidateList').innerHTML=filtered.slice(0,q?150:60).map(c=>candidateCard(c,all.indexOf(c))).join('');
@@ -505,7 +526,7 @@ function renderNotice(){
  else if(d&&!d.ok)$('homeNotice').innerHTML='<div class="notice"><b>Conexão temporariamente indisponível</b><br>Tente atualizar em alguns instantes.</div>';
  else $('homeNotice').innerHTML='';
 }
-function renderAll(){state.data=activeData();renderRoundSelector();renderHeroPresidentScope();renderGlobal();renderSummary();renderTop3();renderTurnCompare();renderPresidentCompare();renderCandidates();renderFavorites();renderNotice()}
+function renderAll(){state.data=activeData();renderRoundSelector();renderRoundInfo();renderHeroPresidentScope();renderGlobal();renderSummary();renderTop3();renderTurnCompare();renderPresidentCompare();renderCandidates();renderFavorites();renderNotice()}
 async function fetchScope(cargo,uf,round=effectiveRound(cargo),municipio='',country=''){
  const key=roundCacheKey(cargo,uf,round,municipio,country);
  try{
