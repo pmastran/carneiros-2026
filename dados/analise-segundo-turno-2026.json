@@ -1,0 +1,790 @@
+{
+  "metadata": {
+    "asOf": "2026-10-24",
+    "timeZone": "America/Sao_Paulo",
+    "subject": "Eleições 2026 — segundo turno presidencial",
+    "electionDate": "2026-10-25",
+    "purpose": "Painel descritivo de fontes públicas, sem previsão autoral de resultado",
+    "methodology": "Apuração oficial do TSE para 1º turno; pesquisas reportadas pelos institutos; preços de mercado reportados por fontes primárias/secundárias datadas; históricos do TSE.",
+    "notLive": true,
+    "disclaimer": "Pesquisas não são votos; preços de mercados não são pesquisas; cenários de participação são hipóteses e não probabilidades."
+  },
+  "official2026": {
+    "round": 1,
+    "year": 2026,
+    "generatedDate": "05/10/2026",
+    "generatedTime": "12:51:47",
+    "validVotes": 119300788,
+    "turnoutPercent": 78.92,
+    "electors": 158745502,
+    "abstentions": 33469244,
+    "blankVotes": 2300798,
+    "nullVotes": 3674249,
+    "candidates": [
+      {
+        "name": "FLAVIO BOLSONARO",
+        "party": "PL",
+        "number": "22",
+        "votes": 56104503,
+        "percent": 47.027772356
+      },
+      {
+        "name": "LULA",
+        "party": "PT",
+        "number": "13",
+        "votes": 53879538,
+        "percent": 45.162767911
+      },
+      {
+        "name": "ESCRITOR AUGUSTO CURY",
+        "party": "AVANTE",
+        "number": "70",
+        "votes": 3448569,
+        "percent": 2.890650647
+      },
+      {
+        "name": "RENAN SANTOS",
+        "party": "MISSÃO",
+        "number": "14",
+        "votes": 2675887,
+        "percent": 2.242975126
+      },
+      {
+        "name": "RONALDO CAIADO",
+        "party": "PSD",
+        "number": "55",
+        "votes": 2605148,
+        "percent": 2.183680463
+      },
+      {
+        "name": "ZEMA",
+        "party": "NOVO",
+        "number": "30",
+        "votes": 326488,
+        "percent": 0.273667933
+      },
+      {
+        "name": "SAMARA",
+        "party": "UP",
+        "number": "80",
+        "votes": 122911,
+        "percent": 0.103026143
+      },
+      {
+        "name": "HERTZ DIAS",
+        "party": "PSTU",
+        "number": "16",
+        "votes": 43103,
+        "percent": 0.036129686
+      },
+      {
+        "name": "CLARIANA BARAO",
+        "party": "DC",
+        "number": "27",
+        "votes": 40043,
+        "percent": 0.033564741
+      },
+      {
+        "name": "EDMILSON COSTA",
+        "party": "PCB",
+        "number": "21",
+        "votes": 22693,
+        "percent": 0.019021668
+      },
+      {
+        "name": "VETERINÁRIO WILSON GRASSI",
+        "party": "DEMOCRATA",
+        "number": "35",
+        "votes": 16881,
+        "percent": 0.014149948
+      },
+      {
+        "name": "RUI COSTA PIMENTA",
+        "party": "PCO",
+        "number": "29",
+        "votes": 15024,
+        "percent": 0.012593379
+      }
+    ],
+    "othersVotes": 9316747,
+    "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/br/br-c0001-e006257-u.json",
+    "states": [
+      {
+        "uf": "AC",
+        "region": "Norte",
+        "validVotes": 469066,
+        "votesFlavio": 302807,
+        "votesLula": 134770,
+        "votesOthers": 31489,
+        "electors": 613742,
+        "turnoutPercent": 79.57,
+        "abstentions": 125412,
+        "sectionsTotal": 2270,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ac/ac-c0001-e006257-u.json"
+      },
+      {
+        "uf": "AL",
+        "region": "Nordeste",
+        "validVotes": 1818856,
+        "votesFlavio": 735718,
+        "votesLula": 995459,
+        "votesOthers": 87679,
+        "electors": 2442126,
+        "turnoutPercent": 79.37,
+        "abstentions": 503698,
+        "sectionsTotal": 7101,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/al/al-c0001-e006257-u.json"
+      },
+      {
+        "uf": "AP",
+        "region": "Norte",
+        "validVotes": 464858,
+        "votesFlavio": 212278,
+        "votesLula": 212503,
+        "votesOthers": 40077,
+        "electors": 576988,
+        "turnoutPercent": 82.59,
+        "abstentions": 100426,
+        "sectionsTotal": 1914,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ap/ap-c0001-e006257-u.json"
+      },
+      {
+        "uf": "AM",
+        "region": "Norte",
+        "validVotes": 2170763,
+        "votesFlavio": 976764,
+        "votesLula": 1046996,
+        "votesOthers": 147003,
+        "electors": 2798611,
+        "turnoutPercent": 79.84,
+        "abstentions": 564062,
+        "sectionsTotal": 8157,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/am/am-c0001-e006257-u.json"
+      },
+      {
+        "uf": "BA",
+        "region": "Nordeste",
+        "validVotes": 8560291,
+        "votesFlavio": 2442585,
+        "votesLula": 5664771,
+        "votesOthers": 452935,
+        "electors": 11312752,
+        "turnoutPercent": 80.03,
+        "abstentions": 2259151,
+        "sectionsTotal": 35476,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ba/ba-c0001-e006257-u.json"
+      },
+      {
+        "uf": "CE",
+        "region": "Nordeste",
+        "validVotes": 5617814,
+        "votesFlavio": 1756850,
+        "votesLula": 3555263,
+        "votesOthers": 305701,
+        "electors": 6996545,
+        "turnoutPercent": 84.48,
+        "abstentions": 1086074,
+        "sectionsTotal": 23765,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ce/ce-c0001-e006257-u.json"
+      },
+      {
+        "uf": "DF",
+        "region": "Centro-Oeste",
+        "validVotes": 1772808,
+        "votesFlavio": 909616,
+        "votesLula": 675627,
+        "votesOthers": 187565,
+        "electors": 2258320,
+        "turnoutPercent": 81.1,
+        "abstentions": 426924,
+        "sectionsTotal": 6969,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/df/df-c0001-e006257-u.json"
+      },
+      {
+        "uf": "ES",
+        "region": "Sudeste",
+        "validVotes": 2251078,
+        "votesFlavio": 1233194,
+        "votesLula": 850028,
+        "votesOthers": 167856,
+        "electors": 2991650,
+        "turnoutPercent": 78.63,
+        "abstentions": 639368,
+        "sectionsTotal": 9844,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/es/es-c0001-e006257-u.json"
+      },
+      {
+        "uf": "GO",
+        "region": "Centro-Oeste",
+        "validVotes": 3827823,
+        "votesFlavio": 2051888,
+        "votesLula": 1188880,
+        "votesOthers": 587055,
+        "electors": 5080590,
+        "turnoutPercent": 78.17,
+        "abstentions": 1109003,
+        "sectionsTotal": 15686,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/go/go-c0001-e006257-u.json"
+      },
+      {
+        "uf": "MA",
+        "region": "Nordeste",
+        "validVotes": 4010439,
+        "votesFlavio": 1239040,
+        "votesLula": 2566301,
+        "votesOthers": 205098,
+        "electors": 5183115,
+        "turnoutPercent": 80.27,
+        "abstentions": 1022772,
+        "sectionsTotal": 18093,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ma/ma-c0001-e006257-u.json"
+      },
+      {
+        "uf": "MT",
+        "region": "Centro-Oeste",
+        "validVotes": 1993288,
+        "votesFlavio": 1298581,
+        "votesLula": 581681,
+        "votesOthers": 113026,
+        "electors": 2637801,
+        "turnoutPercent": 77.8,
+        "abstentions": 585668,
+        "sectionsTotal": 8287,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/mt/mt-c0001-e006257-u.json"
+      },
+      {
+        "uf": "MS",
+        "region": "Centro-Oeste",
+        "validVotes": 1490278,
+        "votesFlavio": 873351,
+        "votesLula": 516855,
+        "votesOthers": 100072,
+        "electors": 2024430,
+        "turnoutPercent": 76.13,
+        "abstentions": 483210,
+        "sectionsTotal": 7106,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ms/ms-c0001-e006257-u.json"
+      },
+      {
+        "uf": "MG",
+        "region": "Sudeste",
+        "validVotes": 11976235,
+        "votesFlavio": 5777548,
+        "votesLula": 5188936,
+        "votesOthers": 1009751,
+        "electors": 16372372,
+        "turnoutPercent": 77.19,
+        "abstentions": 3735098,
+        "sectionsTotal": 52062,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/mg/mg-c0001-e006257-u.json"
+      },
+      {
+        "uf": "PA",
+        "region": "Norte",
+        "validVotes": 4863172,
+        "votesFlavio": 2163957,
+        "votesLula": 2427237,
+        "votesOthers": 271978,
+        "electors": 6262397,
+        "turnoutPercent": 80.9,
+        "abstentions": 1195893,
+        "sectionsTotal": 20827,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pa/pa-c0001-e006257-u.json"
+      },
+      {
+        "uf": "PB",
+        "region": "Nordeste",
+        "validVotes": 2513747,
+        "votesFlavio": 831377,
+        "votesLula": 1541127,
+        "votesOthers": 141243,
+        "electors": 3248531,
+        "turnoutPercent": 82.62,
+        "abstentions": 564543,
+        "sectionsTotal": 10712,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pb/pb-c0001-e006257-u.json"
+      },
+      {
+        "uf": "PR",
+        "region": "Sul",
+        "validVotes": 6585243,
+        "votesFlavio": 3945345,
+        "votesLula": 2054597,
+        "votesOthers": 585301,
+        "electors": 8613657,
+        "turnoutPercent": 79.43,
+        "abstentions": 1772200,
+        "sectionsTotal": 27142,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pr/pr-c0001-e006257-u.json"
+      },
+      {
+        "uf": "PE",
+        "region": "Nordeste",
+        "validVotes": 5601017,
+        "votesFlavio": 1738043,
+        "votesLula": 3553971,
+        "votesOthers": 309003,
+        "electors": 7223450,
+        "turnoutPercent": 81.83,
+        "abstentions": 1312388,
+        "sectionsTotal": 21418,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pe/pe-c0001-e006257-u.json"
+      },
+      {
+        "uf": "PI",
+        "region": "Nordeste",
+        "validVotes": 2146394,
+        "votesFlavio": 517028,
+        "votesLula": 1523710,
+        "votesOthers": 105656,
+        "electors": 2704758,
+        "turnoutPercent": 82.85,
+        "abstentions": 463875,
+        "sectionsTotal": 10225,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/pi/pi-c0001-e006257-u.json"
+      },
+      {
+        "uf": "RJ",
+        "region": "Sudeste",
+        "validVotes": 9369700,
+        "votesFlavio": 4966844,
+        "votesLula": 3693021,
+        "votesOthers": 709835,
+        "electors": 12857648,
+        "turnoutPercent": 76.68,
+        "abstentions": 2997846,
+        "sectionsTotal": 37675,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/rj/rj-c0001-e006257-u.json"
+      },
+      {
+        "uf": "RN",
+        "region": "Nordeste",
+        "validVotes": 2071898,
+        "votesFlavio": 720493,
+        "votesLula": 1237963,
+        "votesOthers": 113442,
+        "electors": 2659825,
+        "turnoutPercent": 81.62,
+        "abstentions": 488812,
+        "sectionsTotal": 8115,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/rn/rn-c0001-e006257-u.json"
+      },
+      {
+        "uf": "RS",
+        "region": "Sul",
+        "validVotes": 6423046,
+        "votesFlavio": 3573783,
+        "votesLula": 2294759,
+        "votesOthers": 554504,
+        "electors": 8522545,
+        "turnoutPercent": 78.65,
+        "abstentions": 1819642,
+        "sectionsTotal": 27547,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/rs/rs-c0001-e006257-u.json"
+      },
+      {
+        "uf": "RO",
+        "region": "Norte",
+        "validVotes": 968059,
+        "votesFlavio": 652988,
+        "votesLula": 250667,
+        "votesOthers": 64404,
+        "electors": 1265893,
+        "turnoutPercent": 78.29,
+        "abstentions": 274813,
+        "sectionsTotal": 4698,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/ro/ro-c0001-e006257-u.json"
+      },
+      {
+        "uf": "RR",
+        "region": "Norte",
+        "validVotes": 325545,
+        "votesFlavio": 231322,
+        "votesLula": 74420,
+        "votesOthers": 19803,
+        "electors": 401521,
+        "turnoutPercent": 82.88,
+        "abstentions": 68749,
+        "sectionsTotal": 1519,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/rr/rr-c0001-e006257-u.json"
+      },
+      {
+        "uf": "SC",
+        "region": "Sul",
+        "validVotes": 4500897,
+        "votesFlavio": 3000020,
+        "votesLula": 1127168,
+        "votesOthers": 373709,
+        "electors": 5734651,
+        "turnoutPercent": 81.05,
+        "abstentions": 1086492,
+        "sectionsTotal": 17326,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/sc/sc-c0001-e006257-u.json"
+      },
+      {
+        "uf": "SP",
+        "region": "Sudeste",
+        "validVotes": 24882948,
+        "votesFlavio": 12922023,
+        "votesLula": 9505413,
+        "votesOthers": 2455512,
+        "electors": 34122892,
+        "turnoutPercent": 77.46,
+        "abstentions": 7690900,
+        "sectionsTotal": 103656,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/sp/sp-c0001-e006257-u.json"
+      },
+      {
+        "uf": "SE",
+        "region": "Nordeste",
+        "validVotes": 1364196,
+        "votesFlavio": 417839,
+        "votesLula": 856019,
+        "votesOthers": 90338,
+        "electors": 1740135,
+        "turnoutPercent": 82.7,
+        "abstentions": 301053,
+        "sectionsTotal": 5923,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/se/se-c0001-e006257-u.json"
+      },
+      {
+        "uf": "TO",
+        "region": "Norte",
+        "validVotes": 930447,
+        "votesFlavio": 469321,
+        "votesLula": 404009,
+        "votesOthers": 57117,
+        "electors": 1182023,
+        "turnoutPercent": 81.66,
+        "abstentions": 216827,
+        "sectionsTotal": 4384,
+        "publishedDate": "05/10/2026",
+        "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/to/to-c0001-e006257-u.json"
+      }
+    ],
+    "exterior": {
+      "validVotes": 330882,
+      "turnoutPercent": 37.31,
+      "candidates": [
+        {
+          "name": "FLAVIO BOLSONARO",
+          "number": "22",
+          "votes": 143900,
+          "percent": 43.489824167
+        },
+        {
+          "name": "RONALDO CAIADO",
+          "number": "55",
+          "votes": 4708,
+          "percent": 1.42286374
+        },
+        {
+          "name": "LULA",
+          "number": "13",
+          "votes": 157387,
+          "percent": 47.565899626
+        },
+        {
+          "name": "CLARIANA BARAO",
+          "number": "27",
+          "votes": 825,
+          "percent": 0.249333599
+        },
+        {
+          "name": "EDMILSON COSTA",
+          "number": "21",
+          "votes": 421,
+          "percent": 0.127235691
+        },
+        {
+          "name": "HERTZ DIAS",
+          "number": "16",
+          "votes": 373,
+          "percent": 0.112729009
+        },
+        {
+          "name": "ESCRITOR AUGUSTO CURY",
+          "number": "70",
+          "votes": 9734,
+          "percent": 2.941834249
+        },
+        {
+          "name": "ZEMA",
+          "number": "30",
+          "votes": 3329,
+          "percent": 1.006098851
+        },
+        {
+          "name": "SAMARA",
+          "number": "80",
+          "votes": 1053,
+          "percent": 0.318240339
+        },
+        {
+          "name": "VETERINÁRIO WILSON GRASSI",
+          "number": "35",
+          "votes": 373,
+          "percent": 0.112729009
+        },
+        {
+          "name": "RENAN SANTOS",
+          "number": "14",
+          "votes": 8580,
+          "percent": 2.593069433
+        },
+        {
+          "name": "RUI COSTA PIMENTA",
+          "number": "29",
+          "votes": 199,
+          "percent": 0.060142286
+        }
+      ],
+      "source": "https://resultados.tse.jus.br/oficial/ele2026/6257/dados/zz/zz-c0001-e006257-u.json"
+    }
+  },
+  "history": [
+    {
+      "year": 2018,
+      "round1TurnoutPercent": 79.67,
+      "round2TurnoutPercent": 78.7,
+      "round2ValidVotes": 104838753,
+      "round2Votes": [
+        {
+          "name": "Jair Bolsonaro",
+          "votes": 57797847,
+          "percent": 55.13
+        },
+        {
+          "name": "Fernando Haddad",
+          "votes": 47040906,
+          "percent": 44.87
+        }
+      ],
+      "source": "https://www.tse.jus.br/comunicacao/noticias/2018/Outubro/eleicoes-2018-justica-eleitoral-conclui-totalizacao-dos-votos-do-segundo-turno"
+    },
+    {
+      "year": 2022,
+      "round1TurnoutPercent": 79.05,
+      "round2TurnoutPercent": 79.41,
+      "round1ValidVotes": 118229719,
+      "round2ValidVotes": 118552353,
+      "round1Votes": [
+        {
+          "name": "Lula",
+          "votes": 57259504,
+          "percent": 48.43
+        },
+        {
+          "name": "Jair Bolsonaro",
+          "votes": 51072345,
+          "percent": 43.2
+        }
+      ],
+      "round2Votes": [
+        {
+          "name": "Lula",
+          "votes": 60345999,
+          "percent": 50.9
+        },
+        {
+          "name": "Jair Bolsonaro",
+          "votes": 58206354,
+          "percent": 49.1
+        }
+      ],
+      "source": "https://www.tse.jus.br/comunicacao/noticias/2022/Outubro/100-das-secoes-totalizadas-confira-como-ficou-o-quadro-eleitoral-apos-o-2o-turno",
+      "sourceFirst": "https://www.tse.jus.br/comunicacao/noticias/2022/Outubro/100-das-secoes-totalizadas-confira-como-ficou-o-quadro-eleitoral-apos-o-1o-turno"
+    }
+  ],
+  "polls": [
+    {
+      "institute": "Datafolha",
+      "published": "2026-10-24",
+      "field": "23–24/10",
+      "flavio": 51,
+      "lula": 49,
+      "sample": 4050,
+      "error": 2,
+      "collection": "Presencial",
+      "registration": "BR-09540/2026",
+      "source": "https://www1.folha.uol.com.br/poder/2026/10/datafolha-flavio-bolsonaro-tem-51-dos-votos-validos-e-lula-49-em-empate-tecnico.shtml"
+    },
+    {
+      "institute": "Quaest",
+      "published": "2026-10-24",
+      "field": "23–24/10",
+      "flavio": 51,
+      "lula": 49,
+      "sample": 3702,
+      "error": 2,
+      "collection": "Presencial",
+      "registration": "BR-09158/2026",
+      "source": "https://www.cnnbrasil.com.br/eleicoes/ultimas-pesquisas-segundo-turno-eleicao/"
+    },
+    {
+      "institute": "CNT/MDA",
+      "published": "2026-10-24",
+      "field": "21–23/10",
+      "flavio": 50.7,
+      "lula": 49.3,
+      "sample": 2032,
+      "error": 2.2,
+      "collection": "Presencial",
+      "registration": "BR-02136/2026",
+      "source": "https://www.cnnbrasil.com.br/eleicoes/ultimas-pesquisas-segundo-turno-eleicao/"
+    },
+    {
+      "institute": "Gerp",
+      "published": "2026-10-24",
+      "field": "22–24/10",
+      "flavio": 52,
+      "lula": 48,
+      "sample": 2400,
+      "error": 2,
+      "collection": "Telefone",
+      "registration": "BR-09327/2026",
+      "source": "https://www.cnnbrasil.com.br/eleicoes/ultimas-pesquisas-segundo-turno-eleicao/"
+    },
+    {
+      "institute": "BTG/Nexus",
+      "published": "2026-10-24",
+      "field": "23–24/10",
+      "flavio": 50.5,
+      "lula": 49.5,
+      "sample": 2000,
+      "error": 2.2,
+      "collection": "Não confirmada nesta consulta",
+      "registration": "BR-08234/2026",
+      "source": "https://www.cnnbrasil.com.br/eleicoes/ultimas-pesquisas-segundo-turno-eleicao/"
+    },
+    {
+      "institute": "AtlasIntel/Bloomberg",
+      "published": "2026-10-24",
+      "field": "18–23/10",
+      "flavio": 50.8,
+      "lula": 49.2,
+      "sample": 4990,
+      "error": 1,
+      "collection": "Recrutamento digital",
+      "registration": "BR-06380/2026",
+      "source": "https://www.cnnbrasil.com.br/eleicoes/ultimas-pesquisas-segundo-turno-eleicao/"
+    },
+    {
+      "institute": "Futura/100% Cidades",
+      "published": "2026-10-24",
+      "field": "23–24/10",
+      "flavio": 50.1,
+      "lula": 49.9,
+      "sample": 2000,
+      "error": 2.2,
+      "collection": "Não confirmada nesta consulta",
+      "registration": "BR-09726/2026",
+      "source": "https://www.cnnbrasil.com.br/eleicoes/ultimas-pesquisas-segundo-turno-eleicao/"
+    }
+  ],
+  "historicalPolls": [
+    {
+      "institute": "Datafolha",
+      "date": "2026-10-08",
+      "flavio": 52,
+      "lula": 48,
+      "source": "https://www1.folha.uol.com.br/poder/2026/10/datafolha-flavio-bolsonaro-tem-52-e-lula-48-em-votos-validos-no-segundo-turno.shtml"
+    },
+    {
+      "institute": "Datafolha",
+      "date": "2026-10-22",
+      "flavio": 50,
+      "lula": 50,
+      "rounded": true,
+      "source": "https://www.infomoney.com.br/politica/datafolha-final-flavio-51-lula-49-em-votos-validos-empate-tecnico-permanece/"
+    },
+    {
+      "institute": "Datafolha",
+      "date": "2026-10-24",
+      "flavio": 51,
+      "lula": 49,
+      "source": "https://www1.folha.uol.com.br/poder/2026/10/datafolha-flavio-bolsonaro-tem-51-dos-votos-validos-e-lula-49-em-empate-tecnico.shtml"
+    }
+  ],
+  "markets": [
+    {
+      "platform": "Kalshi",
+      "date": "2026-10-09",
+      "flavio": 88,
+      "measurement": "Pico reportado no período; não representa apuração",
+      "source": "https://news.kalshi.com/p/brazil-presidential-odds-and-predictions-bolsonaro-maintains-lead-as-runoff-approaches"
+    },
+    {
+      "platform": "Polymarket",
+      "date": "2026-10-09",
+      "flavio": 89,
+      "lula": 11,
+      "measurement": "Preço implícito reportado no período; não representa votos",
+      "source": "https://timesbrasil.com.br/brasil/decisao-2026-a-quase-24-horas-da-eleicao-polymarket-e-kalshi-apontam-mais-de-80-de-chance-de-vitoria-de-flavio-bolsonaro/"
+    },
+    {
+      "platform": "Kalshi",
+      "date": "2026-10-24",
+      "flavio": 84,
+      "measurement": "Preço implícito citado em matéria de 24/10; não é cotação ao vivo",
+      "source": "https://news.kalshi.com/p/brazil-presidential-odds-and-predictions-bolsonaro-maintains-lead-as-runoff-approaches"
+    },
+    {
+      "platform": "Kalshi",
+      "date": "2026-10-24",
+      "time": "11h BRT",
+      "flavio": 81,
+      "lula": 20,
+      "measurement": "Preços arredondados por fonte jornalística, podem somar mais de 100%",
+      "source": "https://timesbrasil.com.br/brasil/decisao-2026-a-quase-24-horas-da-eleicao-polymarket-e-kalshi-apontam-mais-de-80-de-chance-de-vitoria-de-flavio-bolsonaro/"
+    },
+    {
+      "platform": "Polymarket",
+      "date": "2026-10-24",
+      "flavioLowerBound": 83,
+      "measurement": "Fonte informa 'mais de 83%', sem percentual exato",
+      "source": "https://timesbrasil.com.br/brasil/decisao-2026-a-quase-24-horas-da-eleicao-polymarket-e-kalshi-apontam-mais-de-80-de-chance-de-vitoria-de-flavio-bolsonaro/"
+    }
+  ],
+  "turnoutStudy": {
+    "source": "https://www.infomoney.com.br/politica/datafolha-final-flavio-51-lula-49-em-votos-validos-empate-tecnico-permanece/",
+    "asOf": "2026-10-24",
+    "highPropensitySharePercent": 76,
+    "highPropensity": {
+      "flavio": 52,
+      "lula": 48
+    },
+    "lowMediumPropensitySharePercent": 24,
+    "lowMediumPropensity": {
+      "flavio": 48,
+      "lula": 52
+    },
+    "method": "Modelo de propensão ao comparecimento do Datafolha; grupos não são amostras eleitorais independentes para projetar o resultado."
+  }
+}
