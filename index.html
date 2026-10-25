@@ -101,6 +101,7 @@ footer{text-align:center;padding:25px 12px;color:#8190a4;font-size:11px;line-hei
 .roundInfo p{font-size:12px;color:#46617e;line-height:1.52;margin:8px 0 12px}
 .roundInfo button{background:#0c2b58;border:0;color:#fff;border-radius:12px;padding:11px 16px;font-size:12px;font-weight:900;cursor:pointer;width:100%}
 .statesPanel{margin:18px 0 0;padding:18px;background:#fff;border:1px solid #dfe7f0;border-radius:23px;box-shadow:var(--shadow)}.statesPanelHead{display:flex;align-items:center;justify-content:space-between;gap:12px}.statesPanelHead h3{margin:0;font-size:24px;letter-spacing:-.03em}.statesPanelHead p{margin:5px 0 0;font-size:11px;color:var(--mut)}.statesRefresh{border:0;border-radius:13px;padding:9px 13px;background:#edf4ff;color:#0c58cc;font-size:22px;cursor:pointer;font-weight:800}.statesStatus{color:var(--mut);font-size:12px;margin:12px 0}.statesRows{display:grid;gap:10px}.statesItem{border:1px solid #e2eaf5;border-radius:16px;padding:12px;background:#f9fbff}.statesItemTop{display:flex;justify-content:space-between;gap:8px;align-items:center}.statesItemTop strong{font-size:15px}.statesItemTop span{font-size:11px;color:var(--mut);font-weight:700;text-align:right}.statesProgress{height:6px;overflow:hidden;background:#e6edf7;border-radius:999px;margin:9px 0}.statesProgress>span{display:block;height:100%;background:#3978dc;border-radius:999px}.statesCandidate{display:flex;justify-content:space-between;gap:9px;align-items:center;padding:4px 0;font-size:12px}.statesCandidate b{font-size:12px;color:#1968d9}.statesCandidate small{font-size:11px;color:var(--mut)}.statesItemMeta{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:#72839a;margin-top:7px}.statesFoot{font-size:10px;color:#78889d;line-height:1.5;margin-top:12px}@media(min-width:740px){.statesRows{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.portrait{display:inline-flex;vertical-align:middle;width:38px;height:38px;border-radius:50%;flex:0 0 38px;overflow:hidden;align-items:center;justify-content:center;background:#e8eef6;color:#677d9c;font-size:13px;font-weight:900;border:2px solid #e0e8f1}.portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 24%;display:block}.portrait img[hidden]{display:none}.portrait.portrait-sm{width:28px;height:28px;flex-basis:28px;font-size:11px}.portrait.portrait-xs{width:24px;height:24px;flex-basis:24px;font-size:9px}.podium{align-items:center}.compareRow.withPortrait{grid-template-columns:30px 1fr auto}.turnRow.withPortrait{display:flex;align-items:center;gap:9px}.turnRow.withPortrait>div:nth-child(2){flex:1;min-width:0}.candidate.withPortrait{grid-template-columns:52px 40px minmax(0,1fr) auto}.candidate.withPortrait .candidateName{overflow:hidden;text-overflow:ellipsis}.statesCandidate .statesCandidateName{display:inline-flex;align-items:center;gap:6px;min-width:0}.statesCandidate .statesCandidateName span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@media(max-width:430px){.portrait{width:34px;height:34px;flex-basis:34px}.candidate.withPortrait{grid-template-columns:38px 34px minmax(0,1fr) auto;gap:5px}}
 </style>
 </head>
 <body>
@@ -325,6 +326,17 @@ function renderSummary(){
  $('statBlank').textContent=homeD.blankVotes?fmt.format(homeD.blankVotes):'—';
  $('statNull').textContent=homeD.nullVotes?fmt.format(homeD.nullVotes):'—';
 }
+// Fotografias vinculadas ao numero da candidatura presidencial, sem tocar nas APIs.
+const PRESIDENT_PORTRAITS={
+ '13':'https://commons.wikimedia.org/wiki/Special:FilePath/2022_LULA_CANDIDATO_PRESIDENTE_TSE_(280001607829).jpg?width=140',
+ '22':'https://commons.wikimedia.org/wiki/Special:FilePath/2026_FLAVIO_BOLSONARO_CANDIDATO_PRESIDENTE_TSE_(280002551544).jpg?width=140'
+};
+function candidatePortrait(c,cargo='presidente',size=''){
+ const n=String(c?.number??''),url=cargo==='presidente'?PRESIDENT_PORTRAITS[n]:null;
+ if(!url)return '';
+ const fallback=n==='13'?'L':n==='22'?'F':'?';
+ return '<span class="portrait '+(size?'portrait-'+size:'')+'" aria-label="Foto de '+safe(c.name||'candidato')+'"><img loading="lazy" referrerpolicy="no-referrer" src="'+safe(url)+'" alt="" onerror="this.hidden=true" /><span aria-hidden="true">'+fallback+'</span></span>';
+}
 function renderTop3(){
  const d=state.cargo==='presidente'?activeData():state.data;
  const items=(d?.candidates||[]).slice(0,3),medals=['🥇','🥈','🥉'];
@@ -332,11 +344,11 @@ function renderTop3(){
   const heading=waitingSecondRound()?'2º turno ainda não iniciado':d?.ok===false?'Falha ao carregar resultados':'Nenhum voto exibido neste momento';
   $('top3').innerHTML='<div class="empty" style="grid-column:1/-1"><div class="big">🕔</div><b>'+heading+'</b><br>'+safe(statusText(d))+'</div>';return;
  }
- $('top3').innerHTML=items.map((c,i)=>'<article class="podium"><div class="medal">'+medals[i]+'</div><div><b>'+safe(c.name)+'</b><small>'+safe(c.party||('Nº '+c.number))+'</small></div><strong>'+percent(c.percentage)+'</strong></article>').join('');
+ $('top3').innerHTML=items.map((c,i)=>'<article class="podium"><div class="medal">'+medals[i]+'</div>'+candidatePortrait(c,state.cargo)+'<div><b>'+safe(c.name)+'</b><small>'+safe(c.party||('Nº '+c.number))+'</small></div><strong>'+percent(c.percentage)+'</strong></article>').join('');
 }
 function compareCard(title,d,accent=false){
  const items=(d?.candidates||[]).slice(0,3);
- const body=items.length?items.map((x,i)=>'<div class="compareRow"><span>'+['🥇','🥈','🥉'][i]+'</span><div class="nm">'+safe(x.name)+'</div><div class="pc">'+percent(x.percentage)+'</div></div>').join(''):'<div style="color:#7a899c;font-size:12px;padding:9px 0">Aguardando dados oficiais.</div>';
+ const body=items.length?items.map((x,i)=>'<div class="compareRow withPortrait">'+(candidatePortrait(x,state.cargo,'sm')||'<span>'+['🥇','🥈','🥉'][i]+'</span>')+'<div class="nm">'+safe(x.name)+'</div><div class="pc">'+percent(x.percentage)+'</div></div>').join(''):'<div style="color:#7a899c;font-size:12px;padding:9px 0">Aguardando dados oficiais.</div>';
  return '<article class="compareCard '+(accent?'accent':'')+'"><div class="compareCardHead"><div><b>'+safe(title)+'</b><span>'+percent(d?.percentSections||0)+' apurado</span></div><span>'+statusText(d)+'</span></div>'+body+'</article>';
 }
 function renderPresidentCompare(){
@@ -480,7 +492,7 @@ function turnCard(title,d,comparison,isSecond=false){
      const x=(comparison.candidates||[]).find(z=>z.key===turnCandidateKey(c));
      if(x){const dp=Number(x.deltaPercentagePoints||0);delta='<span class="delta '+(dp>=0?'up':'down')+'">'+(dp>=0?'+':'')+dp.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' p.p. vs 1º</span>'}
    }
-   return '<div class="turnRow"><div><div class="nm">'+safe(c.name)+'</div><div class="meta">'+safe([c.party,c.number?('Nº '+c.number):''].filter(Boolean).join(' • '))+'</div></div><div class="pc">'+percent(c.percentage)+delta+'</div></div>';
+   return '<div class="turnRow withPortrait">'+candidatePortrait(c,state.cargo,'sm')+'<div><div class="nm">'+safe(c.name)+'</div><div class="meta">'+safe([c.party,c.number?('Nº '+c.number):''].filter(Boolean).join(' • '))+'</div></div><div class="pc">'+percent(c.percentage)+delta+'</div></div>';
  }).join('');
  return '<article class="turnCard '+(isSecond?'current':'')+'"><div class="turnCardHead"><div><b>'+safe(title)+'</b><div class="meta">'+fmt.format(d.validVotes||0)+' válidos</div></div><span>'+percent(d.percentSections||0)+' apurado</span></div>'+rows+'</article>';
 }
@@ -503,7 +515,7 @@ function renderTurnCompare(){
 }
 function candidateCard(c,i,cargo=state.cargo){
  const fav=isFav(cargo,c.id);
- return '<article class="candidate"><div class="rank">'+(i+1)+'º</div><div><div class="candidateName">'+safe(c.name)+(c.elected?' ✓':'')+'</div><div class="candidateMeta">'+[c.number?'Nº '+c.number:'',c.party,c.status].filter(Boolean).map(safe).join(' • ')+'</div></div><div class="candidateRight"><div class="votes"><b>'+fmt.format(c.votes||0)+' votos</b><span>'+percent(c.percentage)+'</span></div><button class="star '+(fav?'on':'')+'" onclick="toggleFavEncoded(\''+cargo+'\',\''+encodeURIComponent(JSON.stringify(c))+'\')">★</button></div></article>';
+ return '<article class="candidate '+(candidatePortrait(c,cargo)?'withPortrait':'')+'"><div class="rank">'+(i+1)+'º</div>'+candidatePortrait(c,cargo)+'<div><div class="candidateName">'+safe(c.name)+(c.elected?' ✓':'')+'</div><div class="candidateMeta">'+[c.number?'Nº '+c.number:'',c.party,c.status].filter(Boolean).map(safe).join(' • ')+'</div></div><div class="candidateRight"><div class="votes"><b>'+fmt.format(c.votes||0)+' votos</b><span>'+percent(c.percentage)+'</span></div><button class="star '+(fav?'on':'')+'" onclick="toggleFavEncoded(\''+cargo+'\',\''+encodeURIComponent(JSON.stringify(c))+'\')">★</button></div></article>';
 }
 window.toggleFavEncoded=function(cargo,encoded){toggleFavorite(cargo,JSON.parse(decodeURIComponent(encoded)))}
 function renderCandidates(){
@@ -550,7 +562,7 @@ function renderAllStates(){
   if(!x.ok)return '<div class="statesItem"><div class="statesItemTop"><strong>'+u+' · '+name+'</strong><span>Sem conexão</span></div><small>Não foi possível consultar este estado. Atualização pendente.</small></div>';
   const pct=Number(x.percentSections||0);
   const people=(x.candidates||[]).filter(c=>['13','22'].includes(String(c.number))).sort((a,b)=>Number(b.votes)-Number(a.votes));
-  const lines=people.map(c=>'<div class="statesCandidate"><span>'+safe(c.name)+'</span><span><b>'+percent(c.percentage)+'</b> <small>('+fmt.format(Number(c.votes||0))+' votos)</small></span></div>').join('');
+  const lines=people.map(c=>'<div class="statesCandidate"><span class="statesCandidateName">'+candidatePortrait(c,'presidente','xs')+'<span>'+safe(c.name)+'</span></span><span><b>'+percent(c.percentage)+'</b> <small>('+fmt.format(Number(c.votes||0))+' votos)</small></span></div>').join('');
   return '<article class="statesItem"><div class="statesItemTop"><strong>'+u+' · '+name+'</strong><span>'+percent(pct)+' apurado'+(x.stale?' · última leitura':'')+'</span></div><div class="statesProgress"><span style="width:'+Math.max(0,Math.min(100,pct))+'%"></span></div>'+(Number(x.validVotes)>0?lines:'<small>Sem votos totalizados neste estado.</small>')+'<div class="statesItemMeta"><span>'+fmt.format(Number(x.validVotes||0))+' votos válidos</span><span>'+fmt.format(Number(x.sectionsRemaining||0))+' seções restantes ('+percent(x.percentRemaining)+')</span></div></article>';
  }).join('');
 }
